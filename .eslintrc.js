@@ -7,6 +7,7 @@ module.exports = {
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
     "prettier",
+    "next/core-web-vitals",
   ],
   rules: {
     "@typescript-eslint/ban-ts-comment": "off",

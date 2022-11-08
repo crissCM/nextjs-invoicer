@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { FlexColumn, FlexRow } from "../../components/Common/Containers";
+import { FlexColumn, FlexRow } from "../Common/Containers";
 import { cryptoImage, IconsMap } from "./cryptocurrency-icons";
 
 interface CryptoIconProps {

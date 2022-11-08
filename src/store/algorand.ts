@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
+import store from "store";
+import type { AppDispatch } from ".";
 import { CHAIN_NETWORK_KEY, PROVIDER_KEY } from "../utils";
-import type { AppDispatch } from "./";
-
-const store = require("store");
 
 // Slice
 
+/* eslint-disable no-param-reassign */
 const slice = createSlice({
   name: "algorand",
   initialState: {
@@ -21,6 +21,7 @@ const slice = createSlice({
     },
   },
 });
+/* eslint-enable */
 
 export default slice.reducer;
 

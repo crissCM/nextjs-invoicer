@@ -3,6 +3,7 @@ import type { AppDispatch } from ".";
 
 // Slice
 
+/* eslint-disable no-param-reassign */
 const slice = createSlice({
   name: "reach",
   initialState: {
@@ -14,6 +15,7 @@ const slice = createSlice({
     },
   },
 });
+/* eslint-enable */
 
 export default slice.reducer;
 

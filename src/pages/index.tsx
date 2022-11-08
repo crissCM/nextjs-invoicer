@@ -9,8 +9,8 @@ export default function Home(props: any) {
 // It may be called again, on a serverless function, if
 // revalidation is enabled and a new request comes in
 export async function getStaticProps() {
-  //const res = await fetch('https://.../posts')
-  //const posts = await res.json()
+  // const res = await fetch('https://.../posts')
+  // const posts = await res.json()
   const nothing = "";
 
   return {

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import Button from "../../components/Forms/Button";
+import Button from "../Forms/Button";
 import { FlexColumn, FlexRow } from "./Containers";
 
 const ModalContainer = styled(FlexColumn)`

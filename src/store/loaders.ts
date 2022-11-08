@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { AppDispatch } from "./";
+import type { AppDispatch } from ".";
 
 // Slice
 
+/* eslint-disable no-param-reassign */
 const slice = createSlice({
   name: "loaders",
   initialState: {
@@ -14,6 +15,7 @@ const slice = createSlice({
     },
   },
 });
+/* eslint-enable */
 
 export default slice.reducer;
 
