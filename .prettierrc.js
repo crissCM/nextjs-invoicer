@@ -1,0 +1,6 @@
+module.exports = {
+    "singleQuote": false,
+    "trailingComma": "es5",
+    "arrowParens": "always",
+    "jsxBracketSameLine": true,
+}

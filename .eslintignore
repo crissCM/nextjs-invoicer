@@ -1,0 +1,15 @@
+# Ignore/Don't lint the following files 
+*.rsh
+*.po
+*.yml
+*.md
+*.scss
+Makefile
+Dockerfile
+src/reach/*.*
+src/reach/*
+src/components/Invoice/*
+src/utils/base32.ts
+src/utils/byteArray2hexStr.ts
+src/utils/sha512_256.ts
+src/validators/algo_validator.ts

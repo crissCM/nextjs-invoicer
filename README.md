@@ -1,34 +1,131 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# React + Reach Invoicer Application
 
-## Getting Started
+## What is it?
 
-First, run the development server:
+This Reach React project was created by [Headline Inc.](https://www.headline-inc.com) and it supports publishing invoice JSON data and even paying them on the Algorand blockchain.
 
-```bash
-npm run dev
-# or
-yarn dev
+The [Pipeline](https://github.com/headline-design/pipeline) library by [Headline](https://www.headline.dev) is used for the zero-transaction invoice notifications.
+
+The project is fundamentally based on the [React Reach Starter](https://github.com/MrJackdaw/reach-reactjs-starter) by @MrJackdaw.
+
+The invoicing generator is based on the [Invoice Generator](https://github.com/johnuberbacher/invoice-generator) by @johnuberbacher.
+
+## What does it contain?
+
+- Reach smart contract: src/reach/contracts/index.rsh
+- [Invoice Generator](https://github.com/johnuberbacher/invoice-generator) with [React Bootstrap](https://react-bootstrap.github.io)
+- [ReactJS](https://github.com/facebook/create-react-app) with [Typescript support](https://www.typescriptlang.org/): A popular front-end framework for building web applications
+- [Reach Language](https://docs.reach.sh/): A compiled language for building multi-chain smart contracts. This template includes **the JS dependency**, and [not the CLI](#installing-the-reach-cli).
+- [Cryptocurrency Icons](https://github.com/spothq/cryptocurrency-icons) as well as a single-file API (and ReactJS component) for using them
+- [Google's Material Icons](https://fonts.google.com/icons) for quick UI sugar
+- SASS (no pre-defined style libraries: you can `npm install` any additional dependencies.)
+- Typescript
+- [🦆 raphsducks](https://github.com/JACK-COM/raphsducks): an unopinonated state manager.
+- [🦆 reachduck](https://github.com/JACK-COM/reachduck): a simple API for interacting with the blockchain and/or a reach `stdlib` instance
+
+---
+
+## How do I use it?
+
+1. Clone the project
+2. `cd path/to/my-project`
+3. `rm -rf .git && git init` (create a fresh git repository for your project)
+4. `npm install`
+5. `npm run start` (launches at `localhost:3000`)
+
+Take a look at [Available Scripts](#available-scripts) for additional CLI commands.
+
+The maximum invoice size in bytes is **951**.
+**Please, enable popups for the wallet signing interactions!**
+
+To deploy the contract:
+
+1. App.tsx: 81 -> await ActivateContract(participants.Admin);
+2. state/index.ts: 21 -> appId: null as number | null,
+
+To attach to the contract:
+
+1. App.tsx: 71 -> await ActivateContract(participants.Invoicer);
+2. state/index.ts: 48 -> appId: [appId] as number | null,
+
+### Reach Helpers
+
+This project includes some helpful bits, including
+
+- A self-contained [state instance](https://github.com/JACK-COM/raphsducks). You can subscribe to it like any other state.
+- A `connect` button that will automatically trigger a wallet connection.\
+   Default network is Algorand, but if your `stdlib` instance is using `ETH`, it will trigger MetaMask.
+- A stub `Reach` application to get you started on your multichain smart contracts. I personally use the directory to store my compiled contracts.
+- A [light API](https://www.npmjs.com/package/@jackcom/reachduck#methods) for interacting with your `@reach/stdlib` instance.
+
+---
+
+## Additional Notes
+
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). It does not use any `react-script` or `webpack` configuration overrides.
+
+### Reach CLI
+
+**Note:** If you don't have the `reach` compiler installed, run this in your project directory to download it (and make the downloaded item executable)
+
+```
+  $ curl https://docs.reach.sh/reach -o reach ; chmod +x reach
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Learn more [here](https://docs.reach.sh/index.html).
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+---
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Available Scripts
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+In the src/reach/contracts/ directory, you can run the follwing to compile the index.rsh file:
 
-## Learn More
+### `reach compile`
 
-To learn more about Next.js, take a look at the following resources:
+In the project directory, you can run:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### `npm start`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Runs the app in the development mode at [http://localhost:3000](http://localhost:3000).
 
-## Deploy on Vercel
+### `npm test`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm run eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+
+### Learn More about React
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/). Some other helpful topics:
+
+- [Code Splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- [Analyzing the Bundle Size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- [Making a Progressive Web App](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- [Advanced Configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- [Deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- [`npm run build` fails to minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+---
+
+### 🤝
+
+Special thanks to @MrJackdaw and the always supportive Algorand and Reach community!

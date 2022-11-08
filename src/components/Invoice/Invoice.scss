@@ -1,0 +1,11 @@
+.InvoiceForm {
+  .form-control::-webkit-input-placeholder {
+    color: #6C757DFF;
+  }
+  .InvoiceItemQtyField {
+    min-width: 85px
+  }
+  .InvoiceItemPriceField {
+    min-width: 140px
+  }
+}

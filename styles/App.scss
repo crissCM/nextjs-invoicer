@@ -1,0 +1,92 @@
+@import "css/mixins.scss";
+@import "css/reset.scss";
+@import "css/animations.scss";
+
+/* ************************ COLOR ************************ */
+
+// MyInvoices
+$unpaid: #ec4e20;
+$paid: #048ba8;
+$canceled: #2c363f;
+
+/* ************************ SIZE ************************ */
+
+// MyInvoices
+$rowTextWeight: 600;
+
+/* ************************ OTHER ************************ */
+
+.fullScreenLoading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2147483647;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  font-size: 38px;
+  letter-spacing: 5px;
+  text-align: center;
+  color: white;
+  .loadingSpinner {
+    position: absolute;
+    top: 50%;
+  }
+}
+
+.App {
+  padding: 0;
+  text-align: center;
+  overflow-x: hidden;
+  .commonLink {
+    display: inline-block;
+    margin-top: 2px;
+    margin-bottom: 12px;
+  }
+  .TextScroller {
+    background-color: #2958ff;
+    color: white;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 26px;
+    padding: 0 6px;
+  }
+  .HeaderContainer {
+    padding: 14px;
+    .AppLogo {
+      width: 75px;
+      height: 75px;
+    }
+  }
+  .ConnectOptionsDiv {
+    margin-top: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: spin infinite 20s linear;
+  }
+}
+
+@media (max-width: 650px) {
+  .h1-invoicer {
+    display: flex !important;
+    flex-direction: column !important;
+    margin: 0 auto;
+    margin-bottom: 1rem;
+    width: unset !important;
+  }
+}
+.h1-invoicer {
+  width: 100%;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+/* ************************ MY STYLES ************************ */
+
+@import "../src/components/Invoice/Invoice.scss";
+@import "../src/components/Invoice/MyInvoices/MyInvoices.scss";
