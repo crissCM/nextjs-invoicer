@@ -5,7 +5,6 @@
   "dependencies": {
     "@jackcom/raphsducks": "^2.0.1",
     "@jackcom/reachduck": "^0.3.0",
-    "@pipeline-ui-2/pipeline": "^1.7.5",
     "@randlabs/myalgo-connect": "^1.4.1",
     "@reach-sh/stdlib": "^0.1.10-rc.4",
     "@reduxjs/toolkit": "^1.8.5",

@@ -1,5 +1,4 @@
 import { checkSessionExists } from "@jackcom/reachduck";
-import Pipeline from "@pipeline-ui-2/pipeline";
 import { version } from "../../package.json";
 import store from "../state";
 
@@ -129,7 +128,7 @@ export async function pipelineSend(
     const walletProvider = isWCSession
       ? PipelineProviders.WalletConnect
       : PipelineProviders.MyAlgo;
-    Pipeline.pipeConnector = walletProvider;
+    /* TODO Pipeline.pipeConnector = walletProvider;
     Pipeline.address = address;
     return Pipeline.send(
       recipientAddress,
@@ -138,7 +137,7 @@ export async function pipelineSend(
       address,
       null,
       0
-    );
+    );*/
   }
   return null;
 }
