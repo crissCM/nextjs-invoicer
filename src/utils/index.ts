@@ -5,6 +5,12 @@ import store from "../state";
 /* ----- Constants ----- */
 export const CHAIN_NETWORK_KEY = "mainNet";
 export const PROVIDER_KEY = "provider";
+export const ADDRESS_KEY = "address";
+export const THEME_KEY = "theme";
+export const THEME = {
+  LIGHT: "light",
+  DARK: "dark",
+};
 
 export const BlockchainNetwork: any = {
   TestNet: "TestNet",
@@ -189,3 +195,11 @@ export const truncString = (str: string, max = 28, add = "...") =>
   typeof str === "string" && str.length > max
     ? str.substring(0, max) + add
     : str;
+
+export async function copyTextToClipboard(text: string) {
+  if ("clipboard" in navigator) {
+    return await navigator.clipboard.writeText(text);
+  } else {
+    return document.execCommand("copy", true, text);
+  }
+}

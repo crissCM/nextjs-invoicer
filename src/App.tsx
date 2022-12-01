@@ -69,11 +69,10 @@ function App() {
   return (
     <div>
       <ActiveNotifications />
-
       <React.Suspense fallback={<FullScreenLoader />}>
         <section className="App">
           {loading && (
-            <div className="fullScreenLoading">
+            <div className="FullScreenLoading">
               <Spinner
                 className="loadingSpinner"
                 animation="border"

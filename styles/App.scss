@@ -1,6 +1,6 @@
-@import "css/mixins.scss";
-@import "css/reset.scss";
-@import "css/animations.scss";
+@import "mixins.scss";
+@import "reset.scss";
+@import "animations.scss";
 
 /* ************************ COLOR ************************ */
 
@@ -15,24 +15,6 @@ $canceled: #2c363f;
 $rowTextWeight: 600;
 
 /* ************************ OTHER ************************ */
-
-.fullScreenLoading {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 2147483647;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  font-size: 38px;
-  letter-spacing: 5px;
-  text-align: center;
-  color: white;
-  .loadingSpinner {
-    position: absolute;
-    top: 50%;
-  }
-}
 
 .App {
   padding: 0;
@@ -60,6 +42,23 @@ $rowTextWeight: 600;
   }
   .ConnectOptionsDiv {
     margin-top: 10px;
+  }
+  .FullScreenLoading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2147483647;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    font-size: 38px;
+    letter-spacing: 5px;
+    text-align: center;
+    color: white;
+    .loadingSpinner {
+      position: absolute;
+      top: 50%;
+    }
   }
 }
 

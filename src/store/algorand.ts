@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import store from "store";
 import type { AppDispatch } from ".";
-import { CHAIN_NETWORK_KEY, PROVIDER_KEY } from "../utils";
+import { ADDRESS_KEY, CHAIN_NETWORK_KEY, PROVIDER_KEY } from "../utils";
 
 // Slice
 
@@ -11,6 +11,7 @@ const slice = createSlice({
   initialState: {
     isMainNet: store.get(CHAIN_NETWORK_KEY) ?? true,
     provider: store.get(PROVIDER_KEY) || "",
+    address: store.get(ADDRESS_KEY) || "",
   },
   reducers: {
     changeChainNetwork: (state, action) => {
@@ -18,6 +19,9 @@ const slice = createSlice({
     },
     changeProvider: (state, action) => {
       state.provider = action.payload;
+    },
+    changeAddress: (state, action) => {
+      state.address = action.payload;
     },
   },
 });
@@ -27,7 +31,7 @@ export default slice.reducer;
 
 // Actions
 
-const { changeChainNetwork, changeProvider } = slice.actions;
+const { changeChainNetwork, changeProvider, changeAddress } = slice.actions;
 
 export const updateChainNetwork =
   (isMainNet: boolean) => async (dispatch: AppDispatch) => {
@@ -36,7 +40,13 @@ export const updateChainNetwork =
   };
 
 export const updateProvider =
-  (provider: boolean) => async (dispatch: AppDispatch) => {
+  (provider: string) => async (dispatch: AppDispatch) => {
     store.set(PROVIDER_KEY, provider);
     dispatch(changeProvider(provider));
+  };
+
+export const updateAddress =
+  (address: string) => async (dispatch: AppDispatch) => {
+    store.set(ADDRESS_KEY, address);
+    dispatch(changeAddress(address));
   };

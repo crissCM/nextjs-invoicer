@@ -36,6 +36,7 @@
     "react-spring": "^9.4.4",
     "store": "^2.0.12",
     "styled-components": "^5.3.5",
+    "toastr": "^2.1.4",
     "typescript": "4.8.4",
     "web-vitals": "^1.1.2"
   },

@@ -1,13 +1,17 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { combineReducers } from "redux";
 import algorand from "./algorand";
+import auth from "./auth";
 import loaders from "./loaders";
 import reach from "./reach";
+import ui from "./ui";
 
 const reducer = combineReducers({
   algorand,
   loaders,
   reach,
+  auth,
+  ui,
 });
 
 const store = configureStore({
