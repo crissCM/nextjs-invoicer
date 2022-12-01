@@ -8,6 +8,7 @@
     "@randlabs/myalgo-connect": "^1.4.1",
     "@reach-sh/stdlib": "^0.1.10-rc.4",
     "@reduxjs/toolkit": "^1.8.5",
+    "@txnlab/use-wallet": "^0.1.23",
     "@types/node": "18.11.9",
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.8",
@@ -46,9 +47,7 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "pre-commit": [
-    "lint"
-  ],
+
   "browserslist": {
     "production": [
       ">0.2%",
