@@ -109,6 +109,7 @@ const Home = () => {
       try {
         setClickListenerToQrCloseButton();
         const currentAccount = await pipelineConnect(isMainNet, provider);
+        console.log("currentAccount:", currentAccount);
         if (currentAccount) {
           const result = await ActivateContract(
             participants.Invoicer,

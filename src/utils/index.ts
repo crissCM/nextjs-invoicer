@@ -98,7 +98,7 @@ export const Providers = {
 
 export const PipelineProviders = {
   WalletConnect: "WalletConnect",
-  MyAlgo: "myAlgoWallet",
+  MyAlgo: "MyAlgo Wallet",
 };
 
 export const getProvider = (type: boolean) =>
