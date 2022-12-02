@@ -28,7 +28,6 @@ function WalletModal() {
       !!activeAccount.address &&
       !!activeAccount.providerId
     ) {
-      console.log("p:", activeAccount.providerId);
       dispatch(updateAddress(activeAccount.address));
       dispatch(updateProvider(activeAccount.providerId));
     }
