@@ -6,11 +6,13 @@ import {
   optInToAsset,
   reconnectUser,
   tokenMetadata as getReachToken,
+  ReachEnvOpts,
 } from "@jackcom/reachduck";
 import { ReachAccount, ReachToken } from "@jackcom/reachduck/lib/types";
 import MyAlgoConnect from "@randlabs/myalgo-connect";
 import {
   ALGO_WalletConnect as WalletConnect,
+  ALGO_PeraConnect as PeraWallet,
   loadStdlib,
 } from "@reach-sh/stdlib";
 import store, {
@@ -115,7 +117,7 @@ export async function checkHasToken(token: any) {
 
 /** Initialize the `stdlib` instance according to the wallet provider. */
 function configureWalletProvider(pr: string, isMainNet: boolean) {
-  if (!Object.values(PipelineProviders).includes(pr)) {
+  if (!Object.values(Providers).includes(pr)) {
     addNotification(`❌ ${pr} wallet is not supported by Reach.`);
     return;
   }
@@ -127,19 +129,31 @@ function configureWalletProvider(pr: string, isMainNet: boolean) {
     isMainNet ? BlockchainNetwork.MainNet : BlockchainNetwork.TestNet
   ).toLowerCase();
 
-  const opts: any = {
-    walletFallback: fallback,
+  const opts: ReachEnvOpts = {
     network: isMainNet ? BlockchainNetwork.MainNet : BlockchainNetwork.TestNet,
   };
 
+  switch (pr) {
+    case Providers.Pera: {
+      opts.walletFallback = { WalletConnect: PeraWallet };
+      break;
+    }
+    case Providers.WalletConnect: {
+      opts.walletFallback = { WalletConnect };
+      break;
+    }
+    default:
+      opts.walletFallback = { MyAlgoConnect };
+      break;
+  }
+
+  const store = require("store");
+
   if (
-    localStorage.getItem(APP_INDEXER_KEY) !== null &&
-    localStorage.getItem(APP_INDEXER_KEY) !== DEFAULT_INDEXER
+    store.get(APP_INDEXER_KEY) !== null &&
+    store.get(APP_INDEXER_KEY) !== DEFAULT_INDEXER
   ) {
-    opts.providerEnv = IndexerProps(
-      String(localStorage.getItem(APP_INDEXER_KEY)),
-      net
-    );
+    opts.providerEnv = IndexerProps(String(store.get(APP_INDEXER_KEY)), net);
   }
 
   loadReachWithOpts(loadStdlib, opts);

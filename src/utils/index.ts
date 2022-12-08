@@ -94,6 +94,7 @@ export const participants = {
 export const Providers = {
   WalletConnect: "WalletConnect",
   MyAlgo: "MyAlgo",
+  Pera: "PeraConnect",
 };
 
 export const PipelineProviders = {
@@ -112,7 +113,8 @@ export const delay = async (ms: number) =>
 /** App Migration helper: check if your app version has changed */
 export async function checkVersionChanged() {
   const currentVersion = APP_VERSION;
-  const lastVersion = localStorage.getItem(APP_VERSION_KEY);
+  const store = require("store");
+  const lastVersion = store.get(APP_VERSION_KEY);
   return currentVersion !== lastVersion;
 }
 
