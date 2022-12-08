@@ -1,6 +1,8 @@
 import {
-  checkSessionExists,
+  ReachAccount,
+  ReachToken,
   connectUser,
+  checkSessionExists,
   disconnectUser,
   loadReachWithOpts,
   optInToAsset,
@@ -8,7 +10,6 @@ import {
   tokenMetadata as getReachToken,
   ReachEnvOpts,
 } from "@jackcom/reachduck";
-import { ReachAccount, ReachToken } from "@jackcom/reachduck/lib/types";
 import MyAlgoConnect from "@randlabs/myalgo-connect";
 import {
   ALGO_WalletConnect as WalletConnect,

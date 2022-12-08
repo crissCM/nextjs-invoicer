@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@jackcom/raphsducks": "^2.0.1",
-    "@jackcom/reachduck": "^0.4.3",
+    "@jackcom/reachduck": "^0.4.5",
     "@randlabs/myalgo-connect": "^1.4.1",
     "@reach-sh/stdlib": "0.1.11-rc.6",
     "@reduxjs/toolkit": "^1.8.5",
