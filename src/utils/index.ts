@@ -1,6 +1,7 @@
 import { checkSessionExists } from "@jackcom/reachduck";
 import { version } from "../../package.json";
 import store from "../state";
+import localStore from "store";
 
 /* ----- Constants ----- */
 export const CHAIN_NETWORK_KEY = "mainNet";
@@ -113,8 +114,7 @@ export const delay = async (ms: number) =>
 /** App Migration helper: check if your app version has changed */
 export async function checkVersionChanged() {
   const currentVersion = APP_VERSION;
-  const store = require("store");
-  const lastVersion = store.get(APP_VERSION_KEY);
+  const lastVersion = localStore.get(APP_VERSION_KEY);
   return currentVersion !== lastVersion;
 }
 

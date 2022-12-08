@@ -30,6 +30,7 @@ import {
   PipelineProviders,
   Providers,
 } from "../utils";
+import localStore from "store";
 
 /** Connect user Wallet */
 export async function connect(provider: string, isMainNet: boolean) {
@@ -148,11 +149,9 @@ function configureWalletProvider(pr: string, isMainNet: boolean) {
       break;
   }
 
-  const store = require("store");
-
   if (
-    store.get(APP_INDEXER_KEY) !== null &&
-    store.get(APP_INDEXER_KEY) !== DEFAULT_INDEXER
+    localStore.get(APP_INDEXER_KEY) !== null &&
+    localStore.get(APP_INDEXER_KEY) !== DEFAULT_INDEXER
   ) {
     opts.providerEnv = IndexerProps(String(store.get(APP_INDEXER_KEY)), net);
   }

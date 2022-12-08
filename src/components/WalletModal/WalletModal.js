@@ -61,7 +61,7 @@ function WalletModal() {
             {providers.map(
               (provider) =>
                 walletIds.includes(provider.id) && (
-                  <div key={"provider-" + provider.id}>
+                  <div key={`provider-${provider.id}`}>
                     <h4>
                       <img width={30} height={30} src={provider.icon} />
                       {provider.name} {provider.isActive && "[active]"}
@@ -90,7 +90,7 @@ function WalletModal() {
                           }>
                           {provider.accounts.map((account) => (
                             <option
-                              key={"account-" + account.id}
+                              key={`account-${account.id}`}
                               value={account.address}>
                               {account.address}
                             </option>

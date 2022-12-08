@@ -12,8 +12,7 @@ import {
 } from "../../utils";
 import InvoiceItem from "./InvoiceItem";
 import InvoiceModal from "./InvoiceModal";
-
-const store = require("store");
+import localStore from "store";
 
 const InvoiceForm = () => {
   const getInitialLengthCounter = () => {
@@ -177,7 +176,7 @@ const InvoiceForm = () => {
 
   const onIndexerChange = (selectedOption) => {
     if (typeof window !== "undefined") {
-      store.set(APP_INDEXER_KEY, selectedOption.indexer);
+      localStore.set(APP_INDEXER_KEY, selectedOption.indexer);
       window.location.reload();
     }
   };
@@ -444,7 +443,7 @@ const InvoiceForm = () => {
                     indexer: event.target.value,
                   })
                 }
-                value={store.get(APP_INDEXER_KEY) ?? DEFAULT_INDEXER}
+                value={localStore.get(APP_INDEXER_KEY) ?? DEFAULT_INDEXER}
                 className="btn btn-light my-1"
                 aria-label="Change Indexer">
                 <option value={`${Indexers.AlgoExplorer}`}>

@@ -1,21 +1,20 @@
 import { useState } from "react";
 import { THEME, THEME_KEY } from "src/utils";
-
-const store = require("store");
+import localStore from "store";
 
 const DarkMode = () => {
   const [theme, setTheme] = useState(THEME.DARK);
 
   const setDark = () => {
-    store.set(THEME_KEY, THEME.DARK);
+    localStore.set(THEME_KEY, THEME.DARK);
   };
 
   const setLight = () => {
-    store.set(THEME_KEY, THEME.LIGHT);
+    localStore.set(THEME_KEY, THEME.LIGHT);
   };
 
   const toggleTheme = (e: any) => {
-    const storedTheme = store.get(THEME_KEY);
+    const storedTheme = localStore.get(THEME_KEY);
     if (storedTheme === THEME.LIGHT || storedTheme === null) {
       setDark();
       setTheme(THEME.DARK);
