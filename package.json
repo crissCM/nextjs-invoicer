@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@jackcom/raphsducks": "^2.0.1",
+    "@jackcom/raphsducks": "^2.0.6",
     "@jackcom/reachduck": "^0.5.0",
     "@randlabs/myalgo-connect": "^1.4.1",
     "@reach-sh/stdlib": "0.1.12-rc.9",
@@ -47,6 +47,9 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "pre-commit": [
+    "lint"
+  ],
   "browserslist": {
     "production": [
       ">0.2%",

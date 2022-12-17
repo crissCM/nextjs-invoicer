@@ -80,7 +80,7 @@ const initialState = {
 
 type GState = typeof initialState;
 /** Your global application state. Add any properties you need here */
-const store = createState(initialState);
+const store = createState<GState>(initialState);
 
 export default store;
 

@@ -28,13 +28,13 @@ const DarkMode = () => {
     <div className="toggle-theme-wrapper">
       <label className="dropdown-item" htmlFor="checkbox">
         {theme === "dark" ? (
-          <div className="lightmode-toggle" onClick={toggleTheme}>
+          <button className="lightmode-toggle" onClick={toggleTheme}>
             <i id="sun" className="fas fa-sun" /> Lightmode
-          </div>
+          </button>
         ) : (
-          <div className="darkmode-toggle" onClick={toggleTheme}>
+          <button className="darkmode-toggle" onClick={toggleTheme}>
             <i id="moon" className="fas fa-moon" /> Darkmode
-          </div>
+          </button>
         )}
       </label>
     </div>

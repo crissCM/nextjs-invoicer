@@ -1,7 +1,7 @@
 import { checkSessionExists } from "@jackcom/reachduck";
+import localStore from "store";
 import { version } from "../../package.json";
 import store from "../state";
-import localStore from "store";
 
 /* ----- Constants ----- */
 export const CHAIN_NETWORK_KEY = "mainNet";
@@ -198,10 +198,9 @@ export const truncString = (str: string, max = 28, add = "...") =>
     ? str.substring(0, max) + add
     : str;
 
-export async function copyTextToClipboard(text: string) {
+export function copyTextToClipboard(text: string) {
   if ("clipboard" in navigator) {
-    return await navigator.clipboard.writeText(text);
-  } else {
-    return document.execCommand("copy", true, text);
+    return navigator.clipboard.writeText(text);
   }
+  return document.execCommand("copy", true, text);
 }
