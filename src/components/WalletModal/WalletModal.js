@@ -48,7 +48,7 @@ function WalletModal() {
             {providers?.map(
               (provider) =>
                 walletIds.includes(provider.id) && (
-                  <div key={"provider-" + provider.metadata.id}>
+                  <div key={`provider-${provider.metadata.id}`}>
                     <h4>
                       <img
                         width={30}

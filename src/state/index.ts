@@ -7,8 +7,8 @@ import { NETWORKS } from "@jackcom/reachduck";
 const MAX_BYTES_LENGTH = 943;
 
 export const Contracts = {
-  MainNet: null, //730196316,
-  TestNet: null, //88194965,
+  MainNet: null, // 730196316,
+  TestNet: null, // 88194965,
 };
 
 const initialState = {
