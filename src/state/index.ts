@@ -125,7 +125,7 @@ export function resetNotifications(msg?: string, persist = false) {
 
 export function removeNotification(
   msg: Alert,
-  additional: Partial<GState> = {}
+  additional: Partial<GlobalStore> = {}
 ) {
   const { notifications } = store.getState();
   const i = notifications.findIndex((n) => n.time === msg.time);
@@ -139,7 +139,7 @@ export function removeNotification(
 export function updateAsError(
   id: number | null,
   msg: string,
-  additional: Partial<GState> = {}
+  additional: Partial<GlobalStore> = {}
 ) {
   const { notifications } = store.getState();
   const msgIndex = notifications.findIndex(({ time }) => time === id);
@@ -158,7 +158,7 @@ export function updateNotification(
   id: number | null,
   msg: string,
   persist = false,
-  additional: Partial<GState> = {}
+  additional: Partial<GlobalStore> = {}
 ) {
   const { notifications } = store.getState();
   const i = notifications.findIndex(({ time }) => time === id);
