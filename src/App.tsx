@@ -8,13 +8,20 @@ import Home from "./routes/Home";
 import store, { Contracts } from "./state";
 import { useAppSelector } from "./store/hooks";
 import { ERROR_QRCODE_MODAL_USER_CLOSED, getProvider } from "./utils";
+import {
+  reconnectProviders,
+  initializeProviders,
+  WalletProvider,
+} from "@txnlab/use-wallet";
+
+const walletProviders = initializeProviders();
 
 function App() {
   const { account } = store.getState();
   const { isMainNet } = useAppSelector((state) => state.algorand);
   const { reachDisconnectedTime } = useAppSelector((state) => state.reach);
   const [loading, setLoading] = useState(false);
-  const [appId, setAppId] = useState(Contracts.MainNet);
+  const [appId, setAppId] = useState<number | null>(Contracts.MainNet);
 
   /* Wallet Connect QR modal dismissal listener */
   if (typeof window !== "undefined") {
@@ -42,6 +49,11 @@ function App() {
     };
   });
 
+  // Reconnect the session when the user returns to the dApp
+  useEffect(() => {
+    reconnectProviders(walletProviders);
+  }, []);
+
   useEffect(() => {
     if (appId && account && getProvider(isMainNet) !== getBlockchainNetwork()) {
       store.appId(isMainNet ? Contracts.MainNet : Contracts.TestNet);
@@ -67,24 +79,26 @@ function App() {
   }
 
   return (
-    <div>
-      <ActiveNotifications />
-      <React.Suspense fallback={<FullScreenLoader />}>
-        <section className="App">
-          {loading && (
-            <div className="FullScreenLoading">
-              <Spinner
-                className="loadingSpinner"
-                animation="border"
-                role="status">
-                <span className="visually-hidden">Loading...</span>
-              </Spinner>
-            </div>
-          )}
-          <Home />
-        </section>
-      </React.Suspense>
-    </div>
+    <WalletProvider value={walletProviders}>
+      <div>
+        <ActiveNotifications />
+        <React.Suspense fallback={<FullScreenLoader />}>
+          <section className="App">
+            {loading && (
+              <div className="FullScreenLoading">
+                <Spinner
+                  className="loadingSpinner"
+                  animation="border"
+                  role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </Spinner>
+              </div>
+            )}
+            <Home />
+          </section>
+        </React.Suspense>
+      </div>
+    </WalletProvider>
   );
 }
 

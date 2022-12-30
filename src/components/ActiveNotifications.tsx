@@ -1,14 +1,14 @@
-import styled from 'styled-components';
-import useGlobalNotifications from '../hooks/GlobalNotifications';
-import { Alert } from '../state';
-import { FlexColumn } from './Common/Containers';
-import { AutoDismissNotification } from './Common/Notifications';
+import styled from "styled-components";
+import useGlobalNotifications from "../hooks/GlobalNotifications";
+import { Alert } from "../state";
+import { FlexColumn } from "./Common/Containers";
+import { AutoDismissNotification } from "./Common/Notifications";
 
 const NotificationGroup = styled(FlexColumn)`
   bottom: 1rem;
+  height: 40vmin;
   left: 50%;
   margin: 0 auto 0 -300px;
-  height: 40vmin;
   max-width: 600px;
   overflow: hidden auto;
   padding: 10px;
@@ -22,8 +22,7 @@ const NotificationGroup = styled(FlexColumn)`
 `;
 
 const ActiveNotifications = styled(() => {
-  const { lastTenNotifications: msgs } =
-    useGlobalNotifications();
+  const { lastTenNotifications: msgs } = useGlobalNotifications();
   if (!msgs.length) return <></>;
   const timeout = (m: Alert) => (m.error ? 30000 : 5000);
 

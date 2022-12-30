@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useConnectWallet } from "@txnlab/use-wallet";
 import { Button, Modal } from "react-bootstrap";
 import { useAppDispatch } from "src/store/hooks";
 import { updateAddress, updateProvider } from "src/store/algorand";
+import { useWallet } from "@txnlab/use-wallet";
 
 const walletIds = [
   "Pera Wallet",
@@ -14,13 +14,7 @@ const walletIds = [
 function WalletModal() {
   const dispatch = useAppDispatch();
   const [show, setShow] = useState(false);
-  const { providers, reconnectProviders, accounts, activeAccount } =
-    useConnectWallet();
-
-  // Reconnect the session when the user returns to the dApp
-  useEffect(() => {
-    reconnectProviders();
-  }, []);
+  const { providers, activeAccount } = useWallet();
 
   useEffect(() => {
     if (
@@ -32,13 +26,6 @@ function WalletModal() {
       dispatch(updateProvider(activeAccount.providerId));
     }
   }, [activeAccount]);
-
-  // Use these properties to display connected accounts to users.
-  // They are reactive and presisted to local storage.
-  useEffect(() => {
-    console.log("connected accounts", accounts);
-    console.log("active account", activeAccount);
-  });
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -58,13 +45,18 @@ function WalletModal() {
         </Modal.Header>
         <Modal.Body>
           <div>
-            {providers.map(
+            {providers?.map(
               (provider) =>
                 walletIds.includes(provider.id) && (
-                  <div key={`provider-${provider.id}`}>
+                  <div key={"provider-" + provider.metadata.id}>
                     <h4>
-                      <img width={30} height={30} src={provider.icon} />
-                      {provider.name} {provider.isActive && "[active]"}
+                      <img
+                        width={30}
+                        height={30}
+                        alt=""
+                        src={provider.metadata.icon}
+                      />
+                      {provider.metadata.name} {provider.isActive && "[active]"}
                     </h4>
                     <div>
                       <button
@@ -75,28 +67,30 @@ function WalletModal() {
                       <button
                         onClick={provider.disconnect}
                         disabled={!provider.isConnected}>
-                        Disonnect
+                        Disconnect
                       </button>
                       <button
-                        onClick={provider.setActive}
+                        onClick={provider.setActiveProvider}
                         disabled={!provider.isConnected || provider.isActive}>
                         Set Active
                       </button>
-                      {provider.isActive && provider.accounts.length && (
-                        <select
-                          value={provider.activeAccount?.address}
-                          onChange={(e) =>
-                            provider.selectAccount(e.target.value)
-                          }>
-                          {provider.accounts.map((account) => (
-                            <option
-                              key={`account-${account.id}`}
-                              value={account.address}>
-                              {account.address}
-                            </option>
-                          ))}
-                        </select>
-                      )}
+                      <div>
+                        {provider.isActive && provider.accounts.length && (
+                          <select
+                            value={activeAccount?.address}
+                            onChange={(e) =>
+                              provider.setActiveAccount(e.target.value)
+                            }>
+                            {provider.accounts.map((account) => (
+                              <option
+                                key={account.address}
+                                value={account.address}>
+                                {account.address}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )

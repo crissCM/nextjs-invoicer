@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import store from '../state';
+import { useEffect, useState } from "react";
+import store from "../state";
 
 /**
  * Listen for specific `User` data from global state. You can modify this,
@@ -17,21 +17,17 @@ export function useGlobalUser() {
     loading: gState.loading,
     error: gState.error,
   });
-  const onAppState = (s: S) =>
-    setState((prev) => ({ ...prev, ...s }));
+  const onAppState = (s: S) => setState((prev) => ({ ...prev, ...s }));
   const userKeys: (keyof S)[] = [
-    'address',
-    'account',
-    'assets',
-    'loading',
-    'error',
+    "address",
+    "account",
+    "assets",
+    "loading",
+    "error",
   ];
 
   // Subscribe to global state, and unsubscribe on component unmount
-  useEffect(
-    () => store.subscribeToKeys(onAppState, userKeys),
-    [],
-  );
+  useEffect(() => store.subscribeToKeys(onAppState, userKeys), []);
 
   return { ...state };
 }

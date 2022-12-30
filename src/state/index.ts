@@ -4,11 +4,11 @@ import { NETWORKS } from "@jackcom/reachduck";
 /**
  * The Reach contract maximum Bytes length. You only need to change it here if it changes in the contract.
  */
-const MAX_BYTES_LENGTH = 951;
+const MAX_BYTES_LENGTH = 943;
 
 export const Contracts = {
-  MainNet: 730196316,
-  TestNet: 88194965,
+  MainNet: null, //730196316,
+  TestNet: null, //88194965,
 };
 
 const initialState = {
@@ -51,7 +51,7 @@ const initialState = {
    */
   maxBytesLength: MAX_BYTES_LENGTH,
 
-  /** The input invoice json max byte size. Algorand has 1024 bytes maximum size of note. The Reach contract allows max 951, additional json characters are substracted from this value.
+  /** The input invoice json max byte size. Algorand has 1024 bytes maximum size of note. The Reach contract allows max 943, additional json characters are substracted from this value.
    * 201 is subtracted to make it'll stay under the Reach contract byte limit. Because 1 character is not necessarily 1 byte.
    * Algorand UInt.max: 2^64-1 = 18446744000000000000 (20 characters)
    * Leading - trailing json characters: {"":{}} (7 characters)

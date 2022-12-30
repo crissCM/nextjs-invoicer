@@ -43,6 +43,8 @@ sketch
 reach
 !reach/
 /build/
+src/reach/contracts/build/index.main.app*
+src/reach/contracts/build/index.main.sol*
 
 # React Reach project
 
