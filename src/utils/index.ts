@@ -95,7 +95,7 @@ export const participants = {
 export const Providers = {
   WalletConnect: "WalletConnect",
   MyAlgo: "MyAlgo",
-  Pera: "PeraConnect",
+  PeraConnect: "PeraConnect",
 };
 
 export const PipelineProviders = {

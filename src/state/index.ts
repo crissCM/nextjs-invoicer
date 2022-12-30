@@ -78,11 +78,17 @@ const initialState = {
   refreshInvoicesTable: false,
 };
 
-type GState = typeof initialState;
-/** Your global application state. Add any properties you need here */
-const store = createState<GState>(initialState);
-
+/**
+ * Your global application state `instance`. Every property in `initialState`
+ * will become a method the state `instance`, so e.g. to update `appsCount`, you
+ * call `store.appsCount( number )`. You can create as many state instances as
+ * you need.
+ */
+const store = createState(initialState);
 export default store;
+
+export type GlobalStore = ReturnType<typeof store.getState>;
+export type GlobalStoreKey = keyof GlobalStore;
 
 export type Alert = {
   msg: string;

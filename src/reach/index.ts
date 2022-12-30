@@ -11,9 +11,9 @@ import {
   ReachEnvOpts,
 } from "@jackcom/reachduck";
 import MyAlgoConnect from "@randlabs/myalgo-connect";
+import PeraConnect from "../utils/WC/PeraConnect";
 import {
   ALGO_WalletConnect as WalletConnect,
-  ALGO_PeraConnect as PeraWallet,
   loadStdlib,
 } from "@reach-sh/stdlib";
 import store, {
@@ -136,12 +136,12 @@ function configureWalletProvider(pr: string, isMainNet: boolean) {
   };
 
   switch (pr) {
-    case Providers.Pera: {
-      opts.walletFallback = { WalletConnect: PeraWallet };
-      break;
-    }
     case Providers.WalletConnect: {
       opts.walletFallback = { WalletConnect };
+      break;
+    }
+    case Providers.PeraConnect: {
+      opts.walletFallback = { WalletConnect: PeraConnect };
       break;
     }
     default:
