@@ -1,6 +1,6 @@
 import { checkSessionExists } from "@jackcom/reachduck";
 import localStore from "store";
-import { version } from "../../package.json";
+import manifest from "../../package.json";
 import store from "../state";
 
 /* ----- Constants ----- */
@@ -72,7 +72,7 @@ export const newItemLength = 29;
 
 export const noOp = () => null;
 
-export const APP_VERSION = version;
+export const APP_VERSION = manifest.version;
 
 /** Local Storage keys */
 const APP_VERSION_KEY = "app-version";

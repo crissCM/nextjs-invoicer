@@ -11,6 +11,9 @@ export const Contracts = {
   TestNet: null, // 88194965,
 };
 
+/**
+ * This is your state definition. Add any properties you need here.
+ */
 const initialState = {
   /** Reach `networkAccount` instance */
   account: null as any | null,

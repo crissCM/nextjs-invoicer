@@ -7,7 +7,7 @@ import { useWallet } from "@txnlab/use-wallet";
 const walletIds = [
   "Pera Wallet",
   "MyAlgo Wallet",
-  "Algo Signer",
+  // TODO wait for Starter support "Algo Signer",
   "Wallet Connect",
 ];
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Toast } from "react-bootstrap";
 import styled from "styled-components";
 import { Alert, removeNotification } from "../../state";
@@ -7,6 +7,12 @@ import { notificationTitle } from "../../utils";
 const Notification = styled((props: NotificationProps) => {
   const { error, notification } = props;
   const [showNoti, setShowNoti] = useState(true);
+
+  const msg = useMemo(() => {
+    if (typeof notification === "string") return notification;
+    if ((notification as Alert).msg) return notification?.msg;
+    return "";
+  }, []);
 
   const toggleShowNoti = () => setShowNoti(!showNoti);
 
@@ -17,12 +23,16 @@ const Notification = styled((props: NotificationProps) => {
       bg={`${error ? "warning" : "info"}`}
       onClose={toggleShowNoti}>
       <Toast.Header>
-        <img src="images/invoicer/invoicer-noti-icon.png" className="rounded me-2" alt="" />
+        <img
+          src="images/invoicer/invoicer-noti-icon.png"
+          className="rounded me-2"
+          alt=""
+        />
         <strong className="text-dark me-auto">{notificationTitle}</strong>
         <small className="text-muted">{`${error ? "Error" : "Info"}`}</small>
       </Toast.Header>
       <Toast.Body>
-       <span className="text-dark">{notification}</span>
+        <span className="text-dark">{msg}</span>
       </Toast.Body>
     </Toast>
   );
