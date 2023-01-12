@@ -40,17 +40,17 @@ export async function connect(provider: string, isMainNet: boolean) {
   return updates.account;
 }
 
-export async function pipelineConnect(isMainNet: boolean, provider: string) {
+export async function reachConnect(isMainNet: boolean, provider: string) {
   try {
     const acc = await connect(provider, isMainNet);
     if (acc) {
-      addNotification(`💡 Pipeline connection successful.`);
+      addNotification(`💡 Reach connection successful.`);
       return acc;
     }
   } catch (e) {
     if (typeof window !== "undefined") {
-      addNotification(`❌ Pipeline connect error.`);
-      console.log("Pipeline connect error: ", e);
+      addNotification(`❌ Reach connect error.`);
+      console.log("Reach connect error: ", e);
       window.location.reload();
     }
   }

@@ -9,7 +9,7 @@ import { ADDRESS_KEY, CHAIN_NETWORK_KEY, PROVIDER_KEY } from "../utils";
 const slice = createSlice({
   name: "algorand",
   initialState: {
-    isMainNet: localStore.get(CHAIN_NETWORK_KEY) ?? true,
+    isMainNet: localStore.get(CHAIN_NETWORK_KEY) ?? false,
     provider: localStore.get(PROVIDER_KEY) || "",
     address: localStore.get(ADDRESS_KEY) || "",
   },

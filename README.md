@@ -40,12 +40,12 @@ The maximum invoice size in bytes is **951**.
 
 To deploy the contract:
 
-1. App.tsx: 81 -> await ActivateContract(participants.Admin);
+1. Home.tsx: 118 -> await ActivateContract(participants.Admin);
 2. state/index.ts: 21 -> appId: null as number | null,
 
 To attach to the contract:
 
-1. App.tsx: 71 -> await ActivateContract(participants.Invoicer);
+1. Home.tsx: 118 -> await ActivateContract(participants.Invoicer);
 2. state/index.ts: 48 -> appId: [appId] as number | null,
 
 ### Reach Helpers

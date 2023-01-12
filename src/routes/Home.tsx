@@ -6,7 +6,7 @@ import { updateReachDisconnectedTime } from "src/store/reach";
 import { FlexColumn, FlexRow } from "../components/Common/Containers";
 import InvoiceForm from "../components/Invoice/InvoiceForm";
 import MyInvoices from "../components/Invoice/MyInvoices/MyInvoices";
-import { pipelineConnect } from "../reach";
+import { reachConnect } from "../reach";
 import * as backend from "../reach/contracts/build/index.main";
 import store, { addNotification, Contracts } from "../state";
 import { ERROR_QRCODE_MODAL_USER_CLOSED, participants } from "../utils";
@@ -69,6 +69,9 @@ const Home = () => {
   const [account, setAccount] = useState<any | null>(null);
   const [invoiceVisible, setInvoiceVisible] = useState(false);
 
+  console.log("----- account:", account);
+  console.log("----- appid:", appId);
+
   // Subscribe to global state, and unsubscribe on component unmount
   useEffect(() => {
     const onAppId = (s: any) => setAppId(s.appId as number | null);
@@ -108,13 +111,10 @@ const Home = () => {
       addNotification(`💡 Reach connect..`);
       try {
         setClickListenerToQrCloseButton();
-        const currentAccount = await pipelineConnect(isMainNet, provider);
+        const currentAccount = await reachConnect(isMainNet, provider);
         console.log("currentAccount:", currentAccount);
         if (currentAccount) {
-          const result = await ActivateContract(
-            participants.Invoicer,
-            isMainNet
-          );
+          const result = await ActivateContract(participants.Admin, isMainNet);
           if (!result) {
             dispatch(updateReachDisconnectedTime(Date.now()));
           }
@@ -142,7 +142,7 @@ const Home = () => {
           </p>
         </div>
 
-        {appId && !account && (
+        {!account && (
           <FlexRow>
             <div
               style={{
