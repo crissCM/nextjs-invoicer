@@ -29,7 +29,7 @@ export const DefaultConnectUserOpts: any = {
   initialAssetsLimit: 0,
 };
 
-export const DEFAULT_INDEXER = Indexers.AlgoNode;
+export const DEFAULT_INDEXER = Indexers.AlgoExplorer;
 
 export const IndexerProps = (indexer: string, net: string) => {
   const indexers: any = {
@@ -40,6 +40,12 @@ export const IndexerProps = (indexer: string, net: string) => {
       ALGO_INDEXER_SERVER: `https://algoindexer.${
         net === "testnet" ? `${net}.` : ""
       }algoexplorerapi.io`,
+    },
+    AlgoNode: {
+      ALGO_SERVER: `https://${net ? "mainnet" : "testnet"}-api.algonode.cloud`,
+      ALGO_INDEXER_SERVER: `https://${
+        net ? "mainnet" : "testnet"
+      }-idx.algonode.cloud`,
     },
   };
   return indexers[indexer];
@@ -98,9 +104,17 @@ export const Providers = {
   PeraConnect: "PeraConnect",
 };
 
-export const PipelineProviders = {
-  WalletConnect: "WalletConnect",
-  MyAlgo: "MyAlgo Wallet",
+export const TxnlabProviders = {
+  PERA: "pera",
+  MYALGO: "myalgo",
+  ALGOSIGNER: "algosigner",
+  WALLETCONNECT: "walletconnect",
+};
+
+export const ProviderMap = {
+  [TxnlabProviders.WALLETCONNECT]: Providers.WalletConnect,
+  [TxnlabProviders.MYALGO]: Providers.MyAlgo,
+  [TxnlabProviders.PERA]: Providers.PeraConnect,
 };
 
 export const getProvider = (type: boolean) =>
@@ -134,8 +148,8 @@ export async function pipelineSend(
   const { exists, isWCSession } = checkSessionExists();
   if (exists) {
     const walletProvider = isWCSession
-      ? PipelineProviders.WalletConnect
-      : PipelineProviders.MyAlgo;
+      ? TxnlabProviders.WALLETCONNECT
+      : TxnlabProviders.MYALGO;
     /* TODO Pipeline.pipeConnector = walletProvider;
     Pipeline.address = address;
     return Pipeline.send(

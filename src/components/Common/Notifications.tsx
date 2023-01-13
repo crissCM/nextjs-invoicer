@@ -23,11 +23,7 @@ const Notification = styled((props: NotificationProps) => {
       bg={`${error ? "warning" : "info"}`}
       onClose={toggleShowNoti}>
       <Toast.Header>
-        <img
-          src="images/invoicer/invoicer-noti-icon.png"
-          className="rounded me-2"
-          alt=""
-        />
+        <img src="noti-icon.png" className="rounded me-2" alt="" />
         <strong className="text-dark me-auto">{notificationTitle}</strong>
         <small className="text-muted">{`${error ? "Error" : "Info"}`}</small>
       </Toast.Header>

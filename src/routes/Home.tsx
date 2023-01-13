@@ -69,9 +69,6 @@ const Home = () => {
   const [account, setAccount] = useState<any | null>(null);
   const [invoiceVisible, setInvoiceVisible] = useState(false);
 
-  console.log("----- account:", account);
-  console.log("----- appid:", appId);
-
   // Subscribe to global state, and unsubscribe on component unmount
   useEffect(() => {
     const onAppId = (s: any) => setAppId(s.appId as number | null);

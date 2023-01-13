@@ -27,8 +27,9 @@ import {
   DefaultConnectUserOpts,
   DEFAULT_INDEXER,
   IndexerProps,
-  PipelineProviders,
+  TxnlabProviders,
   Providers,
+  ProviderMap,
 } from "../utils";
 import localStore from "store";
 
@@ -119,13 +120,13 @@ export async function checkHasToken(token: any) {
 
 /** Initialize the `stdlib` instance according to the wallet provider. */
 function configureWalletProvider(pr: string, isMainNet: boolean) {
-  if (!Object.values(Providers).includes(pr)) {
+  if (!Object.values(Providers).includes(ProviderMap[pr])) {
     addNotification(`❌ ${pr} wallet is not supported by Reach.`);
     return;
   }
 
   const fallback =
-    pr === PipelineProviders.MyAlgo ? { MyAlgoConnect } : { WalletConnect };
+    pr === TxnlabProviders.MYALGO ? { MyAlgoConnect } : { WalletConnect };
 
   const net = (
     isMainNet ? BlockchainNetwork.MainNet : BlockchainNetwork.TestNet
@@ -135,7 +136,7 @@ function configureWalletProvider(pr: string, isMainNet: boolean) {
     network: isMainNet ? BlockchainNetwork.MainNet : BlockchainNetwork.TestNet,
   };
 
-  switch (pr) {
+  switch (ProviderMap[pr]) {
     case Providers.WalletConnect: {
       opts.walletFallback = { WalletConnect };
       break;
@@ -149,12 +150,10 @@ function configureWalletProvider(pr: string, isMainNet: boolean) {
       break;
   }
 
-  if (
-    localStore.get(APP_INDEXER_KEY) !== null &&
-    localStore.get(APP_INDEXER_KEY) !== DEFAULT_INDEXER
-  ) {
-    opts.providerEnv = IndexerProps(String(store.get(APP_INDEXER_KEY)), net);
-  }
+  opts.providerEnv = IndexerProps(
+    String(localStore.get(APP_INDEXER_KEY) || DEFAULT_INDEXER),
+    net
+  );
 
   loadReachWithOpts(loadStdlib, opts);
 }
