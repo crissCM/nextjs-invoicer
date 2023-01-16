@@ -8,7 +8,7 @@ const MAX_BYTES_LENGTH = 943;
 
 export const Contracts = {
   MainNet: null, // 730196316,
-  TestNet: null, // 88194965,
+  TestNet: 154297620,
 };
 
 /**
@@ -25,7 +25,7 @@ const initialState = {
   address: "",
 
   /** Smart contract ID. Make it null to deploy a new contract. Default is MainNet. */
-  appId: Contracts.MainNet as number | null,
+  appId: Contracts.TestNet as number | null,
 
   appsCount: 0,
 
