@@ -8,7 +8,7 @@ const MAX_BYTES_LENGTH = 943;
 
 export const Contracts = {
   MainNet: null, // 730196316,
-  TestNet: 154297620,
+  TestNet: null,
 };
 
 /**

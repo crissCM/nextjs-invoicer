@@ -1,8 +1,15 @@
 import { truncateString } from "@jackcom/reachduck";
+import {
+  DEFAULT_NODE_BASEURL,
+  DEFAULT_NODE_PORT,
+  DEFAULT_NODE_TOKEN,
+  useWallet,
+} from "@txnlab/use-wallet";
+import algosdk from "algosdk";
 import Color from "color";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Col,
@@ -11,7 +18,7 @@ import {
   OverlayTrigger,
   Row,
   Table,
-  Tooltip
+  Tooltip,
 } from "react-bootstrap";
 import { BiCloudDownload, BiPaperPlane } from "react-icons/bi";
 import store, { addNotification } from "../../state";
@@ -19,10 +26,16 @@ import {
   convertAlgoToMicro,
   InvoiceStatuses,
   isInvoiceValid,
-  pipelineSend,
-  truncString
+  truncString,
+  txnlabSend,
 } from "../../utils";
 import CryptoIcon from "../Reach/CryptoIcon";
+
+const algodClient = new algosdk.Algodv2(
+  DEFAULT_NODE_TOKEN,
+  DEFAULT_NODE_BASEURL,
+  DEFAULT_NODE_PORT
+);
 
 const InvoiceModal = ({
   showModal,
@@ -40,17 +53,18 @@ const InvoiceModal = ({
    */
   const isPayMode = () => serialNumber !== null;
 
+  const { signTransactions, sendTransactions } = useWallet();
   const gState = store.getState();
-  const { maxBytesLength, refreshInvoicesTable } = gState;
+  const { address, maxBytesLength, refreshInvoicesTable } = gState;
   const [invoiceNumber, setInvoiceNumber] = useState(serialNumber);
   const [downloadDisabled, setDownloadDisabled] = useState(!isPayMode());
-  const [pipelineDialogVisible, setPipelineDialogVisible] = useState(false);
+  const [txnlabDialogVisible, setTxnlabDialogVisible] = useState(false);
   const [invStatus, setInvStatus] = useState(invoiceStatus);
   const [note, setNote] = useState("");
 
   useEffect(() => {
     if (note) {
-      setPipelineDialogVisible(true);
+      setTxnlabDialogVisible(true);
     }
   }, [note]);
 
@@ -60,15 +74,16 @@ const InvoiceModal = ({
     }
   };
 
-  const sendPipelineTransaction = async (
-    recipientAddress,
-    algoAmount,
-    note
-  ) => {
+  const sendTxnlabTransaction = async (recipientAddress, algoAmount, note) => {
     addNotification(
       `💡 Attempt to send ${algoAmount} Algo transaction with a note to the recipient.`
     );
-    const txId = await pipelineSend(
+    const txId = await txnlabSend(
+      algodClient,
+      algosdk,
+      signTransactions,
+      sendTransactions,
+      address,
       recipientAddress,
       convertAlgoToMicro(algoAmount),
       note
@@ -410,7 +425,7 @@ const InvoiceModal = ({
       </Modal>
       <Modal
         style={{ background: Color("black").alpha(0.4).string() }}
-        show={pipelineDialogVisible}
+        show={txnlabDialogVisible}
         centered>
         <Modal.Header>
           <Modal.Title>
@@ -454,7 +469,7 @@ const InvoiceModal = ({
           <Button
             variant="secondary"
             onClick={() => {
-              setPipelineDialogVisible(false);
+              setTxnlabDialogVisible(false);
               setNote("");
             }}>
             Close
@@ -462,8 +477,8 @@ const InvoiceModal = ({
           <Button
             variant="primary"
             onClick={() => {
-              sendPipelineTransaction(info.billToAlgoAddress, 0, note);
-              setPipelineDialogVisible(false);
+              sendTxnlabTransaction(info.billToAlgoAddress, 0, note);
+              setTxnlabDialogVisible(false);
               setNote("");
             }}>
             Yes, Send it!

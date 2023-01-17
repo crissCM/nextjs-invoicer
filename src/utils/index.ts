@@ -1,4 +1,5 @@
 import { checkSessionExists } from "@jackcom/reachduck";
+import AlgodClient from "algosdk/dist/types/client/v2/algod/algod";
 import localStore from "store";
 import manifest from "../../package.json";
 import store from "../state";
@@ -137,6 +138,39 @@ export function isInvoiceValid(invoiceJson: string): boolean {
   const { maxBytesLength } = gState;
   return invoiceJson.length <= maxBytesLength;
 }
+
+export const txnlabSend = async (
+  algodClient: AlgodClient,
+  algosdk: any,
+  signTransactions: any,
+  sendTransactions: any,
+  from: string,
+  to: string,
+  amount: number,
+  note = ""
+) => {
+  const suggestedParams = await algodClient.getTransactionParams().do();
+
+  const transaction = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+    from,
+    to,
+    amount,
+    suggestedParams,
+  });
+
+  const encodedTransaction = algosdk.encodeUnsignedTransaction(transaction);
+
+  const signedTransactions = await signTransactions([encodedTransaction]);
+
+  const waitRoundsToConfirm = 4;
+
+  const { id } = await sendTransactions(
+    signedTransactions,
+    waitRoundsToConfirm
+  );
+
+  console.log("Successfully sent transaction. Transaction ID: ", id);
+};
 
 export async function pipelineSend(
   recipientAddress: string,

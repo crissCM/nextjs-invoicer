@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Col, Form, Row } from "react-bootstrap";
+import localStore from "store";
 import { algoValidate } from "../../currencies/algo";
 import store, { addNotification } from "../../state";
 import {
@@ -12,7 +13,6 @@ import {
 } from "../../utils";
 import InvoiceItem from "./InvoiceItem";
 import InvoiceModal from "./InvoiceModal";
-import localStore from "store";
 
 const InvoiceForm = () => {
   const getInitialLengthCounter = () => {

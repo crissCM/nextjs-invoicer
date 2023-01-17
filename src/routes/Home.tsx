@@ -111,10 +111,7 @@ const Home = () => {
         const currentAccount = await reachConnect(isMainNet, provider);
         console.log("currentAccount:", currentAccount);
         if (currentAccount) {
-          const result = await ActivateContract(
-            participants.Invoicer,
-            isMainNet
-          );
+          const result = await ActivateContract(participants.Admin, isMainNet);
           if (!result) {
             dispatch(updateReachDisconnectedTime(Date.now()));
           }

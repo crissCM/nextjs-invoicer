@@ -50,12 +50,12 @@ export const main = Reach.App(() => {
     });
   });
 
-  const state = parallelReduce({ counter: 1 })
-    .invariant(state.counter > 0)
+  const [counter] = parallelReduce([1])
+    .invariant(counter > 0)
     .while(true)
     .api(User.getInvoiceNumber, (notify) => {
-      notify(state.counter);
-      return { ...state, counter: state.counter };
+      notify(counter);
+      return [counter];
     })
     .api(
       User.payInvoice,
@@ -71,8 +71,8 @@ export const main = Reach.App(() => {
       (_, amount, _) => amount,
       (recipient, amount, _, notify) => {
         transfer(amount).to(recipient);
-        notify(state.counter);
-        return { ...state, counter: state.counter };
+        notify(counter);
+        return [counter];
       }
     )
     .api(
@@ -85,8 +85,8 @@ export const main = Reach.App(() => {
       },
       (_) => 0,
       (_, notify) => {
-        notify(state.counter);
-        return { ...state, counter: state.counter + 1 };
+        notify(counter);
+        return [counter + 1];
       }
     );
 

@@ -1,21 +1,21 @@
 import {
-  ReachAccount,
-  ReachToken,
-  connectUser,
   checkSessionExists,
+  connectUser,
   disconnectUser,
   loadReachWithOpts,
   optInToAsset,
+  ReachAccount,
+  ReachEnvOpts,
+  ReachToken,
   reconnectUser,
   tokenMetadata as getReachToken,
-  ReachEnvOpts,
 } from "@jackcom/reachduck";
 import MyAlgoConnect from "@randlabs/myalgo-connect";
-import PeraConnect from "../utils/WC/PeraConnect";
 import {
   ALGO_WalletConnect as WalletConnect,
   loadStdlib,
 } from "@reach-sh/stdlib";
+import localStore from "store";
 import store, {
   addNotification,
   updateAsError,
@@ -27,11 +27,11 @@ import {
   DefaultConnectUserOpts,
   DEFAULT_INDEXER,
   IndexerProps,
-  TxnlabProviders,
-  Providers,
   ProviderMap,
+  Providers,
+  TxnlabProviders,
 } from "../utils";
-import localStore from "store";
+import PeraConnect from "../utils/WC/PeraConnect";
 
 /** Connect user Wallet */
 export async function connect(provider: string, isMainNet: boolean) {
