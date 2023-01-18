@@ -1,7 +1,6 @@
-import Button from "../Forms/Button";
+import { Button } from "react-bootstrap";
 import styled, { css } from "styled-components";
 import { FlexColumn, GridContainer, MatIcon } from "./Containers";
-
 
 const ModalContainer = styled(FlexColumn)`
   height: 100vh;
@@ -28,7 +27,7 @@ const contentBoundary = css`
 `;
 
 const ModalTitle = styled(GridContainer).attrs({
-  columns: "auto min-content"
+  columns: "auto min-content",
 })`
   ${contentBoundary}
   margin-bottom: 0.4rem;
@@ -40,11 +39,8 @@ const ModalTitle = styled(GridContainer).attrs({
 `;
 
 const ModalContents = styled(FlexColumn).attrs({ padded: true })`
-  ${contentBoundary}  
+  ${contentBoundary}
   background: #fff;
-  border-radius: ${({ theme }) => theme.presets.rounded.default};
-  box-shadow: ${({ theme }) => theme.presets.elevated.sm};
-  color: ${({ theme }) => theme.colors.primary};
   height: 50vmin;
   overflow-y: auto;
   overflow-x: hidden;

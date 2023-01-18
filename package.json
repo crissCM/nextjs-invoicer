@@ -7,7 +7,7 @@
     "@jackcom/reachduck": "^0.5.0",
     "@perawallet/connect": "^1.1.0",
     "@randlabs/myalgo-connect": "^1.4.1",
-    "@reach-sh/stdlib": "0.1.13-rc.0",
+    "@reach-sh/stdlib": "^0.1.12-rc.9",
     "@reduxjs/toolkit": "^1.9.1",
     "@txnlab/use-wallet": "^1.1.6",
     "@types/node": "18.11.9",

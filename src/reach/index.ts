@@ -27,7 +27,6 @@ import {
   DefaultConnectUserOpts,
   DEFAULT_INDEXER,
   IndexerProps,
-  ProviderMap,
   Providers,
   TxnlabProviders,
 } from "../utils";
@@ -41,7 +40,7 @@ export async function connect(provider: string, isMainNet: boolean) {
   return updates.account;
 }
 
-export async function reachConnect(isMainNet: boolean, provider: string) {
+export async function reachConnect(provider: string, isMainNet: boolean) {
   try {
     const acc = await connect(provider, isMainNet);
     if (acc) {
@@ -120,7 +119,7 @@ export async function checkHasToken(token: any) {
 
 /** Initialize the `stdlib` instance according to the wallet provider. */
 function configureWalletProvider(pr: string, isMainNet: boolean) {
-  if (!Object.values(Providers).includes(ProviderMap[pr])) {
+  if (!Object.values(Providers).includes(pr)) {
     addNotification(`❌ ${pr} wallet is not supported by Reach.`);
     return;
   }
@@ -136,7 +135,7 @@ function configureWalletProvider(pr: string, isMainNet: boolean) {
     network: isMainNet ? BlockchainNetwork.MainNet : BlockchainNetwork.TestNet,
   };
 
-  switch (ProviderMap[pr]) {
+  switch (pr) {
     case Providers.WalletConnect: {
       opts.walletFallback = { WalletConnect };
       break;

@@ -1,5 +1,6 @@
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
+import ConnectWallet from "../Reach/ConnectWallet";
 import WalletModal from "../WalletModal";
 
 function Header() {
@@ -9,10 +10,7 @@ function Header() {
         <Navbar.Brand href="#home">Navbar with text</Navbar.Brand>
         <Navbar.Toggle />
         <Navbar.Collapse className="justify-content-end">
-          <WalletModal />
-          <Navbar.Text>
-            Signed in as: <a href="#login">Mark Otto</a>
-          </Navbar.Text>
+          <ConnectWallet />
         </Navbar.Collapse>
       </Container>
     </Navbar>

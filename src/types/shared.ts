@@ -41,3 +41,35 @@ export type UIThemeType = "Dark" | "Light";
   };
 }; */
 
+declare module "styled-components" {
+  type DefaultSizes = {
+    xxs?: string;
+    xs?: string;
+    sm: string;
+    default?: string;
+    md: string;
+    lg: string;
+    xlg: string;
+    xxlg?: string;
+  };
+
+  export interface DefaultTheme {
+    sizes: DefaultSizes;
+
+    colors: {
+      accent: string;
+      bgColor: string;
+      bgGradient?: string;
+      semitransparent: string;
+      error: string;
+      primary: string;
+      secondary: string;
+      warning: string;
+    };
+
+    presets: {
+      elevated: DefaultSizes;
+      rounded: DefaultSizes;
+    };
+  }
+}
