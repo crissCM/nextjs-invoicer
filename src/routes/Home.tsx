@@ -110,9 +110,9 @@ const Home = () => {
     const algodClient = new algosdk.Algodv2(algodClientParams);
 
     try {
-      let params = await algodClient.getTransactionParams().do();
+      const params = await algodClient.getTransactionParams().do();
       const enc = new TextEncoder();
-      let note = enc.encode("Hello World");
+      const note = enc.encode("Hello World");
       const txn = algosdk.makePaymentTxnWithSuggestedParams(
         "XARTZKOS6ZQDJSVFXTNR5L5JMJFXLPRQAZPZ54PVYS57WS24BNETWNFLEY",
         "LXEJ37LOEE7QEW2OGM4NMMNNNEY34AHOM6DM5S447A4IHSELDOLZN7FD64",
@@ -130,7 +130,7 @@ const Home = () => {
       console.error(err);
     }
 
-    /*if (provider) {
+    /* if (provider) {
       store.loading(true);
       addNotification(`💡 Reach connect..`);
       try {
@@ -150,7 +150,7 @@ const Home = () => {
       }
     } else {
       addNotification(`💡 Please login with a wallet first.`);
-    }*/
+    } */
   };
 
   return (
@@ -166,22 +166,21 @@ const Home = () => {
           </p>
         </div>
 
-        {
-          <FlexRow>
-            <div
-              style={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-              className="h1-invoicer">
-              <h1 className="h2 mt-3 mb-1">Headline Invoice</h1>
-              <Button className="mt-3" variant="warning" onClick={reachLogin}>
-                <b>Reach Login</b>
-              </Button>
-            </div>
-          </FlexRow>
-        }
+        <FlexRow>
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+            className="h1-invoicer">
+            <h1 className="h2 mt-3 mb-1">Headline Invoice</h1>
+            <Button className="mt-3" variant="warning" onClick={reachLogin}>
+              <b>Reach Login</b>
+            </Button>
+          </div>
+        </FlexRow>
+
         {appId && account && (
           <FlexRow>
             <div
