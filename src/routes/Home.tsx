@@ -1,15 +1,16 @@
 import { trimByteString } from "@jackcom/reachduck";
+import MyAlgoConnect from "@randlabs/myalgo-connect";
+import algosdk from "algosdk";
 import { useEffect, useState } from "react";
 import { Button, ButtonGroup, Container } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "src/store/hooks";
-import { updateReachDisconnectedTime } from "src/store/reach";
 import { FlexColumn, FlexRow } from "../components/Common/Containers";
 import InvoiceForm from "../components/Invoice/InvoiceForm";
 import MyInvoices from "../components/Invoice/MyInvoices/MyInvoices";
-import { reachConnect } from "../reach";
+import { useGlobalUser } from "../hooks/GlobalUser";
 import * as backend from "../reach/contracts/build/index.main";
 import store, { addNotification, Contracts } from "../state";
-import { ERROR_QRCODE_MODAL_USER_CLOSED, participants } from "../utils";
+import { ERROR_QRCODE_MODAL_USER_CLOSED } from "../utils";
 
 /** If an appId is given it will connect, deploy a new contract otherwise */
 const ActivateContract = async (participant: string, isMainNet: boolean) => {
@@ -63,6 +64,7 @@ const ActivateContract = async (participant: string, isMainNet: boolean) => {
 const Home = () => {
   const dispatch = useAppDispatch();
   const { isMainNet, provider } = useAppSelector((state) => state.algorand);
+  const { address } = useGlobalUser();
   const [appId, setAppId] = useState<number | null>(
     isMainNet ? Contracts.MainNet : Contracts.TestNet
   );
@@ -103,7 +105,32 @@ const Home = () => {
   }
 
   const reachLogin = async () => {
-    if (provider) {
+    const myAlgoWallet = new MyAlgoConnect();
+    const algodClientParams = await window.algorand.getAlgodv2Client();
+    const algodClient = new algosdk.Algodv2(algodClientParams);
+
+    try {
+      let params = await algodClient.getTransactionParams().do();
+      const enc = new TextEncoder();
+      let note = enc.encode("Hello World");
+      const txn = algosdk.makePaymentTxnWithSuggestedParams(
+        "XARTZKOS6ZQDJSVFXTNR5L5JMJFXLPRQAZPZ54PVYS57WS24BNETWNFLEY",
+        "LXEJ37LOEE7QEW2OGM4NMMNNNEY34AHOM6DM5S447A4IHSELDOLZN7FD64",
+        0,
+        undefined,
+        note,
+        params
+      );
+      const signedTxn = await myAlgoWallet.signTransaction(txn.toByte());
+      const response = await algodClient
+        .sendRawTransaction(signedTxn.blob)
+        .do();
+      console.log("----- reeesp:", response);
+    } catch (err) {
+      console.error(err);
+    }
+
+    /*if (provider) {
       store.loading(true);
       addNotification(`💡 Reach connect..`);
       try {
@@ -123,7 +150,7 @@ const Home = () => {
       }
     } else {
       addNotification(`💡 Please login with a wallet first.`);
-    }
+    }*/
   };
 
   return (
@@ -139,7 +166,7 @@ const Home = () => {
           </p>
         </div>
 
-        {!account && (
+        {
           <FlexRow>
             <div
               style={{
@@ -154,7 +181,7 @@ const Home = () => {
               </Button>
             </div>
           </FlexRow>
-        )}
+        }
         {appId && account && (
           <FlexRow>
             <div
