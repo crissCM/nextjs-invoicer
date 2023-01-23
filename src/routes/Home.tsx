@@ -136,7 +136,7 @@ const Home = () => {
       const peraWallet = new PeraWalletConnect();
       try {
         const singleTxnGroups: Array<SignerTransaction> = [
-          { txn: txn, signers: [address!] },
+          { txn, signers: [address!] },
         ];
         const signedTxn = await peraWallet.signTransaction([singleTxnGroups]);
         const response = await algodClient.sendRawTransaction(signedTxn).do();
