@@ -132,8 +132,8 @@ const Home = () => {
       } catch (err) {
         console.error("----- MyAlgo sign error:", err);
       }
-    } else if (true) {
-      const peraWallet = new PeraWalletConnect();
+    } else if (provider === Providers.PeraConnect) {
+      /* TODO Pera and AlgoSigner are not yet supported by Starter. const peraWallet = new PeraWalletConnect();
       try {
         const singleTxnGroups: Array<SignerTransaction> = [
           { txn, signers: [address!] },
@@ -143,7 +143,7 @@ const Home = () => {
         console.log("----- PeraConnect resp:", response);
       } catch (err) {
         console.error("----- PeraConnect sign error:", err);
-      }
+      } */
     }
 
     /* if (provider) {
