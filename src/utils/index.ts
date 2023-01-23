@@ -105,19 +105,6 @@ export const Providers = {
   PeraConnect: "PeraConnect",
 };
 
-export const TxnlabProviders = {
-  PERA: "pera",
-  MYALGO: "myalgo",
-  ALGOSIGNER: "algosigner",
-  WALLETCONNECT: "walletconnect",
-};
-
-export const ProviderMap = {
-  [TxnlabProviders.WALLETCONNECT]: Providers.WalletConnect,
-  [TxnlabProviders.MYALGO]: Providers.MyAlgo,
-  [TxnlabProviders.PERA]: Providers.PeraConnect,
-};
-
 export const getProvider = (type: boolean) =>
   type ? BlockchainNetwork.MainNet : BlockchainNetwork.TestNet;
 
@@ -139,7 +126,7 @@ export function isInvoiceValid(invoiceJson: string): boolean {
   return invoiceJson.length <= maxBytesLength;
 }
 
-export const txnlabSend = async (
+export const sendTransaction = async (
   algodClient: AlgodClient,
   algosdk: any,
   signTransactions: any,
@@ -181,9 +168,9 @@ export async function pipelineSend(
   const { address } = gState;
   const { exists, isWCSession } = checkSessionExists();
   if (exists) {
-    const walletProvider = isWCSession
+    /* const walletProvider = isWCSession
       ? TxnlabProviders.WALLETCONNECT
-      : TxnlabProviders.MYALGO;
+      : TxnlabProviders.MYALGO; */
     /* TODO Pipeline.pipeConnector = walletProvider;
     Pipeline.address = address;
     return Pipeline.send(

@@ -1,10 +1,4 @@
 import { truncateString } from "@jackcom/reachduck";
-import {
-  DEFAULT_NODE_BASEURL,
-  DEFAULT_NODE_PORT,
-  DEFAULT_NODE_TOKEN,
-  useWallet,
-} from "@txnlab/use-wallet";
 import algosdk from "algosdk";
 import Color from "color";
 import html2canvas from "html2canvas";
@@ -26,16 +20,10 @@ import {
   convertAlgoToMicro,
   InvoiceStatuses,
   isInvoiceValid,
+  sendTransaction,
   truncString,
-  txnlabSend,
 } from "../../utils";
 import CryptoIcon from "../Reach/CryptoIcon";
-
-const algodClient = new algosdk.Algodv2(
-  DEFAULT_NODE_TOKEN,
-  DEFAULT_NODE_BASEURL,
-  DEFAULT_NODE_PORT
-);
 
 const InvoiceModal = ({
   showModal,
@@ -58,13 +46,16 @@ const InvoiceModal = ({
   const { address, maxBytesLength, refreshInvoicesTable } = gState;
   const [invoiceNumber, setInvoiceNumber] = useState(serialNumber);
   const [downloadDisabled, setDownloadDisabled] = useState(!isPayMode());
-  const [txnlabDialogVisible, setTxnlabDialogVisible] = useState(false);
+  const [
+    notificatonTransactionDialogVisible,
+    setNotificatonTransactionDialogVisible,
+  ] = useState(false);
   const [invStatus, setInvStatus] = useState(invoiceStatus);
   const [note, setNote] = useState("");
 
   useEffect(() => {
     if (note) {
-      setTxnlabDialogVisible(true);
+      setNotificatonTransactionDialogVisible(true);
     }
   }, [note]);
 
@@ -74,11 +65,15 @@ const InvoiceModal = ({
     }
   };
 
-  const sendTxnlabTransaction = async (recipientAddress, algoAmount, note) => {
+  const sendNotificatonTransaction = async (
+    recipientAddress,
+    algoAmount,
+    note
+  ) => {
     addNotification(
       `💡 Attempt to send ${algoAmount} Algo transaction with a note to the recipient.`
     );
-    const txId = await txnlabSend(
+    /* TODO const txId = await sendTransaction(
       algodClient,
       algosdk,
       signTransactions,
@@ -94,7 +89,7 @@ const InvoiceModal = ({
     } else {
       const errorMsg = "An error happened during the transaction!";
       addNotification(`❌ ${errorMsg}`);
-    }
+    } */
   };
 
   const getInvoiceJson = (status, info, currency, total, invoiceItems) => {
@@ -425,7 +420,7 @@ const InvoiceModal = ({
       </Modal>
       <Modal
         style={{ background: Color("black").alpha(0.4).string() }}
-        show={txnlabDialogVisible}
+        show={notificatonTransactionDialogVisible}
         centered>
         <Modal.Header>
           <Modal.Title>
@@ -469,7 +464,7 @@ const InvoiceModal = ({
           <Button
             variant="secondary"
             onClick={() => {
-              setTxnlabDialogVisible(false);
+              setNotificatonTransactionDialogVisible(false);
               setNote("");
             }}>
             Close
@@ -477,8 +472,8 @@ const InvoiceModal = ({
           <Button
             variant="primary"
             onClick={() => {
-              sendTxnlabTransaction(info.billToAlgoAddress, 0, note);
-              setTxnlabDialogVisible(false);
+              sendNotificatonTransaction(info.billToAlgoAddress, 0, note);
+              setNotificatonTransactionDialogVisible(false);
               setNote("");
             }}>
             Yes, Send it!

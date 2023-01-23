@@ -1,7 +1,6 @@
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
 import ConnectWallet from "../Reach/ConnectWallet";
-import WalletModal from "../WalletModal";
 
 function Header() {
   return (

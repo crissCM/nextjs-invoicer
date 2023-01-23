@@ -28,7 +28,6 @@ import {
   DEFAULT_INDEXER,
   IndexerProps,
   Providers,
-  TxnlabProviders,
 } from "../utils";
 import PeraConnect from "../utils/WC/PeraConnect";
 
@@ -125,7 +124,7 @@ function configureWalletProvider(pr: string, isMainNet: boolean) {
   }
 
   const fallback =
-    pr === TxnlabProviders.MYALGO ? { MyAlgoConnect } : { WalletConnect };
+    pr === Providers.MyAlgo ? { MyAlgoConnect } : { WalletConnect };
 
   const net = (
     isMainNet ? BlockchainNetwork.MainNet : BlockchainNetwork.TestNet

@@ -1,4 +1,6 @@
 import { trimByteString } from "@jackcom/reachduck";
+import { PeraWalletConnect } from "@perawallet/connect";
+import { SignerTransaction } from "@perawallet/connect/dist/util/model/peraWalletModels";
 import MyAlgoConnect from "@randlabs/myalgo-connect";
 import algosdk from "algosdk";
 import { useEffect, useState } from "react";
@@ -10,7 +12,7 @@ import MyInvoices from "../components/Invoice/MyInvoices/MyInvoices";
 import { useGlobalUser } from "../hooks/GlobalUser";
 import * as backend from "../reach/contracts/build/index.main";
 import store, { addNotification, Contracts } from "../state";
-import { ERROR_QRCODE_MODAL_USER_CLOSED } from "../utils";
+import { ERROR_QRCODE_MODAL_USER_CLOSED, Providers } from "../utils";
 
 /** If an appId is given it will connect, deploy a new contract otherwise */
 const ActivateContract = async (participant: string, isMainNet: boolean) => {
@@ -105,29 +107,43 @@ const Home = () => {
   }
 
   const reachLogin = async () => {
-    const myAlgoWallet = new MyAlgoConnect();
     const algodClientParams = await window.algorand.getAlgodv2Client();
     const algodClient = new algosdk.Algodv2(algodClientParams);
-
-    try {
-      const params = await algodClient.getTransactionParams().do();
-      const enc = new TextEncoder();
-      const note = enc.encode("Hello World");
-      const txn = algosdk.makePaymentTxnWithSuggestedParams(
-        "XARTZKOS6ZQDJSVFXTNR5L5JMJFXLPRQAZPZ54PVYS57WS24BNETWNFLEY",
-        "LXEJ37LOEE7QEW2OGM4NMMNNNEY34AHOM6DM5S447A4IHSELDOLZN7FD64",
-        0,
-        undefined,
-        note,
-        params
-      );
-      const signedTxn = await myAlgoWallet.signTransaction(txn.toByte());
-      const response = await algodClient
-        .sendRawTransaction(signedTxn.blob)
-        .do();
-      console.log("----- reeesp:", response);
-    } catch (err) {
-      console.error(err);
+    const suggestedParams = await algodClient.getTransactionParams().do();
+    const enc = new TextEncoder();
+    const note = enc.encode("Hello World");
+    const txn = algosdk.makePaymentTxnWithSuggestedParams(
+      "XARTZKOS6ZQDJSVFXTNR5L5JMJFXLPRQAZPZ54PVYS57WS24BNETWNFLEY",
+      "LXEJ37LOEE7QEW2OGM4NMMNNNEY34AHOM6DM5S447A4IHSELDOLZN7FD64",
+      0,
+      undefined,
+      note,
+      suggestedParams
+    );
+    console.log("----- provider:", provider);
+    if (provider === Providers.MyAlgo) {
+      const myAlgoWallet = new MyAlgoConnect();
+      try {
+        const signedTxn = await myAlgoWallet.signTransaction(txn.toByte());
+        const response = await algodClient
+          .sendRawTransaction(signedTxn.blob)
+          .do();
+        console.log("----- MyAlgo resp:", response);
+      } catch (err) {
+        console.error("----- MyAlgo sign error:", err);
+      }
+    } else if (true) {
+      const peraWallet = new PeraWalletConnect();
+      try {
+        const singleTxnGroups: Array<SignerTransaction> = [
+          { txn: txn, signers: [address!] },
+        ];
+        const signedTxn = await peraWallet.signTransaction([singleTxnGroups]);
+        const response = await algodClient.sendRawTransaction(signedTxn).do();
+        console.log("----- PeraConnect resp:", response);
+      } catch (err) {
+        console.error("----- PeraConnect sign error:", err);
+      }
     }
 
     /* if (provider) {
