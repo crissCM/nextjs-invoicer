@@ -9,6 +9,7 @@ export const CHAIN_NETWORK_KEY = "mainNet";
 export const PROVIDER_KEY = "provider";
 export const ADDRESS_KEY = "address";
 export const THEME_KEY = "theme";
+
 export const THEME = {
   LIGHT: "light",
   DARK: "dark",
