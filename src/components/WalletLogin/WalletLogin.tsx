@@ -1,0 +1,346 @@
+import React, { useEffect, useState } from "react";
+import Pipeline from "@pipeline-ui-2/pipeline";
+import renderTable from "../../Portfolio/components/tables";
+import "./slider.css";
+import authActions from "../../../modules/auth/authActions";
+import algorandGlobalActions from "../../../modules/algorand/global/globalActions";
+import algorandGlobalSelectors from "../../../modules/algorand/global/globalSelctors";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  copyTextToClipboard,
+  getCurrentGlobalPipeState,
+  prettyRound,
+  switchNet,
+} from "../../../utils/functions";
+import Message from "../../shared/message";
+import { i18n } from "../../../i18n";
+import { Networks } from "../../../utils/constants";
+
+export const fetchDetails = async (address) => {
+  let data = await fetch(
+    "https://algoexplorerapi.io/idx2/v2/accounts/" + address
+  );
+  let dataJson = await data.json();
+  console.log(dataJson);
+  let assets = [];
+  dataJson.account.assets.forEach((asset) => {
+    let row = [];
+    row.push(asset["asset-id"]);
+    row.push(asset.amount / 1000000);
+    assets.push(row);
+  });
+  document.getElementById("table").innerHTML = renderTable(assets, [
+    "asset",
+    "amount",
+  ]);
+};
+
+const wallet = Pipeline.init();
+Pipeline.main = true;
+
+function WalletLogin() {
+  const dispatch = useDispatch();
+  const globalPipeState = useSelector(
+    algorandGlobalSelectors.selectCurrentPipeConnectState
+  );
+  const [pipeState, setPipeState] = useState({
+    myAddress: "",
+    checked: true,
+    labelNet: Networks.MainNet,
+  });
+  const [algoBalance, setAlgoBalance] = useState(0);
+
+  useEffect(() => {
+    if (globalPipeState) {
+      Pipeline.main = globalPipeState.mainNet;
+      Pipeline.pipeConnector = globalPipeState.provider;
+      setPipeState((prevState) => ({
+        ...prevState,
+        myAddress: globalPipeState.myAddress,
+        checked: globalPipeState.mainNet,
+        labelNet: globalPipeState.mainNet ? Networks.MainNet : Networks.TestNet,
+      }));
+    }
+  }, [globalPipeState]);
+
+  useEffect(() => {
+    if (pipeState.myAddress) {
+      document.getElementById("wallet-connect-2").style.display = "none";
+      document.getElementById("wallet-connected").style.display = "flex";
+      refresh();
+      const refreshInterval = setInterval(refresh, 5000);
+      return () => clearInterval(refreshInterval);
+    }
+  }, [pipeState]);
+
+  const switchWallet = async (event) => {
+    Pipeline.pipeConnector = event.target.id;
+    const address = await Pipeline.connect(wallet);
+    if (address) {
+      document.getElementById("wallet-connect-2").style.display = "none";
+      document.getElementById("wallet-connected").style.display = "flex";
+      const walletBalance = await Pipeline.balance(address);
+      if (walletBalance) {
+        setAlgoBalance(prettyRound(parseFloat(String(walletBalance))));
+        document.getElementById("modal-root-1").style.display = "none";
+        document.getElementById("modal-root-2").style.display = "none";
+        dispatch(
+          algorandGlobalActions.doPipeConnectChange({
+            ...getCurrentGlobalPipeState(globalPipeState),
+            myAddress: address,
+            provider: event.target.id,
+          })
+        );
+      } else {
+        dispatch(
+          algorandGlobalActions.doPipeConnectChange({
+            ...getCurrentGlobalPipeState(globalPipeState),
+            myAddress: address,
+            provider: event.target.id,
+          })
+        );
+      }
+    }
+  };
+
+  const refresh = () => {
+    if (Pipeline.pipeConnector && pipeState.myAddress) {
+      Pipeline.balance(pipeState.myAddress).then((balance) =>
+        setAlgoBalance(prettyRound(parseFloat(String(balance))))
+      );
+    }
+  };
+
+  // onClick handler function for the copy button
+  const handleCopyClick = () => {
+    // Asynchronously call copyTextToClipboard
+    if (pipeState.myAddress) {
+      copyTextToClipboard(pipeState.myAddress)
+        .then(() => {
+          setTimeout(() => {
+            Message.success(i18n("common.textCopySuccessFul"));
+          }, 200);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
+  const disconnect = () => {
+    document.getElementById("wallet-connect-2").style.display = "flex";
+    document.getElementById("wallet-connected").style.display = "none";
+    dispatch(authActions.doDisconnect());
+  };
+
+  return (
+    <div>
+      <div
+        id="modal-root-2"
+        className="modal-backdrop show"
+        style={{ display: "none" }}
+      />
+      <div
+        id="modal-root-1"
+        className="modal fade show"
+        tabIndex={-1}
+        aria-labelledby="exampleModalLabel"
+        aria-modal="true"
+        role="dialog"
+        style={{
+          display: "none",
+          paddingRight: "0.333374px",
+        }}>
+        <div className="modal-dialog" role="document">
+          <div className="modal-content border-0">
+            <div className="modal-header bg-card light">
+              <h5 className="modal-title text-white" id="exampleModalLabel">
+                Algo Wallets
+              </h5>
+
+              <button
+                type="button"
+                className="btn-close btn-close-white text-white"
+                data-bs-dismiss="modal"
+                data-dismiss="modal"
+                aria-label="Close"
+                onClick={() => {
+                  document.getElementById("modal-root-2").style.display =
+                    "none";
+                  document.getElementById("modal-root-1").style.display =
+                    "none";
+                }}
+              />
+            </div>
+            <div className="modal-body">
+              <button
+                id="WalletConnect"
+                className="crayons-btn w-100"
+                onClick={switchWallet}>
+                WalletConnect
+              </button>
+              <button
+                id="AlgoSigner"
+                className="crayons-btn w-100"
+                onClick={switchWallet}>
+                AlgoSigner
+              </button>
+              <button
+                id="myAlgoWallet"
+                className="crayons-btn w-100"
+                onClick={switchWallet}>
+                MyAlgoWallet
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button
+        className="crayons-btn crayons-btn--secondary "
+        id="wallet-connect-2"
+        aria-haspopup="true"
+        data-toggle="modal"
+        data-target="modal-root-1"
+        aria-expanded="true"
+        onClick={() => {
+          document.getElementById("modal-root-2").style.display = "block";
+          document.getElementById("modal-root-1").style.display = "block";
+        }}>
+        <svg
+          className="svg-inline--fa fa-wallet "
+          aria-hidden="true"
+          focusable="false"
+          data-prefix="fas"
+          data-icon="wallet"
+          role="img"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 512 512"
+          data-fa-i2svg="">
+          <path
+            fill="currentColor"
+            d="M461.2 128H80c-8.84 0-16-7.16-16-16s7.16-16 16-16h384c8.84 0 16-7.16 16-16 0-26.51-21.49-48-48-48H64C28.65 32 0 60.65 0 96v320c0 35.35 28.65 64 64 64h397.2c28.02 0 50.8-21.53 50.8-48V176c0-26.47-22.78-48-50.8-48zM416 336c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32z"
+          />
+        </svg>
+        <span className="count__title-2">Connect Wallet</span>
+      </button>
+      <div
+        id="wallet-connected"
+        className="crayons-select-2"
+        style={{ display: "none" }}>
+        <div
+          className="walled-connected-mi"
+          style={{
+            display: "none",
+            width: "20px",
+            height: "20px",
+            color: "var(--algocloud-body-bg-2)",
+          }}>
+          <svg
+            className="svg-inline--fa fa-wallet "
+            aria-hidden="true"
+            focusable="false"
+            data-prefix="fas"
+            data-icon="wallet"
+            role="img"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            data-fa-i2svg="">
+            <path
+              fill="currentColor"
+              d="M461.2 128H80c-8.84 0-16-7.16-16-16s7.16-16 16-16h384c8.84 0 16-7.16 16-16 0-26.51-21.49-48-48-48H64C28.65 32 0 60.65 0 96v320c0 35.35 28.65 64 64 64h397.2c28.02 0 50.8-21.53 50.8-48V176c0-26.47-22.78-48-50.8-48zM416 336c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32z"
+            />
+          </svg>
+        </div>
+
+        <div id="my-balance" className="own-balance">
+          <p style={{ marginBottom: "0px" }}>{algoBalance + " Algo"}</p>
+          <span className="currency" />
+        </div>
+        <div className="dropdown">
+          <button id="own-address" className="own-address">
+            {pipeState.myAddress || ""}
+          </button>
+          <div className="dropdown__content dropdown__content-wallet">
+            <button
+              className="copyable-1 dropdown-item"
+              onClick={handleCopyClick}>
+              <div className="copyable">
+                <div className="copyable__text">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={16}
+                    height={16}
+                    className="copy-icon"
+                    fill="currentColor"
+                    viewBox="0 0 512 512">
+                    <path d="M384 96L384 0h-112c-26.51 0-48 21.49-48 48v288c0 26.51 21.49 48 48 48H464c26.51 0 48-21.49 48-48V128h-95.1C398.4 128 384 113.6 384 96zM416 0v96h96L416 0zM192 352V128h-144c-26.51 0-48 21.49-48 48v288c0 26.51 21.49 48 48 48h192c26.51 0 48-21.49 48-48L288 416h-32C220.7 416 192 387.3 192 352z" />
+                  </svg>
+                  copy address
+                </div>
+                <span className="copy" />
+              </div>
+            </button>
+            <a
+              className="dropdown-item"
+              id="algoexplorer"
+              target="_blank"
+              rel="noreferrer"
+              href={
+                `https://${
+                  pipeState.checked ?? true ? "" : "testnet."
+                }algoexplorer.io/address/` + (pipeState.myAddress || "")
+              }>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 512 512"
+                width={16}
+                height={16}
+                className="external-link-icon"
+                fill="currentColor">
+                <path d="M384 320c-17.67 0-32 14.33-32 32v96H64V160h96c17.67 0 32-14.32 32-32s-14.33-32-32-32L64 96c-35.35 0-64 28.65-64 64V448c0 35.34 28.65 64 64 64h288c35.35 0 64-28.66 64-64v-96C416 334.3 401.7 320 384 320zM488 0H352c-12.94 0-24.62 7.797-29.56 19.75c-4.969 11.97-2.219 25.72 6.938 34.88L370.8 96L169.4 297.4c-12.5 12.5-12.5 32.75 0 45.25C175.6 348.9 183.8 352 192 352s16.38-3.125 22.62-9.375L416 141.3l41.38 41.38c9.156 9.141 22.88 11.84 34.88 6.938C504.2 184.6 512 172.9 512 160V24C512 10.74 501.3 0 488 0z" />
+              </svg>
+              AlgoExplorer
+            </a>
+            <button
+              id="disconnect-me"
+              className="dropdown-item"
+              onClick={disconnect}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 448 512"
+                width="16"
+                height="16"
+                className="eject-icon"
+                fill="currentColor">
+                <path d="M48.01 319.1h351.1c41.62 0 63.49-49.63 35.37-80.38l-175.1-192.1c-19-20.62-51.75-20.62-70.75 0L12.64 239.6C-15.48 270.2 6.393 319.1 48.01 319.1zM399.1 384H48.01c-26.39 0-47.99 21.59-47.99 47.98C.0117 458.4 21.61 480 48.01 480h351.1c26.39 0 47.99-21.6 47.99-47.99C447.1 405.6 426.4 384 399.1 384z"></path>
+              </svg>
+              Disconnect
+            </button>
+            <div className="form-check form-switch dropdown-item crayons-select">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="flexSwitchCheckChecked"
+                // defaultChecked={true}
+                onChange={(event) =>
+                  switchNet(event.target.checked, dispatch, globalPipeState)
+                }
+                checked={pipeState.checked ?? true}
+              />
+              <span> {pipeState.labelNet || Networks.MainNet}</span>
+              <label
+                className="form-check-label"
+                htmlFor="flexSwitchCheckChecked"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="table" />
+    </div>
+  );
+}
+
+export default WalletLogin;

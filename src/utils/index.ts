@@ -5,6 +5,8 @@ import manifest from "../../package.json";
 import store from "../state";
 
 /* ----- Constants ----- */
+export const APP_NAME = "Invo";
+
 export const CHAIN_NETWORK_KEY = "mainNet";
 export const PROVIDER_KEY = "provider";
 export const ADDRESS_KEY = "address";

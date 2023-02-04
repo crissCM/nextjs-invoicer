@@ -82,6 +82,15 @@ $rowTextWeight: 600;
   width: 100%;
 }
 
+.navbarLogoParent {
+  display: flex;
+  .app-logo {
+    width: 33px;
+    height: 33px;
+    margin-right: 7px;
+  }
+}
+
 .App-link {
   color: #61dafb;
 }
@@ -91,3 +100,5 @@ $rowTextWeight: 600;
 @import "../src/components/Invoice/Invoice.scss";
 @import "../src/components/Invoice/MyInvoices/MyInvoices.scss";
 @import "../src/components/DarkMode/DarkMode.scss";
+@import "./default.css";
+// TODO @import "./light.css";
