@@ -27,6 +27,7 @@ const ConnectWallet = () => {
   const { account, address, appId, error, loading } = useGlobalUser();
   const [modal, showModal] = useState(false);
   const [connecting, setConnecting] = useState(false);
+
   const connectTo = async (prov: string) => {
     showModal(false);
     if (!prov) return;

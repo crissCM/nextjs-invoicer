@@ -1,14 +1,69 @@
-import React, { useState } from "react";
+import { checkSessionExists, disconnectUser } from "@jackcom/reachduck";
+import React, { useEffect, useState } from "react";
+import { Button } from "react-bootstrap";
 import { useGlobalUser } from "src/hooks/GlobalUser";
+import {
+  Contracts,
+  resetNotifications,
+  updateAsError,
+  updateNotification,
+} from "src/state";
 import { useAppSelector } from "src/store/hooks";
 import { BlockchainNetwork, prettyRound, copyTextToClipboard } from "src/utils";
+import { connect, reconnect } from "../../reach";
 
 function WalletLogin() {
-  const { address } = useGlobalUser();
+  const { account, address, appId, error } = useGlobalUser();
   const { isMainNet } = useAppSelector((state) => state.algorand);
   const [algoBalance, setAlgoBalance] = useState(0);
+  const [connecting, setConnecting] = useState(false);
+
+  const connectTo = async (prov: string) => {
+    if (!prov) {
+      return;
+    }
+    setConnecting(true);
+    try {
+      await connect(prov, appId === Contracts.MainNet);
+      const alertId = resetNotifications("⏳ Connecting ... ", true);
+      updateNotification(alertId, "✅ Connected!");
+      const wc = document.getElementById("wallet-connected");
+      const wc2 = document.getElementById("wallet-connect-2");
+      if (wc && wc2) {
+        wc2.style.display = "none";
+        wc.style.display = "flex";
+      }
+      const walletBalance = 0; // TODO await Pipeline.balance(address);
+      if (walletBalance) {
+        setAlgoBalance(prettyRound(parseFloat(String(walletBalance))));
+        const mr1 = document.getElementById("modal-root-1");
+        const mr2 = document.getElementById("modal-root-2");
+        if (mr1 && mr2) {
+          mr1.style.display = "none";
+          mr2.style.display = "none";
+        }
+      }
+    } catch (e: any) {
+      // console.log(e)
+      const err = "❌ Account Fetch error";
+      updateAsError(null, err, { error: err });
+    }
+    setConnecting(false);
+  };
+
+  const resumeSession = async () => {
+    const alertId = resetNotifications("⏳ Reconnecting ... ");
+    await reconnect(appId === Contracts.MainNet);
+    updateNotification(alertId, "✅ Connected!");
+  };
+
+  useEffect(() => {
+    const { exists } = checkSessionExists();
+    if (exists && !account) resumeSession();
+  }, []);
 
   const switchWallet = async (event: any) => {
+    connectTo(event.target.id);
     /*
     Pipeline.pipeConnector = event.target.id;
     const address = await Pipeline.connect(wallet);
@@ -65,7 +120,7 @@ function WalletLogin() {
       wc2.style.display = "flex";
       wc.style.display = "none";
     }
-    // dispatch(authActions.doDisconnect());
+    disconnectUser();
   };
 
   return (
@@ -123,48 +178,60 @@ function WalletLogin() {
                 AlgoSigner
               </button>
               <button
-                id="myAlgoWallet"
+                id="MyAlgo"
                 className="crayons-btn w-100"
                 onClick={switchWallet}>
-                MyAlgoWallet
+                MyAlgo
               </button>
             </div>
           </div>
         </div>
       </div>
-      <button
-        className="crayons-btn crayons-btn--secondary "
-        id="wallet-connect-2"
-        aria-haspopup="true"
-        data-toggle="modal"
-        data-target="modal-root-1"
-        aria-expanded="true"
-        onClick={() => {
-          const mr1 = document.getElementById("modal-root-1");
-          const mr2 = document.getElementById("modal-root-2");
-          if (mr1 && mr2) {
-            mr1.style.display = "block";
-            mr2.style.display = "block";
-          }
-        }}>
-        <svg
-          className="svg-inline--fa fa-wallet "
-          aria-hidden="true"
-          focusable="false"
-          data-prefix="fas"
-          data-icon="wallet"
-          role="img"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 512 512"
-          data-fa-i2svg="">
-          <path
+      {connecting && (
+        <Button disabled>
+          <span className="spinner--before">Loading ...</span>
+        </Button>
+      )}
+      {error ? (
+        <Button onClick={() => window.location.reload()}>
+          <span className="material-icons">close</span>
+          Connect Error
+        </Button>
+      ) : (
+        <button
+          className="crayons-btn crayons-btn--secondary "
+          id="wallet-connect-2"
+          aria-haspopup="true"
+          data-toggle="modal"
+          data-target="modal-root-1"
+          aria-expanded="true"
+          onClick={() => {
+            const mr1 = document.getElementById("modal-root-1");
+            const mr2 = document.getElementById("modal-root-2");
+            if (mr1 && mr2) {
+              mr1.style.display = "block";
+              mr2.style.display = "block";
+            }
+          }}>
+          <svg
+            className="svg-inline--fa fa-wallet "
+            aria-hidden="true"
+            focusable="false"
+            data-prefix="fas"
+            data-icon="wallet"
+            role="img"
             fill="currentColor"
-            d="M461.2 128H80c-8.84 0-16-7.16-16-16s7.16-16 16-16h384c8.84 0 16-7.16 16-16 0-26.51-21.49-48-48-48H64C28.65 32 0 60.65 0 96v320c0 35.35 28.65 64 64 64h397.2c28.02 0 50.8-21.53 50.8-48V176c0-26.47-22.78-48-50.8-48zM416 336c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32z"
-          />
-        </svg>
-        <span className="count__title-2">Connect Wallet</span>
-      </button>
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            data-fa-i2svg="">
+            <path
+              fill="currentColor"
+              d="M461.2 128H80c-8.84 0-16-7.16-16-16s7.16-16 16-16h384c8.84 0 16-7.16 16-16 0-26.51-21.49-48-48-48H64C28.65 32 0 60.65 0 96v320c0 35.35 28.65 64 64 64h397.2c28.02 0 50.8-21.53 50.8-48V176c0-26.47-22.78-48-50.8-48zM416 336c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32z"
+            />
+          </svg>
+          <span className="count__title-2">Connect Wallet</span>
+        </button>
+      )}
       <div
         id="wallet-connected"
         className="crayons-select-2"
@@ -242,21 +309,23 @@ function WalletLogin() {
               </svg>
               AlgoExplorer
             </a>
-            <button
-              id="disconnect-me"
-              className="dropdown-item"
-              onClick={disconnect}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 448 512"
-                width="16"
-                height="16"
-                className="eject-icon"
-                fill="currentColor">
-                <path d="M48.01 319.1h351.1c41.62 0 63.49-49.63 35.37-80.38l-175.1-192.1c-19-20.62-51.75-20.62-70.75 0L12.64 239.6C-15.48 270.2 6.393 319.1 48.01 319.1zM399.1 384H48.01c-26.39 0-47.99 21.59-47.99 47.98C.0117 458.4 21.61 480 48.01 480h351.1c26.39 0 47.99-21.6 47.99-47.99C447.1 405.6 426.4 384 399.1 384z" />
-              </svg>
-              Disconnect
-            </button>
+            {address && (
+              <button
+                id="disconnect-me"
+                className="dropdown-item"
+                onClick={disconnect}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 448 512"
+                  width="16"
+                  height="16"
+                  className="eject-icon"
+                  fill="currentColor">
+                  <path d="M48.01 319.1h351.1c41.62 0 63.49-49.63 35.37-80.38l-175.1-192.1c-19-20.62-51.75-20.62-70.75 0L12.64 239.6C-15.48 270.2 6.393 319.1 48.01 319.1zM399.1 384H48.01c-26.39 0-47.99 21.59-47.99 47.98C.0117 458.4 21.61 480 48.01 480h351.1c26.39 0 47.99-21.6 47.99-47.99C447.1 405.6 426.4 384 399.1 384z" />
+                </svg>
+                Disconnect
+              </button>
+            )}
             <div className="form-check form-switch dropdown-item crayons-select">
               <label
                 className="form-check-label"
