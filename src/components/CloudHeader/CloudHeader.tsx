@@ -2,6 +2,7 @@ import React from "react";
 import HeaderWrapper from "./HeaderWrapper";
 import DarkMode from "../DarkMode/DarkMode";
 import { APP_NAME } from "src/utils";
+import WalletLogin from "../WalletLogin";
 
 function CloudHeader() {
   return (
@@ -21,7 +22,9 @@ function CloudHeader() {
             alignItems: "center",
             justifyContent: "flex-end",
           }}>
-          <span className="i18n-select">{/* <PipeConnect /> */}</span>
+          <span className="i18n-select">
+            <WalletLogin />
+          </span>
           <div className="avatar-dropdown dropdown">
             <span className="user-dropdown" data-toggle="dropdown">
               <div className="user-dropdown-content">

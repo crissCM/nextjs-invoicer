@@ -1,79 +1,15 @@
-import React, { useEffect, useState } from "react";
-import Pipeline from "@pipeline-ui-2/pipeline";
-import renderTable from "../../Portfolio/components/tables";
-import "./slider.css";
-import authActions from "../../../modules/auth/authActions";
-import algorandGlobalActions from "../../../modules/algorand/global/globalActions";
-import algorandGlobalSelectors from "../../../modules/algorand/global/globalSelctors";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  copyTextToClipboard,
-  getCurrentGlobalPipeState,
-  prettyRound,
-  switchNet,
-} from "../../../utils/functions";
-import Message from "../../shared/message";
-import { i18n } from "../../../i18n";
-import { Networks } from "../../../utils/constants";
-
-export const fetchDetails = async (address) => {
-  let data = await fetch(
-    "https://algoexplorerapi.io/idx2/v2/accounts/" + address
-  );
-  let dataJson = await data.json();
-  console.log(dataJson);
-  let assets = [];
-  dataJson.account.assets.forEach((asset) => {
-    let row = [];
-    row.push(asset["asset-id"]);
-    row.push(asset.amount / 1000000);
-    assets.push(row);
-  });
-  document.getElementById("table").innerHTML = renderTable(assets, [
-    "asset",
-    "amount",
-  ]);
-};
-
-const wallet = Pipeline.init();
-Pipeline.main = true;
+import React, { useState } from "react";
+import { useGlobalUser } from "src/hooks/GlobalUser";
+import { useAppSelector } from "src/store/hooks";
+import { BlockchainNetwork, prettyRound, copyTextToClipboard } from "src/utils";
 
 function WalletLogin() {
-  const dispatch = useDispatch();
-  const globalPipeState = useSelector(
-    algorandGlobalSelectors.selectCurrentPipeConnectState
-  );
-  const [pipeState, setPipeState] = useState({
-    myAddress: "",
-    checked: true,
-    labelNet: Networks.MainNet,
-  });
+  const { address } = useGlobalUser();
+  const { isMainNet } = useAppSelector((state) => state.algorand);
   const [algoBalance, setAlgoBalance] = useState(0);
 
-  useEffect(() => {
-    if (globalPipeState) {
-      Pipeline.main = globalPipeState.mainNet;
-      Pipeline.pipeConnector = globalPipeState.provider;
-      setPipeState((prevState) => ({
-        ...prevState,
-        myAddress: globalPipeState.myAddress,
-        checked: globalPipeState.mainNet,
-        labelNet: globalPipeState.mainNet ? Networks.MainNet : Networks.TestNet,
-      }));
-    }
-  }, [globalPipeState]);
-
-  useEffect(() => {
-    if (pipeState.myAddress) {
-      document.getElementById("wallet-connect-2").style.display = "none";
-      document.getElementById("wallet-connected").style.display = "flex";
-      refresh();
-      const refreshInterval = setInterval(refresh, 5000);
-      return () => clearInterval(refreshInterval);
-    }
-  }, [pipeState]);
-
-  const switchWallet = async (event) => {
+  const switchWallet = async (event: any) => {
+    /*
     Pipeline.pipeConnector = event.target.id;
     const address = await Pipeline.connect(wallet);
     if (address) {
@@ -101,36 +37,35 @@ function WalletLogin() {
         );
       }
     }
-  };
-
-  const refresh = () => {
-    if (Pipeline.pipeConnector && pipeState.myAddress) {
-      Pipeline.balance(pipeState.myAddress).then((balance) =>
-        setAlgoBalance(prettyRound(parseFloat(String(balance))))
-      );
-    }
+    */
   };
 
   // onClick handler function for the copy button
   const handleCopyClick = () => {
     // Asynchronously call copyTextToClipboard
-    if (pipeState.myAddress) {
-      copyTextToClipboard(pipeState.myAddress)
+    if (address) {
+      /*
+      copyTextToClipboard(address)
         .then(() => {
           setTimeout(() => {
             Message.success(i18n("common.textCopySuccessFul"));
           }, 200);
         })
-        .catch((err) => {
+        .catch((err: Error) => {
           console.log(err);
         });
+        */
     }
   };
 
   const disconnect = () => {
-    document.getElementById("wallet-connect-2").style.display = "flex";
-    document.getElementById("wallet-connected").style.display = "none";
-    dispatch(authActions.doDisconnect());
+    const wc = document.getElementById("wallet-connected");
+    const wc2 = document.getElementById("wallet-connect-2");
+    if (wc && wc2) {
+      wc2.style.display = "flex";
+      wc.style.display = "none";
+    }
+    // dispatch(authActions.doDisconnect());
   };
 
   return (
@@ -165,10 +100,12 @@ function WalletLogin() {
                 data-dismiss="modal"
                 aria-label="Close"
                 onClick={() => {
-                  document.getElementById("modal-root-2").style.display =
-                    "none";
-                  document.getElementById("modal-root-1").style.display =
-                    "none";
+                  const mr1 = document.getElementById("modal-root-1");
+                  const mr2 = document.getElementById("modal-root-2");
+                  if (mr1 && mr2) {
+                    mr1.style.display = "none";
+                    mr2.style.display = "none";
+                  }
                 }}
               />
             </div>
@@ -203,8 +140,12 @@ function WalletLogin() {
         data-target="modal-root-1"
         aria-expanded="true"
         onClick={() => {
-          document.getElementById("modal-root-2").style.display = "block";
-          document.getElementById("modal-root-1").style.display = "block";
+          const mr1 = document.getElementById("modal-root-1");
+          const mr2 = document.getElementById("modal-root-2");
+          if (mr1 && mr2) {
+            mr1.style.display = "block";
+            mr2.style.display = "block";
+          }
         }}>
         <svg
           className="svg-inline--fa fa-wallet "
@@ -255,12 +196,12 @@ function WalletLogin() {
         </div>
 
         <div id="my-balance" className="own-balance">
-          <p style={{ marginBottom: "0px" }}>{algoBalance + " Algo"}</p>
+          <p style={{ marginBottom: "0px" }}>{`${algoBalance} Algo`}</p>
           <span className="currency" />
         </div>
         <div className="dropdown">
           <button id="own-address" className="own-address">
-            {pipeState.myAddress || ""}
+            {address || ""}
           </button>
           <div className="dropdown__content dropdown__content-wallet">
             <button
@@ -287,11 +228,9 @@ function WalletLogin() {
               id="algoexplorer"
               target="_blank"
               rel="noreferrer"
-              href={
-                `https://${
-                  pipeState.checked ?? true ? "" : "testnet."
-                }algoexplorer.io/address/` + (pipeState.myAddress || "")
-              }>
+              href={`https://${
+                isMainNet ? "" : "testnet."
+              }algoexplorer.io/address/${address || ""}`}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 512 512"
@@ -314,26 +253,30 @@ function WalletLogin() {
                 height="16"
                 className="eject-icon"
                 fill="currentColor">
-                <path d="M48.01 319.1h351.1c41.62 0 63.49-49.63 35.37-80.38l-175.1-192.1c-19-20.62-51.75-20.62-70.75 0L12.64 239.6C-15.48 270.2 6.393 319.1 48.01 319.1zM399.1 384H48.01c-26.39 0-47.99 21.59-47.99 47.98C.0117 458.4 21.61 480 48.01 480h351.1c26.39 0 47.99-21.6 47.99-47.99C447.1 405.6 426.4 384 399.1 384z"></path>
+                <path d="M48.01 319.1h351.1c41.62 0 63.49-49.63 35.37-80.38l-175.1-192.1c-19-20.62-51.75-20.62-70.75 0L12.64 239.6C-15.48 270.2 6.393 319.1 48.01 319.1zM399.1 384H48.01c-26.39 0-47.99 21.59-47.99 47.98C.0117 458.4 21.61 480 48.01 480h351.1c26.39 0 47.99-21.6 47.99-47.99C447.1 405.6 426.4 384 399.1 384z" />
               </svg>
               Disconnect
             </button>
             <div className="form-check form-switch dropdown-item crayons-select">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="flexSwitchCheckChecked"
-                // defaultChecked={true}
-                onChange={(event) =>
-                  switchNet(event.target.checked, dispatch, globalPipeState)
-                }
-                checked={pipeState.checked ?? true}
-              />
-              <span> {pipeState.labelNet || Networks.MainNet}</span>
               <label
                 className="form-check-label"
-                htmlFor="flexSwitchCheckChecked"
-              />
+                htmlFor="flexSwitchCheckChecked">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="flexSwitchCheckChecked"
+                  onChange={
+                    (event) => console.log("----- :")
+                    // TODO switchNet(event.target.checked, dispatch, globalPipeState)
+                  }
+                  checked={isMainNet}
+                />
+              </label>
+              <span>
+                {isMainNet
+                  ? BlockchainNetwork.MainNet
+                  : BlockchainNetwork.TestNet}
+              </span>
             </div>
           </div>
         </div>

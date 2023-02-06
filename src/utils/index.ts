@@ -1,5 +1,6 @@
 import { checkSessionExists } from "@jackcom/reachduck";
 import AlgodClient from "algosdk/dist/types/client/v2/algod/algod";
+import { isNumber } from "lodash";
 import localStore from "store";
 import manifest from "../../package.json";
 import store from "../state";
@@ -241,4 +242,17 @@ export function copyTextToClipboard(text: string) {
     return navigator.clipboard.writeText(text);
   }
   return document.execCommand("copy", true, text);
+}
+
+/**
+ * Rounds a number without unnecessary trailing zeros
+ * @param num Number to round.
+ * @param decimals Round the number to this many decimals or the default value if missing.
+ * @return The rounded number or undefined it the param was undefined.
+ * */
+export function prettyRound(num: number, decimals = 3) {
+  if (isNumber(num)) {
+    return parseFloat(num.toFixed(decimals));
+  }
+  return num;
 }
