@@ -3,13 +3,20 @@ import React, { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import { useGlobalUser } from "src/hooks/GlobalUser";
 import {
+  addNotification,
   Contracts,
   resetNotifications,
   updateAsError,
   updateNotification,
 } from "src/state";
 import { useAppSelector } from "src/store/hooks";
-import { BlockchainNetwork, prettyRound, copyTextToClipboard } from "src/utils";
+import {
+  BlockchainNetwork,
+  copyTextToClipboard,
+  ALGO_BALANCE_REFRESH_MS,
+  convertMicroToAlgo,
+} from "src/utils";
+import useInterval from "src/utils/hooks/useInterval";
 import { connect, reconnect } from "../../reach";
 
 function WalletLogin() {
@@ -17,6 +24,27 @@ function WalletLogin() {
   const { isMainNet } = useAppSelector((state) => state.algorand);
   const [algoBalance, setAlgoBalance] = useState(0);
   const [connecting, setConnecting] = useState(false);
+
+  const initializeAlgoBalance = async () => {
+    if (account) {
+      try {
+        const balanceObj = await account.balanceOf();
+        if (balanceObj._hex !== undefined) {
+          setAlgoBalance(convertMicroToAlgo(parseInt(balanceObj._hex, 16)));
+          const mr1 = document.getElementById("modal-root-1");
+          const mr2 = document.getElementById("modal-root-2");
+          if (mr1 && mr2) {
+            mr1.style.display = "none";
+            mr2.style.display = "none";
+          }
+        }
+      } catch (e) {
+        console.log("----- balance fetch ERROR:", e);
+      }
+    }
+  };
+
+  useInterval(initializeAlgoBalance, ALGO_BALANCE_REFRESH_MS);
 
   const connectTo = async (prov: string) => {
     if (!prov) {
@@ -27,24 +55,8 @@ function WalletLogin() {
       await connect(prov, appId === Contracts.MainNet);
       const alertId = resetNotifications("⏳ Connecting ... ", true);
       updateNotification(alertId, "✅ Connected!");
-      const wc = document.getElementById("wallet-connected");
-      const wc2 = document.getElementById("wallet-connect-2");
-      if (wc && wc2) {
-        wc2.style.display = "none";
-        wc.style.display = "flex";
-      }
-      const walletBalance = 0; // TODO await Pipeline.balance(address);
-      if (walletBalance) {
-        setAlgoBalance(prettyRound(parseFloat(String(walletBalance))));
-        const mr1 = document.getElementById("modal-root-1");
-        const mr2 = document.getElementById("modal-root-2");
-        if (mr1 && mr2) {
-          mr1.style.display = "none";
-          mr2.style.display = "none";
-        }
-      }
     } catch (e: any) {
-      // console.log(e)
+      console.log("----- connect ERROR:", e);
       const err = "❌ Account Fetch error";
       updateAsError(null, err, { error: err });
     }
@@ -62,54 +74,32 @@ function WalletLogin() {
     if (exists && !account) resumeSession();
   }, []);
 
-  const switchWallet = async (event: any) => {
-    connectTo(event.target.id);
-    /*
-    Pipeline.pipeConnector = event.target.id;
-    const address = await Pipeline.connect(wallet);
-    if (address) {
-      document.getElementById("wallet-connect-2").style.display = "none";
-      document.getElementById("wallet-connected").style.display = "flex";
-      const walletBalance = await Pipeline.balance(address);
-      if (walletBalance) {
-        setAlgoBalance(prettyRound(parseFloat(String(walletBalance))));
-        document.getElementById("modal-root-1").style.display = "none";
-        document.getElementById("modal-root-2").style.display = "none";
-        dispatch(
-          algorandGlobalActions.doPipeConnectChange({
-            ...getCurrentGlobalPipeState(globalPipeState),
-            myAddress: address,
-            provider: event.target.id,
-          })
-        );
+  useEffect(() => {
+    const wc = document.getElementById("wallet-connected");
+    const wc2 = document.getElementById("wallet-connect-2");
+    if (wc && wc2) {
+      if (address) {
+        wc2.style.display = "none";
+        wc.style.display = "flex";
       } else {
-        dispatch(
-          algorandGlobalActions.doPipeConnectChange({
-            ...getCurrentGlobalPipeState(globalPipeState),
-            myAddress: address,
-            provider: event.target.id,
-          })
-        );
+        wc2.style.display = "flex";
+        wc.style.display = "none";
       }
     }
-    */
+  }, [address]);
+
+  const switchWallet = async (event: any) => {
+    connectTo(event.target.id);
   };
 
   // onClick handler function for the copy button
   const handleCopyClick = () => {
     // Asynchronously call copyTextToClipboard
     if (address) {
-      /*
-      copyTextToClipboard(address)
-        .then(() => {
-          setTimeout(() => {
-            Message.success(i18n("common.textCopySuccessFul"));
-          }, 200);
-        })
-        .catch((err: Error) => {
-          console.log(err);
-        });
-        */
+      copyTextToClipboard(address);
+      setTimeout(() => {
+        addNotification(`✅ Address copied!`);
+      }, 200);
     }
   };
 

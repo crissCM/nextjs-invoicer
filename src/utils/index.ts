@@ -8,10 +8,12 @@ import store from "../state";
 /* ----- Constants ----- */
 export const APP_NAME = "Invo";
 
-export const CHAIN_NETWORK_KEY = "mainNet";
+export const CHAIN_NETWORK_KEY = "isMainNet";
 export const PROVIDER_KEY = "provider";
 export const ADDRESS_KEY = "address";
 export const THEME_KEY = "theme";
+
+export const ALGO_BALANCE_REFRESH_MS = 30000;
 
 export const THEME = {
   LIGHT: "light",
@@ -228,6 +230,9 @@ export const fromBinary = (encoded: string) => {
  * @returns Microalgo value
  */
 export const convertAlgoToMicro = (algos: number) => algos * 1000000;
+
+export const convertMicroToAlgo = (microAlgos: number) =>
+  prettyRound(microAlgos / 1000000, 2);
 
 export const fixAppArgument = (str: string) =>
   str.charAt(0) !== "{" ? `{"${str.substring(118)}` : str;
