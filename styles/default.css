@@ -499,7 +499,8 @@ a#algoexplorer {
 }
 
 .own-balance {
-    height: 30px!important
+    height: 30px!important;
+    cursor: default;
 }
 
 a#algoexplorer,button#disconnect-me,button.btn.btn--transparent {
@@ -1118,7 +1119,7 @@ h6.ww {
     flex-shrink: 0
 }
 
-.crayons-checkbox,.crayons-color-selector,.crayons-field.crayons-field--checkbox.crayons-block,.crayons-radio,.crayons-select,.crayons-select-2,.crayons-textfield {
+.crayons-checkbox,.crayons-color-selector,.crayons-field.crayons-field--checkbox.crayons-block,.crayons-radio,.crayons-select,.crayons-textfield {
     cursor: pointer
 }
 
@@ -30147,7 +30148,7 @@ a.d-block.hover-bg-200.px-2.py-3.rounded-3.text-center.text-decoration-none {
     color: var(--algocloud-body-color)
 }
 
-.dropdown-item,button.toast-close-button,select.crayons-select,select.crayons-select-2 {
+.dropdown-item,button.toast-close-button,select.crayons-select {
     cursor: pointer
 }
 

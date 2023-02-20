@@ -22,7 +22,7 @@ import { connect, reconnect } from "../../reach";
 function WalletLogin() {
   const { account, address, appId, error } = useGlobalUser();
   const { isMainNet } = useAppSelector((state) => state.algorand);
-  const [algoBalance, setAlgoBalance] = useState(0);
+  const [algoBalance, setAlgoBalance] = useState<number>();
   const [connecting, setConnecting] = useState(false);
 
   const initializeAlgoBalance = async () => {
@@ -73,6 +73,12 @@ function WalletLogin() {
     const { exists } = checkSessionExists();
     if (exists && !account) resumeSession();
   }, []);
+
+  useEffect(() => {
+    if (account) {
+      initializeAlgoBalance();
+    }
+  }, [account]);
 
   useEffect(() => {
     const wc = document.getElementById("wallet-connected");
@@ -253,7 +259,9 @@ function WalletLogin() {
         </div>
 
         <div id="my-balance" className="own-balance">
-          <p style={{ marginBottom: "0px" }}>{`${algoBalance} Algo`}</p>
+          <p style={{ marginBottom: "0px" }}>{`${
+            algoBalance === undefined ? "-" : algoBalance
+          } Algo`}</p>
           <span className="currency" />
         </div>
         <div className="dropdown">

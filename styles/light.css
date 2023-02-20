@@ -486,6 +486,7 @@ a#algoexplorer {
 
 .own-balance {
     height: 30px!important
+    cursor: default;
 }
 
 a#algoexplorer,button#disconnect-me,button.btn.btn--transparent {
@@ -48300,7 +48301,7 @@ a.d-block.hover-bg-200.px-2.py-3.rounded-3.text-center.text-decoration-none {
     color: #7b78ff!important
 }
 
-.dropdown-item,button.toast-close-button,select.crayons-select,select.crayons-select-2 {
+.dropdown-item,button.toast-close-button,select.crayons-select {
     cursor: pointer
 }
 
