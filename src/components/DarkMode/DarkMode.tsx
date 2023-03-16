@@ -3,6 +3,7 @@ import localStore from "store";
 import { THEME, THEME_KEY } from "src/utils";
 import { useAppDispatch } from "src/store/hooks";
 import { updateTheme } from "src/store/ui";
+import SettingsService from "src/services/settingsService";
 
 const DarkMode = () => {
   const dispatch = useAppDispatch();
@@ -30,6 +31,7 @@ const DarkMode = () => {
       setTheme(THEME.LIGHT);
     }
     dispatch(updateTheme(theme));
+    SettingsService.applyThemeFromState();
   };
   return (
     <div className="toggle-theme-wrapper">

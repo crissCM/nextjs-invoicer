@@ -25,35 +25,7 @@ function CloudHeader() {
           <span className="i18n-select">
             <WalletLogin />
           </span>
-          <div className="avatar-dropdown dropdown">
-            <span className="user-dropdown" data-toggle="dropdown">
-              <div className="user-dropdown-content">
-                <span className="user-dropdown-text">
-                  <span>userText</span>
-                  <div className="dropdown-divider" />
-                  <DarkMode />
-                  <button
-                    onClick={undefined}
-                    className="dropdown-item"
-                    type="button">
-                    <i className="fas fa-sign-out-alt" /> auth.signout
-                  </button>
-                </span>
-              </div>
-            </span>
-            <div className="dropdown-menu dropdown-menu-right">
-              <div className="bg-white dark__bg-1000 rounded-2 py-2 m-25">
-                <div className="dropdown-divider" />
-                <DarkMode />
-                <button
-                  onClick={undefined}
-                  className="dropdown-item"
-                  type="button">
-                  <i className="fas fa-sign-out-alt" /> auth.signout
-                </button>
-              </div>
-            </div>
-          </div>
+          <DarkMode />
         </div>
       </div>
     </HeaderWrapper>
