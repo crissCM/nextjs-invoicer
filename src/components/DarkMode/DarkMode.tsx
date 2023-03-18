@@ -41,14 +41,14 @@ const DarkMode = () => {
             className="lightmode-toggle"
             onClick={toggleTheme}
             aria-hidden="true">
-            <i id="sun" className="fas fa-sun" /> Lightmode
+            <i id="sun" className="fas fa-sun" /> Light
           </div>
         ) : (
           <div
             className="darkmode-toggle"
             onClick={toggleTheme}
             aria-hidden="true">
-            <i id="moon" className="fas fa-moon" /> Darkmode
+            <i id="moon" className="fas fa-moon" /> Dark
           </div>
         )}
       </label>
