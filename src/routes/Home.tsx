@@ -108,7 +108,10 @@ const Home = () => {
 
   const reachLogin = async () => {
     const algodClientParams = await window.algorand.getAlgodv2Client();
-    const algodClient = new algosdk.Algodv2(algodClientParams);
+    const algodClient = new algosdk.Algodv2(
+      algodClientParams,
+      algodClientParams.bc.baseURL.href
+    );
     const suggestedParams = await algodClient.getTransactionParams().do();
     const enc = new TextEncoder();
     const note = enc.encode("Hello World");

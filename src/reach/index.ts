@@ -127,9 +127,6 @@ function configureWalletProvider(pr: string, isMainNet: boolean) {
     return;
   }
 
-  const fallback =
-    pr === Providers.MyAlgo ? { MyAlgoConnect } : { WalletConnect };
-
   const net = (
     isMainNet ? BlockchainNetwork.MainNet : BlockchainNetwork.TestNet
   ).toLowerCase();
@@ -137,6 +134,8 @@ function configureWalletProvider(pr: string, isMainNet: boolean) {
   const opts: ReachEnvOpts = {
     network: isMainNet ? BlockchainNetwork.MainNet : BlockchainNetwork.TestNet,
   };
+
+  console.log("----- opts.network:", opts.network);
 
   switch (pr) {
     case Providers.WalletConnect: {

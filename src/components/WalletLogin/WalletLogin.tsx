@@ -9,7 +9,12 @@ import {
   updateAsError,
   updateNotification,
 } from "src/state";
-import { useAppSelector } from "src/store/hooks";
+import {
+  updateAddress,
+  updateChainNetwork,
+  updateProvider,
+} from "src/store/algorand";
+import { useAppDispatch, useAppSelector } from "src/store/hooks";
 import {
   BlockchainNetwork,
   copyTextToClipboard,
@@ -20,6 +25,7 @@ import useInterval from "src/utils/hooks/useInterval";
 import { connect, reconnect } from "../../reach";
 
 function WalletLogin() {
+  const dispatch = useAppDispatch();
   const { account, address, appId, error } = useGlobalUser();
   const { isMainNet } = useAppSelector((state) => state.algorand);
   const [algoBalance, setAlgoBalance] = useState<number>();
@@ -54,7 +60,17 @@ function WalletLogin() {
     try {
       await connect(prov, appId === Contracts.MainNet);
       const alertId = resetNotifications("⏳ Connecting ... ", true);
-      updateNotification(alertId, "✅ Connected!");
+      const { addr = undefined } = checkSessionExists();
+      if (addr) {
+        dispatch(updateChainNetwork(appId === Contracts.MainNet));
+        dispatch(updateProvider(prov));
+        dispatch(updateAddress(addr));
+        updateNotification(alertId, "✅ Connected!");
+      } else {
+        console.log("----- session ERROR:", addr);
+        const err = "❌ Session error";
+        updateAsError(null, err, { error: err });
+      }
     } catch (e: any) {
       console.log("----- connect ERROR:", e);
       const err = "❌ Account Fetch error";

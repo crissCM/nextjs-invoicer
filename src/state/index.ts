@@ -76,8 +76,6 @@ const initialState = {
 
   initialized: false,
 
-  provider: "",
-
   reset: false,
 
   refreshInvoicesTable: false,

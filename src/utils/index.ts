@@ -36,7 +36,7 @@ export const DefaultConnectUserOpts: any = {
   initialAssetsLimit: 0,
 };
 
-export const DEFAULT_INDEXER = Indexers.AlgoExplorer;
+export const DEFAULT_INDEXER = Indexers.AlgoNode;
 
 export const IndexerProps = (indexer: string, net: string) => {
   const indexers: any = {
