@@ -106,69 +106,6 @@ const Home = () => {
     }, 1000);
   }
 
-  const reachLogin = async () => {
-    const algodClientParams = await window.algorand.getAlgodv2Client();
-    const algodClient = new algosdk.Algodv2(algodClientParams);
-    const suggestedParams = await algodClient.getTransactionParams().do();
-    const enc = new TextEncoder();
-    const note = enc.encode("Hello World");
-    const txn = algosdk.makePaymentTxnWithSuggestedParams(
-      "XARTZKOS6ZQDJSVFXTNR5L5JMJFXLPRQAZPZ54PVYS57WS24BNETWNFLEY",
-      "LXEJ37LOEE7QEW2OGM4NMMNNNEY34AHOM6DM5S447A4IHSELDOLZN7FD64",
-      0,
-      undefined,
-      note,
-      suggestedParams
-    );
-    console.log("----- provider:", provider);
-    if (provider === Providers.MyAlgo) {
-      const myAlgoWallet = new MyAlgoConnect();
-      try {
-        const signedTxn = await myAlgoWallet.signTransaction(txn.toByte());
-        const response = await algodClient
-          .sendRawTransaction(signedTxn.blob)
-          .do();
-        console.log("----- MyAlgo resp:", response);
-      } catch (err) {
-        console.error("----- MyAlgo sign error:", err);
-      }
-    } else if (provider === Providers.PeraConnect) {
-      /* TODO Pera and AlgoSigner are not yet supported by Starter. const peraWallet = new PeraWalletConnect();
-      try {
-        const singleTxnGroups: Array<SignerTransaction> = [
-          { txn, signers: [address!] },
-        ];
-        const signedTxn = await peraWallet.signTransaction([singleTxnGroups]);
-        const response = await algodClient.sendRawTransaction(signedTxn).do();
-        console.log("----- PeraConnect resp:", response);
-      } catch (err) {
-        console.error("----- PeraConnect sign error:", err);
-      } */
-    }
-
-    /* if (provider) {
-      store.loading(true);
-      addNotification(`💡 Reach connect..`);
-      try {
-        setClickListenerToQrCloseButton();
-        const currentAccount = await reachConnect(isMainNet, provider);
-        console.log("currentAccount:", currentAccount);
-        if (currentAccount) {
-          const result = await ActivateContract(participants.Admin, isMainNet);
-          if (!result) {
-            dispatch(updateReachDisconnectedTime(Date.now()));
-          }
-        }
-      } catch (e) {
-        console.log("reachLogin Error: ", e);
-      } finally {
-        store.loading(false);
-      }
-    } else {
-      addNotification(`💡 Please login with a wallet first.`);
-    } */
-  };
-
   return (
     <>
       <FlexColumn className="Home mt-3" padded>
@@ -191,9 +128,6 @@ const Home = () => {
             }}
             className="h1-invoicer">
             <h1 className="h2 mt-3 mb-1">Headline Invoice</h1>
-            <Button className="mt-3" variant="warning" onClick={reachLogin}>
-              <b>Reach Login</b>
-            </Button>
           </div>
         </FlexRow>
 

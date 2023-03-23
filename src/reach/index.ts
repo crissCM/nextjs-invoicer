@@ -10,10 +10,14 @@ import {
   reconnectUser,
   tokenMetadata as getReachToken,
 } from "@jackcom/reachduck";
+import WalletConnect from "../utils/WC/AlgoWalletConnect";
+import AlgoQRModal from "algorand-walletconnect-qrcode-modal";
 import MyAlgoConnect from "@randlabs/myalgo-connect";
+import { PeraWalletConnect } from "@perawallet/connect";
 import {
-  ALGO_WalletConnect as WalletConnect,
   loadStdlib,
+  ALGO_MakePeraConnect,
+  ALGO_MakeWalletConnect,
 } from "@reach-sh/stdlib";
 import localStore from "store";
 import store, {
@@ -29,7 +33,7 @@ import {
   IndexerProps,
   Providers,
 } from "../utils";
-import PeraConnect from "../utils/WC/PeraConnect";
+import PeraConnect from "../utils/WC/AlgoWalletConnect";
 
 /** Connect user Wallet */
 export async function connect(provider: string, isMainNet: boolean) {
@@ -123,9 +127,6 @@ function configureWalletProvider(pr: string, isMainNet: boolean) {
     return;
   }
 
-  const fallback =
-    pr === Providers.MyAlgo ? { MyAlgoConnect } : { WalletConnect };
-
   const net = (
     isMainNet ? BlockchainNetwork.MainNet : BlockchainNetwork.TestNet
   ).toLowerCase();
@@ -134,13 +135,19 @@ function configureWalletProvider(pr: string, isMainNet: boolean) {
     network: isMainNet ? BlockchainNetwork.MainNet : BlockchainNetwork.TestNet,
   };
 
+  console.log("----- opts.network:", opts.network);
+
   switch (pr) {
     case Providers.WalletConnect: {
-      opts.walletFallback = { WalletConnect };
+      opts.walletFallback = {
+        WalletConnect: ALGO_MakeWalletConnect(WalletConnect, AlgoQRModal),
+      };
       break;
     }
     case Providers.PeraConnect: {
-      opts.walletFallback = { WalletConnect: PeraConnect };
+      opts.walletFallback = {
+        WalletConnect: ALGO_MakePeraConnect(PeraWalletConnect),
+      };
       break;
     }
     default:

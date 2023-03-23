@@ -2,9 +2,7 @@
 
 ## What is it?
 
-This Reach React project was created by [Headline Inc.](https://www.headline-inc.com) and it supports publishing invoice JSON data and even paying them on the Algorand blockchain.
-
-The [Pipeline](https://github.com/headline-design/pipeline) library by [Headline](https://www.headline.dev) is used for the zero-transaction invoice notifications.
+This Reach NextJS project was created by [Headline Inc.](https://www.headline-inc.com) and it supports publishing invoice JSON data and even paying them on the Algorand blockchain.
 
 The project is fundamentally based on the [React Reach Starter](https://github.com/MrJackdaw/reach-reactjs-starter) by @MrJackdaw.
 
@@ -27,7 +25,7 @@ The invoicing generator is based on the [Invoice Generator](https://github.com/j
 
 ## How do I use it?
 
-1. Clone the project
+1. Clone (or fork) the project
 2. `cd path/to/my-project`
 3. `rm -rf .git && git init` (create a fresh git repository for your project)
 4. `npm install`
@@ -59,10 +57,6 @@ This project includes some helpful bits, including
 - A [light API](https://www.npmjs.com/package/@jackcom/reachduck#methods) for interacting with your `@reach/stdlib` instance.
 
 ---
-
-## Additional Notes
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). It does not use any `react-script` or `webpack` configuration overrides.
 
 ### Reach CLI
 
@@ -111,21 +105,6 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-### Learn More about React
+## 🤝
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/). Some other helpful topics:
-
-- [Code Splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-- [Analyzing the Bundle Size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-- [Making a Progressive Web App](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-- [Advanced Configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-- [Deployment](https://facebook.github.io/create-react-app/docs/deployment)
-- [`npm run build` fails to minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-
----
-
-### 🤝
-
-Special thanks to @MrJackdaw and the always supportive Algorand and Reach community!
+Special thanks to @MrJackdaw and the ever supportive Reach community!

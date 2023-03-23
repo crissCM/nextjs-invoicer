@@ -1,14 +1,22 @@
 import { checkSessionExists } from "@jackcom/reachduck";
-import AlgodClient from "algosdk/dist/types/client/v2/algod/algod";
+import algosdk from "algosdk";
+import { PeraWalletConnect } from "@perawallet/connect";
+import { SignerTransaction } from "@perawallet/connect/dist/util/model/peraWalletModels";
+import { isNumber } from "lodash";
 import localStore from "store";
 import manifest from "../../package.json";
 import store from "../state";
 
 /* ----- Constants ----- */
-export const CHAIN_NETWORK_KEY = "mainNet";
+export const APP_NAME = "Invo";
+
+export const CHAIN_NETWORK_KEY = "isMainNet";
 export const PROVIDER_KEY = "provider";
 export const ADDRESS_KEY = "address";
 export const THEME_KEY = "theme";
+
+export const ALGO_BALANCE_REFRESH_MS = 30000;
+
 export const THEME = {
   LIGHT: "light",
   DARK: "dark",
@@ -30,7 +38,7 @@ export const DefaultConnectUserOpts: any = {
   initialAssetsLimit: 0,
 };
 
-export const DEFAULT_INDEXER = Indexers.AlgoExplorer;
+export const DEFAULT_INDEXER = Indexers.AlgoNode;
 
 export const IndexerProps = (indexer: string, net: string) => {
   const indexers: any = {
@@ -100,8 +108,6 @@ export const participants = {
 /* Getters */
 
 export const Providers = {
-  WalletConnect: "WalletConnect",
-  MyAlgo: "MyAlgo",
   PeraConnect: "PeraConnect",
 };
 
@@ -127,63 +133,49 @@ export function isInvoiceValid(invoiceJson: string): boolean {
 }
 
 export const sendTransaction = async (
-  algodClient: AlgodClient,
-  algosdk: any,
-  signTransactions: any,
-  sendTransactions: any,
   from: string,
   to: string,
   amount: number,
   note = ""
 ) => {
-  const suggestedParams = await algodClient.getTransactionParams().do();
-
-  const transaction = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-    from,
-    to,
-    amount,
-    suggestedParams,
-  });
-
-  const encodedTransaction = algosdk.encodeUnsignedTransaction(transaction);
-
-  const signedTransactions = await signTransactions([encodedTransaction]);
-
-  const waitRoundsToConfirm = 4;
-
-  const { id } = await sendTransactions(
-    signedTransactions,
-    waitRoundsToConfirm
-  );
-
-  console.log("Successfully sent transaction. Transaction ID: ", id);
-};
-
-export async function pipelineSend(
-  recipientAddress: string,
-  microalgoAmount: number,
-  note: string
-) {
-  const gState = store.getState();
-  const { address } = gState;
-  const { exists, isWCSession } = checkSessionExists();
+  let txId;
+  const { exists } = checkSessionExists();
   if (exists) {
-    /* const walletProvider = isWCSession
-      ? TxnlabProviders.WALLETCONNECT
-      : TxnlabProviders.MYALGO; */
-    /* TODO Pipeline.pipeConnector = walletProvider;
-    Pipeline.address = address;
-    return Pipeline.send(
-      recipientAddress,
-      microalgoAmount,
-      note,
-      address,
-      null,
-      0
-    ); */
+    const algodClientParams = await window.algorand.getAlgodv2Client();
+    const algodClient = new algosdk.Algodv2(
+      algodClientParams,
+      algodClientParams.bc.baseURL.href
+    );
+    const suggestedParams = await algodClient.getTransactionParams().do();
+    const enc = new TextEncoder();
+    const encodedNote = enc.encode(note);
+    const txn = algosdk.makePaymentTxnWithSuggestedParams(
+      from,
+      to,
+      amount,
+      undefined,
+      encodedNote,
+      suggestedParams
+    );
+    const peraWallet = new PeraWalletConnect();
+    try {
+      const singleTxnGroups: Array<SignerTransaction> = [
+        {
+          txn,
+          signers: [from],
+        },
+      ];
+      const signedTxn = await peraWallet.signTransaction([singleTxnGroups]);
+      const response = await algodClient.sendRawTransaction(signedTxn).do();
+      txId = response?.txId;
+    } catch (err) {
+      console.error("----- PeraConnect sign error:", err);
+    }
+  } else {
+    console.error("----- No Session!:", exists);
   }
-  return null;
-}
+  return txId || exists;
+};
 
 /**
  * check if a string is numeric/float
@@ -225,6 +217,9 @@ export const fromBinary = (encoded: string) => {
  */
 export const convertAlgoToMicro = (algos: number) => algos * 1000000;
 
+export const convertMicroToAlgo = (microAlgos: number) =>
+  prettyRound(microAlgos / 1000000, 2);
+
 export const fixAppArgument = (str: string) =>
   str.charAt(0) !== "{" ? `{"${str.substring(118)}` : str;
 
@@ -238,4 +233,17 @@ export function copyTextToClipboard(text: string) {
     return navigator.clipboard.writeText(text);
   }
   return document.execCommand("copy", true, text);
+}
+
+/**
+ * Rounds a number without unnecessary trailing zeros
+ * @param num Number to round.
+ * @param decimals Round the number to this many decimals or the default value if missing.
+ * @return The rounded number or undefined it the param was undefined.
+ * */
+export function prettyRound(num: number, decimals = 3) {
+  if (isNumber(num)) {
+    return parseFloat(num.toFixed(decimals));
+  }
+  return num;
 }

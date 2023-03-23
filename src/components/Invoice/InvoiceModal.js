@@ -1,5 +1,4 @@
 import { truncateString } from "@jackcom/reachduck";
-import algosdk from "algosdk";
 import Color from "color";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -41,7 +40,6 @@ const InvoiceModal = ({
    */
   const isPayMode = () => serialNumber !== null;
 
-  const { signTransactions, sendTransactions } = useWallet();
   const gState = store.getState();
   const { address, maxBytesLength, refreshInvoicesTable } = gState;
   const [invoiceNumber, setInvoiceNumber] = useState(serialNumber);
@@ -73,11 +71,7 @@ const InvoiceModal = ({
     addNotification(
       `💡 Attempt to send ${algoAmount} Algo transaction with a note to the recipient.`
     );
-    /* TODO const txId = await sendTransaction(
-      algodClient,
-      algosdk,
-      signTransactions,
-      sendTransactions,
+    const txId = await sendTransaction(
       address,
       recipientAddress,
       convertAlgoToMicro(algoAmount),
@@ -87,9 +81,14 @@ const InvoiceModal = ({
       addNotification(`✅ Sent successfully!`);
       console.log(`Transaction ID: ${txId}`);
     } else {
-      const errorMsg = "An error happened during the transaction!";
+      let errorMsg;
+      if (txId === false) {
+        errorMsg = "Session expired, please log in again.";
+      } else {
+        errorMsg = "An error happened during the transaction!";
+      }
       addNotification(`❌ ${errorMsg}`);
-    } */
+    }
   };
 
   const getInvoiceJson = (status, info, currency, total, invoiceItems) => {

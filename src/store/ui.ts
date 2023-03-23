@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { THEME } from "src/utils";
 import type { AppDispatch } from ".";
 
 // Slice
@@ -7,9 +8,13 @@ import type { AppDispatch } from ".";
 const slice = createSlice({
   name: "ui",
   initialState: {
+    theme: THEME.LIGHT,
     menuVisible: true,
   },
   reducers: {
+    changeTheme: (state, action) => {
+      state.theme = action.payload;
+    },
     changeMenuVisibility: (state, action) => {
       state.menuVisible = action.payload;
     },
@@ -21,9 +26,13 @@ export default slice.reducer;
 
 // Actions
 
-const { changeMenuVisibility } = slice.actions;
+const { changeTheme, changeMenuVisibility } = slice.actions;
 
 export const updateMenuVisibility =
   (visibility: boolean) => async (dispatch: AppDispatch) => {
     dispatch(changeMenuVisibility(visibility));
   };
+
+export const updateTheme = (theme: string) => async (dispatch: AppDispatch) => {
+  dispatch(changeTheme(theme));
+};
