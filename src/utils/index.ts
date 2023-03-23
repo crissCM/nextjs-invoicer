@@ -1,4 +1,7 @@
 import { checkSessionExists } from "@jackcom/reachduck";
+import algosdk from "algosdk";
+import { PeraWalletConnect } from "@perawallet/connect";
+import { SignerTransaction } from "@perawallet/connect/dist/util/model/peraWalletModels";
 import AlgodClient from "algosdk/dist/types/client/v2/algod/algod";
 import { isNumber } from "lodash";
 import localStore from "store";
@@ -133,63 +136,49 @@ export function isInvoiceValid(invoiceJson: string): boolean {
 }
 
 export const sendTransaction = async (
-  algodClient: AlgodClient,
-  algosdk: any,
-  signTransactions: any,
-  sendTransactions: any,
   from: string,
   to: string,
   amount: number,
   note = ""
 ) => {
-  const suggestedParams = await algodClient.getTransactionParams().do();
-
-  const transaction = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-    from,
-    to,
-    amount,
-    suggestedParams,
-  });
-
-  const encodedTransaction = algosdk.encodeUnsignedTransaction(transaction);
-
-  const signedTransactions = await signTransactions([encodedTransaction]);
-
-  const waitRoundsToConfirm = 4;
-
-  const { id } = await sendTransactions(
-    signedTransactions,
-    waitRoundsToConfirm
-  );
-
-  console.log("Successfully sent transaction. Transaction ID: ", id);
-};
-
-export async function pipelineSend(
-  recipientAddress: string,
-  microalgoAmount: number,
-  note: string
-) {
-  const gState = store.getState();
-  const { address } = gState;
-  const { exists, isWCSession } = checkSessionExists();
+  let txId;
+  const { exists } = checkSessionExists();
   if (exists) {
-    /* const walletProvider = isWCSession
-      ? TxnlabProviders.WALLETCONNECT
-      : TxnlabProviders.MYALGO; */
-    /* TODO Pipeline.pipeConnector = walletProvider;
-    Pipeline.address = address;
-    return Pipeline.send(
-      recipientAddress,
-      microalgoAmount,
-      note,
-      address,
-      null,
-      0
-    ); */
+    const algodClientParams = await window.algorand.getAlgodv2Client();
+    const algodClient = new algosdk.Algodv2(
+      algodClientParams,
+      algodClientParams.bc.baseURL.href
+    );
+    const suggestedParams = await algodClient.getTransactionParams().do();
+    const enc = new TextEncoder();
+    const encodedNote = enc.encode(note);
+    const txn = algosdk.makePaymentTxnWithSuggestedParams(
+      from,
+      to,
+      amount,
+      undefined,
+      encodedNote,
+      suggestedParams
+    );
+    const peraWallet = new PeraWalletConnect();
+    try {
+      const singleTxnGroups: Array<SignerTransaction> = [
+        {
+          txn,
+          signers: [from],
+        },
+      ];
+      const signedTxn = await peraWallet.signTransaction([singleTxnGroups]);
+      const response = await algodClient.sendRawTransaction(signedTxn).do();
+      txId = response?.txId;
+    } catch (err) {
+      console.error("----- PeraConnect sign error:", err);
+    }
+  } else {
+    console.error("----- No Session!:", exists);
   }
-  return null;
-}
+  return txId || exists;
+};
 
 /**
  * check if a string is numeric/float
