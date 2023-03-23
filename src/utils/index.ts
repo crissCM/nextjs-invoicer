@@ -2,7 +2,6 @@ import { checkSessionExists } from "@jackcom/reachduck";
 import algosdk from "algosdk";
 import { PeraWalletConnect } from "@perawallet/connect";
 import { SignerTransaction } from "@perawallet/connect/dist/util/model/peraWalletModels";
-import AlgodClient from "algosdk/dist/types/client/v2/algod/algod";
 import { isNumber } from "lodash";
 import localStore from "store";
 import manifest from "../../package.json";
@@ -109,8 +108,6 @@ export const participants = {
 /* Getters */
 
 export const Providers = {
-  WalletConnect: "WalletConnect",
-  MyAlgo: "MyAlgo",
   PeraConnect: "PeraConnect",
 };
 

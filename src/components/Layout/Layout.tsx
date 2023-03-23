@@ -1,4 +1,4 @@
-import CloudHeader from "../CloudHeader";
+import Header from "../Header";
 
 type LayoutProps = {
   children?: React.ReactNode;
@@ -7,7 +7,7 @@ type LayoutProps = {
 export default function Layout({ children }: LayoutProps) {
   return (
     <>
-      <CloudHeader />
+      <Header />
       <main>{children}</main>
     </>
   );

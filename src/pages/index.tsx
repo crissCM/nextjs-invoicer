@@ -17,7 +17,7 @@ function App(props: any) {
   const [appId, setAppId] = useState<number | null>(Contracts.MainNet);
 
   /* Wallet Connect QR modal dismissal listener */
-  if (typeof window !== "undefined") {
+  /* if (typeof window !== "undefined") {
     window.addEventListener("error", (event) => {
       const error = event.error.toString();
       if (error.includes(ERROR_QRCODE_MODAL_USER_CLOSED)) {
@@ -25,7 +25,7 @@ function App(props: any) {
         window.location.reload();
       }
     });
-  }
+  } */
 
   useEffect(() => {
     const onLoading = (s: any) => setLoading(s.loading as boolean);

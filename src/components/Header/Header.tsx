@@ -4,7 +4,7 @@ import DarkMode from "../DarkMode/DarkMode";
 import { APP_NAME } from "src/utils";
 import WalletLogin from "../WalletLogin";
 
-function CloudHeader() {
+function Header() {
   return (
     <HeaderWrapper id="stickyTop">
       <div id="stickyTop-2" className="navbar sticky-top">
@@ -32,4 +32,4 @@ function CloudHeader() {
   );
 }
 
-export default CloudHeader;
+export default Header;

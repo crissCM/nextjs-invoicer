@@ -20,6 +20,7 @@ import {
   copyTextToClipboard,
   ALGO_BALANCE_REFRESH_MS,
   convertMicroToAlgo,
+  Providers,
 } from "src/utils";
 import useInterval from "src/utils/hooks/useInterval";
 import { connect, reconnect } from "../../reach";
@@ -37,12 +38,6 @@ function WalletLogin() {
         const balanceObj = await account.balanceOf();
         if (balanceObj._hex !== undefined) {
           setAlgoBalance(convertMicroToAlgo(parseInt(balanceObj._hex, 16)));
-          const mr1 = document.getElementById("modal-root-1");
-          const mr2 = document.getElementById("modal-root-2");
-          if (mr1 && mr2) {
-            mr1.style.display = "none";
-            mr2.style.display = "none";
-          }
         }
       } catch (e) {
         console.log("----- balance fetch ERROR:", e);
@@ -73,7 +68,7 @@ function WalletLogin() {
       }
     } catch (e: any) {
       console.log("----- connect ERROR:", e);
-      const err = "❌ Account Fetch error";
+      const err = `❌ ${e}`;
       updateAsError(null, err, { error: err });
     }
     setConnecting(false);
@@ -137,77 +132,9 @@ function WalletLogin() {
 
   return (
     <div>
-      <div
-        id="modal-root-2"
-        className="modal-backdrop show"
-        style={{ display: "none" }}
-      />
-      <div
-        id="modal-root-1"
-        className="modal fade show"
-        tabIndex={-1}
-        aria-labelledby="exampleModalLabel"
-        aria-modal="true"
-        role="dialog"
-        style={{
-          display: "none",
-          paddingRight: "0.333374px",
-        }}>
-        <div className="modal-dialog" role="document">
-          <div className="modal-content border-0">
-            <div className="modal-header bg-card light">
-              <h5 className="modal-title text-white" id="exampleModalLabel">
-                Algo Wallets
-              </h5>
-
-              <button
-                type="button"
-                className="btn-close btn-close-white text-white"
-                data-bs-dismiss="modal"
-                data-dismiss="modal"
-                aria-label="Close"
-                onClick={() => {
-                  const mr1 = document.getElementById("modal-root-1");
-                  const mr2 = document.getElementById("modal-root-2");
-                  if (mr1 && mr2) {
-                    mr1.style.display = "none";
-                    mr2.style.display = "none";
-                  }
-                }}
-              />
-            </div>
-            <div className="modal-body">
-              <button
-                id="WalletConnect"
-                className="crayons-btn w-100"
-                onClick={switchWallet}>
-                WalletConnect
-              </button>
-              <button
-                id="AlgoSigner"
-                className="crayons-btn w-100"
-                onClick={switchWallet}>
-                AlgoSigner
-              </button>
-              <button
-                id="MyAlgo"
-                className="crayons-btn w-100"
-                onClick={switchWallet}>
-                MyAlgo
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      {connecting && (
+      {connecting ? (
         <Button disabled>
-          <span className="spinner--before">Loading ...</span>
-        </Button>
-      )}
-      {error ? (
-        <Button onClick={() => window.location.reload()}>
-          <span className="material-icons">close</span>
-          Connect Error
+          <span className="spinner--before">&nbsp;Loading ...</span>
         </Button>
       ) : (
         <button
@@ -217,14 +144,7 @@ function WalletLogin() {
           data-toggle="modal"
           data-target="modal-root-1"
           aria-expanded="true"
-          onClick={() => {
-            const mr1 = document.getElementById("modal-root-1");
-            const mr2 = document.getElementById("modal-root-2");
-            if (mr1 && mr2) {
-              mr1.style.display = "block";
-              mr2.style.display = "block";
-            }
-          }}>
+          onClick={() => connectTo(Providers.PeraConnect)}>
           <svg
             className="svg-inline--fa fa-wallet "
             aria-hidden="true"
