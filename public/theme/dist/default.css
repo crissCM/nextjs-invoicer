@@ -834,7 +834,6 @@ span.ww-2-1 {
 }
 
 .dropdown-item:hover {
-    text-decoration: underline;
     background-color: var(--algocloud-menu-li-bg-active)!important;
     color: var(--accent-brand-lighter);
 }
@@ -30150,10 +30149,6 @@ a.d-block.hover-bg-200.px-2.py-3.rounded-3.text-center.text-decoration-none {
 
 .dropdown-item,button.toast-close-button,select.crayons-select {
     cursor: pointer
-}
-
-.dropdown-item:hover {
-    text-decoration: underline
 }
 
 .crayons-tooltip__activator:hover .crayons-hover-tooltip[data-tooltip]:not(.crayons-tooltip__suppressed):after,.crayons-tooltip__activator:hover .crayons-tooltip__content:not(.crayons-tooltip__suppressed),.js-focus-visible .crayons-tooltip__activator.focus-visible:focus .crayons-hover-tooltip[data-tooltip]:not(.crayons-tooltip__suppressed):after,.js-focus-visible .crayons-tooltip__activator.focus-visible:focus .crayons-tooltip__content:not(.crayons-tooltip__suppressed) {

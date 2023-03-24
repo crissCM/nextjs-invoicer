@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { THEME } from "src/utils";
+import { THEME, THEME_KEY } from "src/utils";
 import type { AppDispatch } from ".";
+import localStore from "store";
 
 // Slice
 
@@ -34,5 +35,6 @@ export const updateMenuVisibility =
   };
 
 export const updateTheme = (theme: string) => async (dispatch: AppDispatch) => {
+  localStore.set(THEME_KEY, theme);
   dispatch(changeTheme(theme));
 };

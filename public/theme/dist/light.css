@@ -485,7 +485,7 @@ a#algoexplorer {
 }
 
 .own-balance {
-    height: 30px!important
+    height: 30px!important;
     cursor: default;
 }
 
@@ -856,7 +856,6 @@ span.ww-2-1 {
 }
 
 .dropdown-item:hover {
-    text-decoration: underline;
     background-color: var(--algocloud-menu-li-bg-active)!important;
     color: #323ebe!important;
 }
@@ -48303,10 +48302,6 @@ a.d-block.hover-bg-200.px-2.py-3.rounded-3.text-center.text-decoration-none {
 
 .dropdown-item,button.toast-close-button,select.crayons-select {
     cursor: pointer
-}
-
-.dropdown-item:hover {
-    text-decoration: underline
 }
 
 .m-25 {

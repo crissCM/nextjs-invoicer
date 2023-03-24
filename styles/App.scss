@@ -100,8 +100,6 @@ $rowTextWeight: 600;
 @import "../src/components/Invoice/Invoice.scss";
 @import "../src/components/Invoice/MyInvoices/MyInvoices.scss";
 @import "../src/components/DarkMode/DarkMode.scss";
-@import "../public/theme/dist/default.css";
+@import "../public/theme/dist/light.css";
 @import "./slider.css";
 @import "@fortawesome/fontawesome-free/css/all.css";
-
-// TODO @import "./light.css";

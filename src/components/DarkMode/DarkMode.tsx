@@ -1,38 +1,17 @@
-import { useState } from "react";
-import localStore from "store";
 import { THEME, THEME_KEY } from "src/utils";
-import { useAppDispatch } from "src/store/hooks";
+import { useAppDispatch, useAppSelector } from "src/store/hooks";
 import { updateTheme } from "src/store/ui";
 import SettingsService from "src/services/settingsService";
 
 const DarkMode = () => {
   const dispatch = useAppDispatch();
-
-  const [theme, setTheme] = useState(THEME.DARK);
-
-  const setDark = () => {
-    localStore.set(THEME_KEY, THEME.DARK);
-  };
-
-  const setLight = () => {
-    localStore.set(THEME_KEY, THEME.LIGHT);
-  };
+  const { theme } = useAppSelector((state) => state.ui);
 
   const toggleTheme = (e: any) => {
-    let theme = "";
-    const storedTheme = localStore.get(THEME_KEY);
-    if (storedTheme === THEME.LIGHT || storedTheme === null) {
-      theme = THEME.DARK;
-      setDark();
-      setTheme(THEME.DARK);
-    } else {
-      theme = THEME.LIGHT;
-      setLight();
-      setTheme(THEME.LIGHT);
-    }
-    dispatch(updateTheme(theme));
+    dispatch(updateTheme(theme === THEME.LIGHT ? THEME.DARK : THEME.LIGHT));
     SettingsService.applyThemeFromState();
   };
+
   return (
     <div className="toggle-theme-wrapper">
       <label className="dropdown-item" htmlFor="checkbox">
