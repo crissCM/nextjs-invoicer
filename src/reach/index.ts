@@ -60,12 +60,9 @@ export async function reachConnect(provider: string, isMainNet: boolean) {
 }
 
 /** Reconnect user session */
-export async function reconnect(isMainNet: boolean) {
+export async function reconnect(provider: string, isMainNet: boolean) {
   const { addr = undefined, isWCSession } = checkSessionExists();
-  configureWalletProvider(
-    isWCSession ? Providers.WalletConnect : Providers.MyAlgo,
-    isMainNet
-  );
+  configureWalletProvider(provider, isMainNet);
   const updates = await reconnectUser(addr, DefaultConnectUserOpts);
   store.multiple(updates);
   return updates.account;

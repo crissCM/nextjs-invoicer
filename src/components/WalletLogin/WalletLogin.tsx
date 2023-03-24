@@ -76,7 +76,7 @@ function WalletLogin() {
 
   const resumeSession = async () => {
     const alertId = resetNotifications("⏳ Reconnecting ... ");
-    await reconnect(appId === Contracts.MainNet);
+    await reconnect(Providers.PeraConnect, appId === Contracts.MainNet);
     updateNotification(alertId, "✅ Connected!");
   };
 

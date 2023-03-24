@@ -1,8 +1,4 @@
 import { trimByteString } from "@jackcom/reachduck";
-import { PeraWalletConnect } from "@perawallet/connect";
-import { SignerTransaction } from "@perawallet/connect/dist/util/model/peraWalletModels";
-import MyAlgoConnect from "@randlabs/myalgo-connect";
-import algosdk from "algosdk";
 import { useEffect, useState } from "react";
 import { Button, ButtonGroup, Container } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "src/store/hooks";
@@ -12,7 +8,6 @@ import MyInvoices from "../components/Invoice/MyInvoices/MyInvoices";
 import { useGlobalUser } from "../hooks/GlobalUser";
 import * as backend from "../reach/contracts/build/index.main";
 import store, { addNotification, Contracts } from "../state";
-import { ERROR_QRCODE_MODAL_USER_CLOSED, Providers } from "../utils";
 
 /** If an appId is given it will connect, deploy a new contract otherwise */
 const ActivateContract = async (participant: string, isMainNet: boolean) => {
@@ -92,7 +87,22 @@ const Home = () => {
     };
   });
 
-  async function setClickListenerToQrCloseButton() {
+  useEffect(() => {
+    console.log("----- address:", address);
+    /* if (currentAccount) {
+      const result = await ActivateContract(
+        participants.Invoicer,
+        mainNet,
+      );
+      if (!result) {
+        dispatch(
+          authActions.doDisconnectReach(Date.now()),
+        );
+      }
+    } */
+  }, [address]);
+
+  /* async function setClickListenerToQrCloseButton() {
     setTimeout(() => {
       const wcDiv1 = document.getElementById("walletconnect-qrcode-close");
       wcDiv1?.addEventListener("click", () => {
@@ -104,7 +114,7 @@ const Home = () => {
       });
       // TODO Find a better solution. The WC QR library throws an Error upon closing, but I think Reach stdlib eats it.
     }, 1000);
-  }
+  } */
 
   return (
     <>

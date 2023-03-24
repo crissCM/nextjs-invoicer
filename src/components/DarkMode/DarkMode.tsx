@@ -1,4 +1,4 @@
-import { THEME, THEME_KEY } from "src/utils";
+import { THEME } from "src/utils";
 import { useAppDispatch, useAppSelector } from "src/store/hooks";
 import { updateTheme } from "src/store/ui";
 import SettingsService from "src/services/settingsService";
