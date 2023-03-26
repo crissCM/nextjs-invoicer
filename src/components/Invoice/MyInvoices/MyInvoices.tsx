@@ -1,8 +1,7 @@
 import { trimByteString, truncateString } from "@jackcom/reachduck";
-import { useIndexerClient } from "@jackcom/reachduck/lib/networks/ALGO.indexer";
+import { useIndexerClient } from "@jackcom/reachduck/lib/networks/ALGO.shared";
 import { get } from "lodash";
 import { useEffect, useState } from "react";
-import styled from "styled-components";
 import {
   Button,
   ButtonGroup,
@@ -19,7 +18,7 @@ import {
 } from "react-bootstrap";
 import CsvDownloader from "react-csv-downloader";
 import { Datas } from "react-csv-downloader/dist/esm/lib/csv";
-import { FlexColumn } from "../../Common/Containers";
+import styled from "styled-components";
 import InvoiceModal from "../../../components/Invoice/InvoiceModal";
 import store, { addNotification } from "../../../state";
 import {
@@ -27,6 +26,7 @@ import {
   InvoiceStatuses,
   maxAlgorandArgumentLength,
 } from "../../../utils";
+import { FlexColumn } from "../../Common/Containers";
 
 const TableWrapper = styled.div`
   margin-top: 16px;

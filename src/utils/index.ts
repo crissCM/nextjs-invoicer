@@ -40,14 +40,12 @@ export const DefaultConnectUserOpts: any = {
 
 export const DEFAULT_INDEXER = Indexers.AlgoNode;
 
-export const IndexerProps = (indexer: string, net: string) => {
+export const IndexerProps = (indexer: string, net: boolean) => {
   const indexers: any = {
     AlgoExplorer: {
-      ALGO_SERVER: `https://node.${
-        net === "testnet" ? `${net}.` : ""
-      }algoexplorerapi.io`,
+      ALGO_SERVER: `https://node.${net ? "" : "testnet."}algoexplorerapi.io`,
       ALGO_INDEXER_SERVER: `https://algoindexer.${
-        net === "testnet" ? `${net}.` : ""
+        net ? "" : "testnet."
       }algoexplorerapi.io`,
     },
     AlgoNode: {
