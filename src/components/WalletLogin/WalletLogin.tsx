@@ -1,5 +1,5 @@
-import { checkSessionExists, disconnectUser } from "@jackcom/reachduck";
-import React, { useEffect, useState } from "react";
+import { checkSessionExists } from "@jackcom/reachduck";
+import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import { useGlobalUser } from "src/hooks/GlobalUser";
 import {
@@ -9,17 +9,13 @@ import {
   updateAsError,
   updateNotification,
 } from "src/state";
-import {
-  updateAddress,
-  updateChainNetwork,
-  updateProvider,
-} from "src/store/algorand";
+import { doSignIn, doSignOut } from "src/store/auth";
 import { useAppDispatch, useAppSelector } from "src/store/hooks";
 import {
-  BlockchainNetwork,
-  copyTextToClipboard,
   ALGO_BALANCE_REFRESH_MS,
+  BlockchainNetwork,
   convertMicroToAlgo,
+  copyTextToClipboard,
   Providers,
 } from "src/utils";
 import useInterval from "src/utils/hooks/useInterval";
@@ -57,9 +53,7 @@ function WalletLogin() {
       const alertId = resetNotifications("⏳ Connecting ... ", true);
       const { addr = undefined } = checkSessionExists();
       if (addr) {
-        dispatch(updateChainNetwork(appId === Contracts.MainNet));
-        dispatch(updateProvider(prov));
-        dispatch(updateAddress(addr));
+        dispatch(doSignIn(appId === Contracts.MainNet, prov, addr));
         updateNotification(alertId, "✅ Connected!");
       } else {
         console.log("----- session ERROR:", addr);
@@ -127,7 +121,7 @@ function WalletLogin() {
       wc2.style.display = "flex";
       wc.style.display = "none";
     }
-    disconnectUser();
+    dispatch(doSignOut());
   };
 
   return (

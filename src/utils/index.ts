@@ -1,7 +1,7 @@
 import { checkSessionExists } from "@jackcom/reachduck";
-import algosdk from "algosdk";
 import { PeraWalletConnect } from "@perawallet/connect";
 import { SignerTransaction } from "@perawallet/connect/dist/util/model/peraWalletModels";
+import algosdk from "algosdk";
 import { isNumber } from "lodash";
 import localStore from "store";
 import manifest from "../../package.json";
@@ -100,7 +100,7 @@ export const ALGO_CTIME = 5000;
 export const ALGO_NTIME = 1;
 
 /** Participants */
-export const participants = {
+export const Participants = {
   Admin: "Admin",
   Invoicer: "Invoicer",
 };
@@ -246,4 +246,25 @@ export function prettyRound(num: number, decimals = 3) {
     return parseFloat(num.toFixed(decimals));
   }
   return num;
+}
+
+/**
+ * LocalStorage
+ */
+
+export function clearLocalStorage() {
+  localStore.clearAll();
+}
+
+export function clearLocalStorageExcept(keys: string[]) {
+  const values = [];
+  for (const key of keys) {
+    const v = localStore.get(key);
+    values.push(v);
+  }
+  clearLocalStorage();
+  for (let i = 0; i < keys.length; i += 1) {
+    const key = keys[i];
+    localStore.set(key, values[i]);
+  }
 }

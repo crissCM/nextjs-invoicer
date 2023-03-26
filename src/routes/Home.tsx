@@ -1,7 +1,11 @@
 import { trimByteString } from "@jackcom/reachduck";
 import { useEffect, useState } from "react";
 import { Button, ButtonGroup, Container } from "react-bootstrap";
+import SettingsService from "src/services/settingsService";
 import { useAppDispatch, useAppSelector } from "src/store/hooks";
+import { updateTheme } from "src/store/ui";
+import { Participants, THEME_KEY } from "src/utils";
+import localStore from "store";
 import { FlexColumn, FlexRow } from "../components/Common/Containers";
 import InvoiceForm from "../components/Invoice/InvoiceForm";
 import MyInvoices from "../components/Invoice/MyInvoices/MyInvoices";
@@ -72,7 +76,14 @@ const Home = () => {
   useEffect(() => {
     const onAppId = (s: any) => setAppId(s.appId as number | null);
     const unsubAppId = store.subscribeToKeys(onAppId, ["appId"]);
-    const onAccount = (s: any) => setAccount(s.account as any | null);
+    const onAccount = async (s: any) => {
+      if (s.account) {
+        setAccount(s.account as any | null);
+        console.log("----- isMainNet:", isMainNet);
+        const result = await ActivateContract(Participants.Admin, isMainNet);
+        console.log("----- contract activation:", result);
+      }
+    };
     const unsubAccount = store.subscribeToKeys(onAccount, ["account"]);
     const onInvoiceVisible = (s: any) =>
       setInvoiceVisible(s.invoiceVisible as boolean);
@@ -88,19 +99,11 @@ const Home = () => {
   });
 
   useEffect(() => {
-    console.log("----- address:", address);
-    /* if (currentAccount) {
-      const result = await ActivateContract(
-        participants.Invoicer,
-        mainNet,
-      );
-      if (!result) {
-        dispatch(
-          authActions.doDisconnectReach(Date.now()),
-        );
-      }
-    } */
-  }, [address]);
+    if (localStore.get(THEME_KEY)) {
+      dispatch(updateTheme(localStore.get(THEME_KEY)));
+      SettingsService.applyThemeFromState(localStore.get(THEME_KEY));
+    }
+  }, []);
 
   /* async function setClickListenerToQrCloseButton() {
     setTimeout(() => {

@@ -1,15 +1,16 @@
-import { THEME } from "src/utils";
+import SettingsService from "src/services/settingsService";
 import { useAppDispatch, useAppSelector } from "src/store/hooks";
 import { updateTheme } from "src/store/ui";
-import SettingsService from "src/services/settingsService";
+import { THEME } from "src/utils";
 
 const DarkMode = () => {
   const dispatch = useAppDispatch();
   const { theme } = useAppSelector((state) => state.ui);
 
   const toggleTheme = (e: any) => {
-    dispatch(updateTheme(theme === THEME.LIGHT ? THEME.DARK : THEME.LIGHT));
-    SettingsService.applyThemeFromState();
+    const newTheme = theme === THEME.LIGHT ? THEME.DARK : THEME.LIGHT;
+    dispatch(updateTheme(newTheme));
+    SettingsService.applyThemeFromState(newTheme);
   };
 
   return (

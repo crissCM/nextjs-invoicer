@@ -1,13 +1,7 @@
-import { THEME_KEY } from "src/utils";
-import localStore from "store";
-
 export default class SettingsService {
-  static applyThemeFromState() {
-    const theme = localStore.get(THEME_KEY);
-    if (theme && theme === "light") {
+  static applyThemeFromState(theme: string) {
+    if (theme) {
       this.applyTheme(theme);
-    } else {
-      this.applyTheme("default");
     }
   }
 

@@ -1,20 +1,12 @@
-import { getBlockchainNetwork } from "@jackcom/reachduck";
 import React, { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import ActiveNotifications from "../components/ActiveNotifications";
 import FullScreenLoader from "../components/Common/FullscreenLoader";
-import { disconnect } from "../reach";
 import Home from "../routes/Home";
-import store, { Contracts } from "../state";
-import { useAppSelector } from "../store/hooks";
-import { ERROR_QRCODE_MODAL_USER_CLOSED, getProvider } from "../utils";
+import store from "../state";
 
-function App(props: any) {
-  const { account } = store.getState();
-  const { isMainNet } = useAppSelector((state) => state.algorand);
-  const { reachDisconnectedTime } = useAppSelector((state) => state.reach);
+function App() {
   const [loading, setLoading] = useState(false);
-  const [appId, setAppId] = useState<number | null>(Contracts.MainNet);
 
   /* Wallet Connect QR modal dismissal listener */
   /* if (typeof window !== "undefined") {
@@ -30,41 +22,11 @@ function App(props: any) {
   useEffect(() => {
     const onLoading = (s: any) => setLoading(s.loading as boolean);
     const unsubLoading = store.subscribeToKeys(onLoading, ["loading"]);
-    const onAppId = (s: any) => {
-      setAppId(s.appId as number);
-      reloadReach();
-    };
-    const unsubAppId = store.subscribeToKeys(onAppId, ["appId"]);
 
     return function unsubAll() {
       unsubLoading();
-      unsubAppId();
     };
   });
-
-  useEffect(() => {
-    if (appId && account && getProvider(isMainNet) !== getBlockchainNetwork()) {
-      store.appId(isMainNet ? Contracts.MainNet : Contracts.TestNet);
-    }
-  }, [isMainNet]);
-
-  useEffect(() => {
-    if (reachDisconnectedTime) {
-      disconnectAndReInitUi();
-    }
-  }, [reachDisconnectedTime]);
-
-  async function disconnectAndReInitUi() {
-    if (account) {
-      await disconnect();
-      store.account(null);
-      store.invoiceVisible(false);
-    }
-  }
-
-  async function reloadReach() {
-    await disconnectAndReInitUi();
-  }
 
   return (
     <div>

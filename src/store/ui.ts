@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { THEME, THEME_KEY } from "src/utils";
-import type { AppDispatch } from ".";
 import localStore from "store";
+import type { AppDispatch } from ".";
 
 // Slice
 
