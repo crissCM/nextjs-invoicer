@@ -1,7 +1,8 @@
-import { trimByteString } from "@jackcom/reachduck";
-import { useEffect, useState } from "react";
+import { getBlockchainNetwork, trimByteString } from "@jackcom/reachduck";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Button, ButtonGroup, Container } from "react-bootstrap";
 import SettingsService from "src/services/settingsService";
+import { doSignOut } from "src/store/auth";
 import { useAppDispatch, useAppSelector } from "src/store/hooks";
 import { updateTheme } from "src/store/ui";
 import { Participants, THEME_KEY } from "src/utils";
@@ -14,7 +15,12 @@ import * as backend from "../reach/contracts/build/index.main";
 import store, { addNotification, Contracts } from "../state";
 
 /** If an appId is given it will connect, deploy a new contract otherwise */
-const ActivateContract = async (participant: string, isMainNet: boolean) => {
+const ActivateContract = async (
+  participant: string,
+  isMainNet: boolean,
+  relogNeededSetter: Dispatch<SetStateAction<boolean>>
+) => {
+  console.log("----- participant:", participant);
   const globalState = store.getState();
   const { account, appId } = globalState;
   let ctc: any | null;
@@ -52,8 +58,20 @@ const ActivateContract = async (participant: string, isMainNet: boolean) => {
       }),
     ]);
   } catch (e) {
-    addNotification(`❌ ${e}`);
-    console.log("Error ActivateContract: ", e);
+    if (e instanceof Error) {
+      if (e.message.includes("wallet is connected to a different network")) {
+        addNotification(
+          `❌ ${`Pera is not connected to ${getBlockchainNetwork()}.`}`
+        );
+        console.log(
+          "Error ActivateContract: wallet is connected to a different network"
+        );
+      } else {
+        addNotification(`❌ ${e}`);
+        console.log("Error ActivateContract: ", e);
+      }
+    }
+    relogNeededSetter(true);
     return false;
   } finally {
     store.loading(false);
@@ -70,6 +88,7 @@ const Home = () => {
     isMainNet ? Contracts.MainNet : Contracts.TestNet
   );
   const [account, setAccount] = useState<any | null>(null);
+  const [relogNeeded, setRelogNeeded] = useState(false);
   const [invoiceVisible, setInvoiceVisible] = useState(false);
 
   // Subscribe to global state, and unsubscribe on component unmount
@@ -79,8 +98,11 @@ const Home = () => {
     const onAccount = async (s: any) => {
       if (s.account) {
         setAccount(s.account as any | null);
-        console.log("----- isMainNet:", isMainNet);
-        const result = await ActivateContract(Participants.Admin, isMainNet);
+        const result = await ActivateContract(
+          Participants.Invoicer,
+          isMainNet,
+          setRelogNeeded
+        );
         console.log("----- contract activation:", result);
       }
     };
@@ -140,7 +162,13 @@ const Home = () => {
               justifyContent: "space-between",
             }}
             className="h1-invoicer">
-            <h1 className="h2 mt-3 mb-1">Headline Invoice</h1>
+            {relogNeeded ? (
+              <Button variant="warning" onClick={() => dispatch(doSignOut())}>
+                Relog
+              </Button>
+            ) : (
+              <h1 className="h2 mt-3 mb-1">Headline Invoice</h1>
+            )}
           </div>
         </FlexRow>
 

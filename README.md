@@ -40,6 +40,7 @@ To deploy the contract:
 
 1. Home.tsx: 118 -> await ActivateContract(participants.Admin);
 2. state/index.ts: 21 -> appId: null as number | null,
+3. Relog
 
 To attach to the contract:
 

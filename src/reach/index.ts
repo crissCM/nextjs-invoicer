@@ -10,8 +10,8 @@ import {
   reconnectUser,
   tokenMetadata as getReachToken,
 } from "@jackcom/reachduck";
-import { PeraWalletConnect } from "@perawallet/connect";
-import { ALGO_MakePeraConnect, loadStdlib } from "@reach-sh/stdlib";
+import { loadStdlib } from "@reach-sh/stdlib";
+import MakePeraConnect from "src/utils/WC/PeraWCClient";
 import localStore from "store";
 import store, {
   addNotification,
@@ -63,9 +63,11 @@ export async function reconnect(provider: string, isMainNet: boolean) {
 /** Dissconnect user session */
 export async function disconnect() {
   store.reset();
+  const { walletClient } = store.getState();
+  if (walletClient) walletClient.disconnect();
   addNotification("Disconnecting ... ");
-  disconnectUser();
   console.log("Reach disconnected.");
+  disconnectUser();
 }
 
 /** Opt-in to an asset */
@@ -120,16 +122,21 @@ function configureWalletProvider(pr: string, isMainNet: boolean) {
     network: isMainNet ? BlockchainNetwork.MainNet : BlockchainNetwork.TestNet,
   };
 
-  opts.walletFallback = {
-    WalletConnect: ALGO_MakePeraConnect(PeraWalletConnect),
+  const loadWalletClient = (client: { disconnect(): any }) => {
+    opts.providerEnv = IndexerProps(
+      String(localStore.get(APP_INDEXER_KEY) || DEFAULT_INDEXER),
+      isMainNet
+    );
+    opts.walletFallback = {
+      WalletConnect: function _makeFallback() {
+        store.walletClient(client);
+        return client;
+      },
+    };
+    console.log("----- opts:", opts);
+    return loadReachWithOpts(loadStdlib, opts);
   };
 
-  opts.providerEnv = IndexerProps(
-    String(localStore.get(APP_INDEXER_KEY) || DEFAULT_INDEXER),
-    isMainNet
-  );
-
-  console.log("----- opts:", opts);
-
-  loadReachWithOpts(loadStdlib, opts);
+  const WalletClient = MakePeraConnect();
+  return loadWalletClient(new WalletClient());
 }

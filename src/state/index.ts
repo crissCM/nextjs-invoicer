@@ -8,7 +8,7 @@ const MAX_BYTES_LENGTH = 943;
 
 export const Contracts = {
   MainNet: null, // 730196316,
-  TestNet: null,
+  TestNet: 167038555,
 };
 
 /**
@@ -48,6 +48,8 @@ const initialState = {
 
   /** Loading state */
   loading: false,
+
+  walletClient: null as { disconnect(): any } | null,
 
   /**
    * Reach contract max byte length as a state.

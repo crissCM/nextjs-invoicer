@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Spinner } from "react-bootstrap";
 import ActiveNotifications from "../components/ActiveNotifications";
 import FullScreenLoader from "../components/Common/FullscreenLoader";
 import Home from "../routes/Home";
@@ -33,7 +32,7 @@ function App() {
       <ActiveNotifications />
       <React.Suspense fallback={<FullScreenLoader />}>
         <section className="App">
-          {loading && (
+          {/* loading && (
             <div className="FullScreenLoading">
               <Spinner
                 className="loadingSpinner"
@@ -42,7 +41,7 @@ function App() {
                 <span className="visually-hidden">Loading...</span>
               </Spinner>
             </div>
-          )}
+          ) */}
           <Home />
         </section>
       </React.Suspense>
