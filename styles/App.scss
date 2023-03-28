@@ -61,6 +61,15 @@ $rowTextWeight: 600;
       top: 50%;
     }
   }
+  .Home {
+    .madeByReachTxt {
+      font-size: 14px;
+    }
+    .HomeContent {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

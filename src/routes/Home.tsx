@@ -143,70 +143,61 @@ const Home = () => {
 
   return (
     <>
-      <FlexColumn className="Home mt-3" padded>
+      <FlexColumn className="Home" padded>
         <div
-          className="alert alert-info border-2 d-flex align-items-center"
+          className="alert alert-info border-2 d-flex align-items-center p-1"
           role="alert">
-          <p className="mb-0 flex-1">
+          <p className="madeByReachTxt mb-0 flex-1">
             This Reach project was created by Headline Inc. and it supports
             uploading invoice data to Algorand. Please, enable popups for the
             wallet to sign interactions!
           </p>
         </div>
-
-        <FlexRow>
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-            className="h1-invoicer">
-            {relogNeeded ? (
-              <Button variant="warning" onClick={() => dispatch(doSignOut())}>
-                Relog
-              </Button>
-            ) : (
-              <h1 className="h2 mt-3 mb-1">Headline Invoice</h1>
-            )}
-          </div>
-        </FlexRow>
-
-        {appId && account && (
-          <FlexRow>
-            <div
-              style={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-              className=" mt-3 h1-invoicer">
-              <h1 className="h2 mt-3 mb-1">Headline Invoice</h1>
-              <ButtonGroup className="mt-3" aria-label="Basic example">
-                <Button
-                  variant={invoiceVisible ? "warning" : "primary"}
-                  onClick={() => changeInvoiceVisibility(invoiceVisible)}>
-                  {invoiceVisible ? <b>Hide</b> : <b>Create new invoice</b>}
-                </Button>
-                {invoiceVisible && (
-                  <Button variant="danger" onClick={() => resetInvoice()}>
-                    <b>Reset</b>
+        <div className="HomeContent">
+          {appId && account && (
+            <FlexRow>
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+                className="mt-1 h1-invoicer">
+                <h1 className="h2 mb-1">Headline Invoice</h1>
+                {relogNeeded && (
+                  <Button
+                    className="mt-2"
+                    variant="warning"
+                    onClick={() => dispatch(doSignOut())}>
+                    Relog
                   </Button>
                 )}
-              </ButtonGroup>
+                <ButtonGroup className="mt-3" aria-label="Basic example">
+                  <Button
+                    variant={invoiceVisible ? "warning" : "primary"}
+                    onClick={() => changeInvoiceVisibility(invoiceVisible)}>
+                    {invoiceVisible ? <b>Hide</b> : <b>Create new invoice</b>}
+                  </Button>
+                  {invoiceVisible && (
+                    <Button variant="danger" onClick={() => resetInvoice()}>
+                      <b>Reset</b>
+                    </Button>
+                  )}
+                </ButtonGroup>
+              </div>
+            </FlexRow>
+          )}
+          {appId && account && (
+            <div className="App d-flex flex-column align-items-center justify-content-center w-100">
+              <Container>{invoiceVisible && <InvoiceForm />}</Container>
             </div>
-          </FlexRow>
-        )}
-        {appId && account && (
-          <div className="App d-flex flex-column align-items-center justify-content-center w-100">
-            <Container>{invoiceVisible && <InvoiceForm />}</Container>
-          </div>
-        )}
-        {appId && account && (
-          <div className="mt-3">
-            <MyInvoices />
-          </div>
-        )}
+          )}
+          {appId && account && (
+            <div className="mt-3">
+              <MyInvoices />
+            </div>
+          )}
+        </div>
       </FlexColumn>
     </>
   );
