@@ -435,7 +435,7 @@ const InvoiceForm = () => {
                 total={parseFloat(total.toString().trim())}
               />
             )}
-            <Form.Group className="mt-3">
+            {/* <Form.Group className="mt-3">
               <Form.Label className="fw-bold mb-0">Indexer:</Form.Label>
               <Form.Select
                 onChange={(event) =>
@@ -453,7 +453,7 @@ const InvoiceForm = () => {
                   {Indexers.AlgoNode}
                 </option>
               </Form.Select>
-            </Form.Group>
+            </Form.Group> */}
           </div>
         </Col>
       </Row>

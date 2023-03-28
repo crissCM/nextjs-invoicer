@@ -149,8 +149,7 @@ const Home = () => {
           role="alert">
           <p className="madeByReachTxt mb-0 flex-1">
             This Reach project was created by Headline Inc. and it supports
-            uploading invoice data to Algorand. Please, enable popups for the
-            wallet to sign interactions!
+            uploading invoice data to the Algorand network.
           </p>
         </div>
         <div className="HomeContent">
