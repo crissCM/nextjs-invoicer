@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ActiveNotifications from "../components/ActiveNotifications";
-import FullScreenLoader from "../components/Common/FullscreenLoader";
 import Home from "../routes/Home";
 import store from "../state";
 
@@ -30,9 +29,8 @@ function App() {
   return (
     <div>
       <ActiveNotifications />
-      <React.Suspense fallback={<FullScreenLoader />}>
-        <section className="App">
-          {/* loading && (
+      <section className="App">
+        {/* loading && (
             <div className="FullScreenLoading">
               <Spinner
                 className="loadingSpinner"
@@ -42,30 +40,16 @@ function App() {
               </Spinner>
             </div>
           ) */}
-          <Home />
-        </section>
-      </React.Suspense>
+        <Home />
+      </section>
     </div>
   );
 }
 
 export default App;
 
-// This function gets called at build time on server-side.
-// It may be called again, on a serverless function, if
-// revalidation is enabled and a new request comes in
-export async function getStaticProps() {
-  // const res = await fetch('https://.../posts')
-  // const posts = await res.json()
-  const nothing = "";
-
+export async function getServerSideProps() {
   return {
-    props: {
-      nothing,
-    },
-    // Next.js will attempt to re-generate the page:
-    // - When a request comes in
-    // - At most once every 10 seconds
-    revalidate: 10, // In seconds
+    props: {}, // will be passed to the page component as props
   };
 }

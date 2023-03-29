@@ -1,5 +1,5 @@
 import { getBlockchainNetwork, trimByteString } from "@jackcom/reachduck";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { Button, ButtonGroup, Container } from "react-bootstrap";
 import SettingsService from "src/services/settingsService";
 import { doSignOut } from "src/store/auth";
@@ -82,31 +82,14 @@ const ActivateContract = async (
 
 const Home = () => {
   const dispatch = useAppDispatch();
-  const { isMainNet, provider } = useAppSelector((state) => state.algorand);
-  const { address } = useGlobalUser();
-  const [appId, setAppId] = useState<number | null>(
-    isMainNet ? Contracts.MainNet : Contracts.TestNet
-  );
-  const [account, setAccount] = useState<any | null>(null);
+  const { isMainNet } = useAppSelector((state) => state.algorand);
+  const { appId, account } = useGlobalUser();
   const [relogNeeded, setRelogNeeded] = useState(false);
   const [invoiceVisible, setInvoiceVisible] = useState(false);
+  const showDetails = useMemo(() => appId && account, [account, appId]);
 
   // Subscribe to global state, and unsubscribe on component unmount
   useEffect(() => {
-    const onAppId = (s: any) => setAppId(s.appId as number | null);
-    const unsubAppId = store.subscribeToKeys(onAppId, ["appId"]);
-    const onAccount = async (s: any) => {
-      if (s.account) {
-        setAccount(s.account as any | null);
-        const result = await ActivateContract(
-          Participants.Invoicer,
-          isMainNet,
-          setRelogNeeded
-        );
-        console.log("----- contract activation:", result);
-      }
-    };
-    const unsubAccount = store.subscribeToKeys(onAccount, ["account"]);
     const onInvoiceVisible = (s: any) =>
       setInvoiceVisible(s.invoiceVisible as boolean);
     const unsubInvoiceVisible = store.subscribeToKeys(onInvoiceVisible, [
@@ -115,8 +98,6 @@ const Home = () => {
 
     return function unsubAll() {
       unsubInvoiceVisible();
-      unsubAppId();
-      unsubAccount();
     };
   });
 
@@ -126,6 +107,21 @@ const Home = () => {
       SettingsService.applyThemeFromState(localStore.get(THEME_KEY));
     }
   }, []);
+
+  useEffect(() => {
+    const tryToActivateContract = async () => {
+      const result = await ActivateContract(
+        Participants.Invoicer,
+        isMainNet,
+        setRelogNeeded
+      );
+      console.log("----- contract activation:", result);
+    };
+
+    if (showDetails) {
+      tryToActivateContract();
+    }
+  }, [showDetails]);
 
   /* async function setClickListenerToQrCloseButton() {
     setTimeout(() => {
@@ -152,8 +148,8 @@ const Home = () => {
             uploading invoice data to the Algorand network.
           </p>
         </div>
-        <div className="HomeContent">
-          {appId && account && (
+        {showDetails && (
+          <div className="HomeContent">
             <FlexRow>
               <div
                 style={{
@@ -185,18 +181,14 @@ const Home = () => {
                 </ButtonGroup>
               </div>
             </FlexRow>
-          )}
-          {appId && account && (
             <div className="App d-flex flex-column align-items-center justify-content-center w-100">
               <Container>{invoiceVisible && <InvoiceForm />}</Container>
             </div>
-          )}
-          {appId && account && (
             <div className="mt-3">
               <MyInvoices />
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </FlexColumn>
     </>
   );

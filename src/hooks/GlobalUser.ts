@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import store, { GlobalStore, GlobalStoreKey } from "../state";
 
 const defKeys: GlobalStoreKey[] = [
+  "appId",
   "address",
   "account",
   "assets",
