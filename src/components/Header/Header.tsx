@@ -1,12 +1,11 @@
-import React from "react";
-import DarkMode from "../DarkMode/DarkMode";
-import { APP_NAME } from "src/utils";
-import WalletLogin from "../WalletLogin";
 import { Nav } from "react-bootstrap";
+import { APP_NAME } from "src/utils";
+import DarkMode from "../DarkMode/DarkMode";
+import WalletLogin from "../WalletLogin";
 
 function Header() {
   return (
-    <Nav className="navbar navbar-expand-lg">
+    <Nav className="navbar navbar-expand-lg" style={{ zIndex: 100 }}>
       <a className="algocloud-navbar-brand" href=".">
         <div className="navbarLogoParent">
           <img id="app-logo" className="app-logo" src="app-logo.png" />
