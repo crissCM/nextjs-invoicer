@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Col, Form, Row } from "react-bootstrap";
+import { apiGet, Endpoints } from "src/utils/requests";
 import localStore from "store";
 import { algoValidate } from "../../currencies/algo";
 import store, { addNotification } from "../../state";
@@ -33,7 +34,7 @@ const InvoiceForm = () => {
   ];
   const now = new Date();
   const [invoiceItems, setInvoiceItems] = useState(defaultInvoiceItems);
-  const [isOpen, setOpen] = useState(false);
+  const [isInvoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [currency, setCurrency] = useState("Ⱥ");
   const [currentDate, setCurrentDate] = useState(now);
   const [dueDate, setDueDate] = useState("");
@@ -55,7 +56,7 @@ const InvoiceForm = () => {
     const onReset = () => {
       setInvoiceItems(defaultInvoiceItems);
       const now = new Date();
-      setOpen(false);
+      setInvoiceModalOpen(false);
       setCurrency("Ⱥ");
       setCurrentDate(now);
       setDueDate("");
@@ -181,15 +182,21 @@ const InvoiceForm = () => {
     }
   };
 
-  const openModal = (event) => {
+  const openModal = async (event) => {
     event.preventDefault();
+
+    const respFrom = await apiGet(Endpoints.GetNfdInfo(billFromAddress));
+    const respTo = await apiGet(Endpoints.GetNfdInfo(billToAddress));
+    console.log("----- respFrom:", respFrom);
+    console.log("----- respTo:", respTo);
+
     handleCalculateTotal();
     const isTotalFloat = isFixed(total.toString().trim());
     const isItemPricesFloat =
       invoiceItems.find((item) => !isFixed(item.price.toString().trim())) ===
       undefined;
     if (isTotalFloat && isItemPricesFloat) {
-      setOpen(true);
+      setInvoiceModalOpen(true);
     } else {
       if (!isTotalFloat) {
         addNotification("❌ Total is not a float value!");
@@ -200,7 +207,7 @@ const InvoiceForm = () => {
     }
   };
 
-  const closeModal = (event) => setOpen(false);
+  const closeModal = (event) => setInvoiceModalOpen(false);
 
   const formatInvoiceItemValues = () => {
     return invoiceItems.map((item) => {
@@ -280,7 +287,7 @@ const InvoiceForm = () => {
               <Col>
                 <Form.Label className="fw-bold">Bill to:</Form.Label>
                 <Form.Control
-                  placeholder={"Algorand address"}
+                  placeholder={"Algorand address or NFD"}
                   rows={3}
                   oldvalue={""}
                   value={billToAlgoAddress}
@@ -290,7 +297,10 @@ const InvoiceForm = () => {
                   onChange={(event) => editField(event)}
                   required="required"
                   isInvalid={
-                    billToAlgoAddress && !algoValidate(billToAlgoAddress.trim())
+                    (billToAlgoAddress &&
+                      !algoValidate(billToAlgoAddress.trim().toUpperCase()) &&
+                      !billToAlgoAddress.trim().endsWith(".algo")) ||
+                    billToAlgoAddress.trim().length < 6
                   }
                 />
                 <Form.Control.Feedback type="invalid">
@@ -329,7 +339,7 @@ const InvoiceForm = () => {
               <Col>
                 <Form.Label className="fw-bold">Bill from:</Form.Label>
                 <Form.Control
-                  placeholder={"Algorand address"}
+                  placeholder={"Algorand address or NFD"}
                   rows={3}
                   oldvalue={billFromAlgoAddress}
                   value={billFromAlgoAddress}
@@ -339,8 +349,10 @@ const InvoiceForm = () => {
                   onChange={(event) => editField(event)}
                   required="required"
                   isInvalid={
-                    billFromAlgoAddress &&
-                    !algoValidate(billFromAlgoAddress.trim())
+                    (billFromAlgoAddress &&
+                      !algoValidate(billFromAlgoAddress.trim().toUpperCase()) &&
+                      !billFromAlgoAddress.trim().endsWith(".algo")) ||
+                    billFromAlgoAddress.trim().length < 6
                   }
                 />
                 <Form.Control.Feedback type="invalid">
@@ -423,9 +435,9 @@ const InvoiceForm = () => {
               disabled={lengthCounter < 0}>
               Review Invoice
             </Button>
-            {isOpen && (
+            {isInvoiceModalOpen && (
               <InvoiceModal
-                showModal={isOpen}
+                showModal={isInvoiceModalOpen}
                 closeModal={closeModal}
                 invoiceStatus={InvoiceStatuses.Unpaid}
                 serialNumber={null}

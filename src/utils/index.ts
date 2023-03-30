@@ -32,6 +32,11 @@ export const Indexers: any = {
   AlgoNode: "AlgoNode",
 };
 
+export const NFD: any = {
+  MainNet: "https://api.nf.domains",
+  TestNet: "https://api.testnet.nf.domains",
+};
+
 export const DefaultConnectUserOpts: any = {
   fetchAssets: false,
   fetchBalance: false,
