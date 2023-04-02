@@ -16,8 +16,8 @@ import {
 import { BiCloudDownload, BiPaperPlane } from "react-icons/bi";
 import store, { addNotification } from "../../state";
 import {
-  convertAlgoToMicro,
   InvoiceStatuses,
+  convertAlgoToMicro,
   isInvoiceValid,
   sendTransaction,
   truncString,

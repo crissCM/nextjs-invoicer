@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Col, Form, Row } from "react-bootstrap";
-import { apiGet, Endpoints } from "src/utils/requests";
 import localStore from "store";
 import { algoValidate } from "../../currencies/algo";
 import store, { addNotification } from "../../state";
 import {
   APP_INDEXER_KEY,
-  DEFAULT_INDEXER,
-  Indexers,
   InvoiceStatuses,
+  fetchNfdAddress,
   isFixed,
+  isNfd,
   newItemLength,
 } from "../../utils";
 import InvoiceItem from "./InvoiceItem";
 import InvoiceModal from "./InvoiceModal";
+
+let nfdFromAlgoAddress;
+let nfdToAlgoAddress;
 
 const InvoiceForm = () => {
   const getInitialLengthCounter = () => {
@@ -185,10 +187,24 @@ const InvoiceForm = () => {
   const openModal = async (event) => {
     event.preventDefault();
 
-    const respFrom = await apiGet(Endpoints.GetNfdInfo(billFromAddress));
-    const respTo = await apiGet(Endpoints.GetNfdInfo(billToAddress));
-    console.log("----- respFrom:", respFrom);
-    console.log("----- respTo:", respTo);
+    if (billFromAlgoAddress && isNfd(billFromAlgoAddress)) {
+      const address = await fetchNfdAddress(billFromAlgoAddress);
+      if (address) {
+        nfdFromAlgoAddress = address;
+      } else {
+        addNotification(`❌ ${billFromAlgoAddress} could not be resolved.`);
+        return;
+      }
+    }
+    if (billToAlgoAddress && isNfd(billToAlgoAddress)) {
+      const address = await fetchNfdAddress(billToAlgoAddress);
+      if (address) {
+        nfdToAlgoAddress = address;
+      } else {
+        addNotification(`❌ ${billToAlgoAddress} could not be resolved.`);
+        return;
+      }
+    }
 
     handleCalculateTotal();
     const isTotalFloat = isFixed(total.toString().trim());
@@ -227,16 +243,26 @@ const InvoiceForm = () => {
       billFrom: billFrom.trim(),
       billFromAddress: billFromAddress.trim(),
       billFromEmail: billFromEmail.trim(),
-      billFromAlgoAddress: billFromAlgoAddress.trim(),
+      billFromAlgoAddress: isNfd(billFromAlgoAddress)
+        ? nfdFromAlgoAddress
+        : billFromAlgoAddress.trim(),
       billTo: billTo.trim(),
       billToAddress: billToAddress.trim(),
       billToEmail: billToEmail.trim(),
-      billToAlgoAddress: billToAlgoAddress.trim(),
+      billToAlgoAddress: isNfd(billToAlgoAddress)
+        ? nfdToAlgoAddress
+        : billToAlgoAddress.trim(),
       creationDate: currentDate.toISOString().slice(0, 10),
       dueDate: dueDate.trim(),
       note: note.trim(),
     };
   };
+
+  const isAlgoAddressInvalid = (address) =>
+    (address &&
+      !algoValidate(address.trim().toUpperCase()) &&
+      !isNfd(address)) ||
+    address.trim().length < 6;
 
   return (
     <Form className="InvoiceForm" onSubmit={openModal}>
@@ -296,12 +322,7 @@ const InvoiceForm = () => {
                   className="my-2"
                   onChange={(event) => editField(event)}
                   required="required"
-                  isInvalid={
-                    (billToAlgoAddress &&
-                      !algoValidate(billToAlgoAddress.trim().toUpperCase()) &&
-                      !billToAlgoAddress.trim().endsWith(".algo")) ||
-                    billToAlgoAddress.trim().length < 6
-                  }
+                  isInvalid={isAlgoAddressInvalid(billToAlgoAddress)}
                 />
                 <Form.Control.Feedback type="invalid">
                   Please provide a valid Algorand address.
@@ -348,12 +369,7 @@ const InvoiceForm = () => {
                   className="my-2"
                   onChange={(event) => editField(event)}
                   required="required"
-                  isInvalid={
-                    (billFromAlgoAddress &&
-                      !algoValidate(billFromAlgoAddress.trim().toUpperCase()) &&
-                      !billFromAlgoAddress.trim().endsWith(".algo")) ||
-                    billFromAlgoAddress.trim().length < 6
-                  }
+                  isInvalid={isAlgoAddressInvalid(billFromAlgoAddress)}
                 />
                 <Form.Control.Feedback type="invalid">
                   Please provide a valid Algorand address.
@@ -432,7 +448,11 @@ const InvoiceForm = () => {
               variant="primary"
               type="submit"
               className="d-block w-100"
-              disabled={lengthCounter < 0}>
+              disabled={
+                lengthCounter < 0 ||
+                isAlgoAddressInvalid(billToAlgoAddress) ||
+                isAlgoAddressInvalid(billFromAlgoAddress)
+              }>
               Review Invoice
             </Button>
             {isInvoiceModalOpen && (

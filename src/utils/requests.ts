@@ -3,6 +3,7 @@ import { NFD } from ".";
 
 /* Endpoints */
 export const Endpoints = {
+  GetNfdInfoApi: "/api/GetNfdInfo",
   GetNfdInfo: (nfdName: string) =>
     `${NFD[getBlockchainNetwork()]}/nfd/${nfdName}`,
 };

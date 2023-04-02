@@ -50,9 +50,6 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "pre-commit": [
-    "lint"
-  ],
   "browserslist": {
     "production": [
       ">0.2%",

@@ -6,6 +6,7 @@ import { isNumber } from "lodash";
 import localStore from "store";
 import manifest from "../../package.json";
 import store from "../state";
+import { Endpoints, apiPost } from "./requests";
 
 /* ----- Constants ----- */
 export const APP_NAME = "Invo";
@@ -16,6 +17,7 @@ export const ADDRESS_KEY = "address";
 export const THEME_KEY = "theme";
 
 export const ALGO_BALANCE_REFRESH_MS = 30000;
+export const NFD_DOMAIN = ".algo";
 
 export const THEME = {
   LIGHT: "light",
@@ -271,3 +273,21 @@ export function clearLocalStorageExcept(keys: string[]) {
     localStore.set(key, values[i]);
   }
 }
+
+/**
+ * Fetch the owner algo address of an NFD.
+ * @param nfd NFD domain.
+ */
+export async function fetchNfdAddress(nfd: string) {
+  const nfdsResp = await apiPost(Endpoints.GetNfdInfoApi, {
+    nfd,
+  });
+  return nfdsResp.ownerAddress;
+}
+
+/**
+ * Check whether the given string is an NFD domain pattern.
+ * @param nfd NFD domain.
+ * @returns true if it ends with .algo, false otherwise.
+ */
+export const isNfd = (nfd: string) => nfd.trim().endsWith(NFD_DOMAIN);
