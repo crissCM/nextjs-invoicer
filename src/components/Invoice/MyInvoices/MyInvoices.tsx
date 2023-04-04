@@ -10,12 +10,11 @@ import {
   Form,
   FormControl,
   InputGroup,
-  OverlayTrigger,
   Row,
   Spinner,
   Table,
-  Tooltip,
 } from "react-bootstrap";
+import { Tooltip } from "react-tooltip";
 import CsvDownloader from "react-csv-downloader";
 import { Datas } from "react-csv-downloader/dist/esm/lib/csv";
 import styled from "styled-components";
@@ -739,28 +738,24 @@ const MyInvoices = () => {
                                   <td>{getInvoiceSerial(invoice)}</td>
                                   <td>{getInvoiceInfo(invoice)?.dueDate}</td>
                                   <td>
-                                    <OverlayTrigger
-                                      placement="bottom"
-                                      overlay={
-                                        <Tooltip
-                                          id={`billFromAlgoAddress-tooltip_${statusIndex}_${index}`}>
-                                          {
-                                            getInvoiceInfo(invoice)
-                                              ?.billFromAlgoAddress
-                                          }
-                                        </Tooltip>
-                                      }>
-                                      {({ ref, ...triggerHandler }) => (
-                                        <div {...triggerHandler} ref={ref}>
-                                          {getInvoiceInfo(invoice)
-                                            ? truncateString(
-                                                getInvoiceInfo(invoice)!
-                                                  .billFromAlgoAddress
-                                              )
-                                            : ""}
-                                        </div>
-                                      )}
-                                    </OverlayTrigger>
+                                    <a
+                                      data-tooltip-id={`billFromAlgoAddress-tooltip_${statusIndex}_${index}`}
+                                      data-tooltip-content={
+                                        getInvoiceInfo(invoice)
+                                          ?.billFromAlgoAddress
+                                      }
+                                      data-tooltip-place="bottom"
+                                      data-tooltip-variant="info">
+                                      {getInvoiceInfo(invoice)
+                                        ? truncateString(
+                                            getInvoiceInfo(invoice)!
+                                              .billFromAlgoAddress
+                                          )
+                                        : ""}
+                                    </a>
+                                    <Tooltip
+                                      id={`billFromAlgoAddress-tooltip_${statusIndex}_${index}`}
+                                    />
                                   </td>
                                   <td>{`${getInvoiceCurrency(
                                     invoice

@@ -1642,8 +1642,7 @@ h6.text-success.grow {
     .last-child {
         display: flex;
         align-items: center;
-        position: absolute!important;
-        right: 1rem
+        margin-left: auto;
     }
 }
 
@@ -29595,8 +29594,7 @@ button.btn-circle:focus,button.btn-circle:hover {
 .last-child {
     display: flex;
     align-items: center;
-    position: fixed;
-    right: 1rem
+    margin-left: auto;
 }
 
 .dashboard-chard-card {

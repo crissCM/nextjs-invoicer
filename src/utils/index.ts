@@ -16,6 +16,7 @@ export const ADDRESS_KEY = "address";
 export const THEME_KEY = "theme";
 
 export const ALGO_BALANCE_REFRESH_MS = 30000;
+export const NFD_DOMAIN = ".algo";
 
 export const THEME = {
   LIGHT: "light",
@@ -30,6 +31,11 @@ export const BlockchainNetwork: any = {
 export const Indexers: any = {
   AlgoExplorer: "AlgoExplorer",
   AlgoNode: "AlgoNode",
+};
+
+export const NFD: any = {
+  MainNet: "https://api.nf.domains",
+  TestNet: "https://api.testnet.nf.domains",
 };
 
 export const DefaultConnectUserOpts: any = {
@@ -266,3 +272,10 @@ export function clearLocalStorageExcept(keys: string[]) {
     localStore.set(key, values[i]);
   }
 }
+
+/**
+ * Check whether the given string is an NFD domain pattern.
+ * @param nfd NFD domain.
+ * @returns true if it ends with .algo, false otherwise.
+ */
+export const isNfd = (nfd: string) => nfd.trim().endsWith(NFD_DOMAIN);
