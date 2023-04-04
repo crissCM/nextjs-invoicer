@@ -2255,19 +2255,14 @@ h6.text-success.grow {
     .last-child {
         display: flex;
         align-items: center;
-        position: absolute!important;
-        right: 1rem
+        margin-left: auto;
     }
 }
 
 .last-child,div#stickyTop-2 {
     display: flex;
-    align-items: center
-}
-
-.last-child {
-    position: fixed;
-    right: 1rem
+    align-items: center;
+    margin-left: auto;
 }
 
 @media (max-width:480px) {

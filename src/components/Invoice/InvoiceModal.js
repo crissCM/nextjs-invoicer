@@ -3,16 +3,8 @@ import Color from "color";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Col,
-  Form,
-  Modal,
-  OverlayTrigger,
-  Row,
-  Table,
-  Tooltip,
-} from "react-bootstrap";
+import { Button, Col, Form, Modal, Row, Table } from "react-bootstrap";
+import { Tooltip } from "react-tooltip";
 import { BiCloudDownload, BiPaperPlane } from "react-icons/bi";
 import store, { addNotification } from "../../state";
 import {
@@ -231,38 +223,28 @@ const InvoiceModal = ({
                 <div>{truncString(info.billTo) || ""}</div>
                 <div>{truncString(info.billToAddress) || ""}</div>
                 <div>{truncString(info.billToEmail) || ""}</div>
-                <OverlayTrigger
-                  placement="bottom"
-                  overlay={
-                    <Tooltip id="billToAlgoAddress-tooltip">
-                      {info.billToAlgoAddress}
-                    </Tooltip>
-                  }>
-                  {({ ref, ...triggerHandler }) => (
-                    <div {...triggerHandler} ref={ref}>
-                      {truncateString(info.billToAlgoAddress) || ""}
-                    </div>
-                  )}
-                </OverlayTrigger>
+                <a
+                  data-tooltip-id="billToAlgoAddress-tooltip"
+                  data-tooltip-content={info.billToAlgoAddress}
+                  data-tooltip-place="bottom"
+                  data-tooltip-variant="info">
+                  {truncateString(info.billToAlgoAddress) || ""}
+                </a>
+                <Tooltip id="billToAlgoAddress-tooltip" />
               </Col>
               <Col md={4}>
                 <div className="fw-bold">Billed From:</div>
                 <div>{truncString(info.billFrom) || ""}</div>
                 <div>{truncString(info.billFromAddress) || ""}</div>
                 <div>{truncString(info.billFromEmail) || ""}</div>
-                <OverlayTrigger
-                  placement="bottom"
-                  overlay={
-                    <Tooltip id="billFromAlgoAddress-tooltip">
-                      {info.billFromAlgoAddress}
-                    </Tooltip>
-                  }>
-                  {({ ref, ...triggerHandler }) => (
-                    <div {...triggerHandler} ref={ref}>
-                      {truncateString(info.billFromAlgoAddress) || ""}
-                    </div>
-                  )}
-                </OverlayTrigger>
+                <a
+                  data-tooltip-id="billFromAlgoAddress-tooltip"
+                  data-tooltip-content={info.billFromAlgoAddress}
+                  data-tooltip-place="bottom"
+                  data-tooltip-variant="info">
+                  {truncateString(info.billFromAlgoAddress) || ""}
+                </a>
+                <Tooltip id="billFromAlgoAddress-tooltip" />
               </Col>
               <Col md={4}>
                 <div className="fw-bold mt-2">Due Date:</div>
@@ -443,19 +425,14 @@ const InvoiceModal = ({
           </Form.Control.Feedback>
           <Form.Text id="noteHelpBlock" muted>
             <span>A zero transaction will be sent with a note to:&nbsp;</span>
-            <OverlayTrigger
-              placement="bottom"
-              overlay={
-                <Tooltip id="billToAlgoAddress-noti-tooltip">
-                  {info.billToAlgoAddress}
-                </Tooltip>
-              }>
-              {({ ref, ...triggerHandler }) => (
-                <span {...triggerHandler} ref={ref}>
-                  {truncateString(info.billToAlgoAddress) || ""}
-                </span>
-              )}
-            </OverlayTrigger>
+            <a
+              data-tooltip-id="billToAlgoAddress-noti-tooltip"
+              data-tooltip-content={info.billToAlgoAddress}
+              data-tooltip-place="bottom"
+              data-tooltip-variant="info">
+              {truncateString(info.billToAlgoAddress) || ""}
+            </a>
+            <Tooltip id="billToAlgoAddress-noti-tooltip" />
           </Form.Text>
         </Modal.Body>
 

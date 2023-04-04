@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Col, Form, Row } from "react-bootstrap";
+import { fetchNfdAddress } from "src/utils/requests";
 import localStore from "store";
 import { algoValidate } from "../../currencies/algo";
 import store, { addNotification } from "../../state";
 import {
   APP_INDEXER_KEY,
   InvoiceStatuses,
-  fetchNfdAddress,
   isFixed,
   isNfd,
   newItemLength,

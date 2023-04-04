@@ -39,3 +39,14 @@ export async function apiPost(url: string, body: any, headers = {}) {
   }
   return null;
 }
+
+/**
+ * Fetch the owner algo address of an NFD.
+ * @param nfd NFD domain.
+ */
+export async function fetchNfdAddress(nfd: string) {
+  const nfdsResp = await apiPost(Endpoints.GetNfdInfoApi, {
+    nfd,
+  });
+  return nfdsResp.ownerAddress;
+}

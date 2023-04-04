@@ -6,7 +6,6 @@ import { isNumber } from "lodash";
 import localStore from "store";
 import manifest from "../../package.json";
 import store from "../state";
-import { Endpoints, apiPost } from "./requests";
 
 /* ----- Constants ----- */
 export const APP_NAME = "Invo";
@@ -272,17 +271,6 @@ export function clearLocalStorageExcept(keys: string[]) {
     const key = keys[i];
     localStore.set(key, values[i]);
   }
-}
-
-/**
- * Fetch the owner algo address of an NFD.
- * @param nfd NFD domain.
- */
-export async function fetchNfdAddress(nfd: string) {
-  const nfdsResp = await apiPost(Endpoints.GetNfdInfoApi, {
-    nfd,
-  });
-  return nfdsResp.ownerAddress;
 }
 
 /**
