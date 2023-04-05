@@ -33,19 +33,22 @@ The invoicing generator is based on the [Invoice Generator](https://github.com/j
 
 Take a look at [Available Scripts](#available-scripts) for additional CLI commands.
 
-The maximum invoice size in bytes is **951**.
+The maximum invoice size in bytes is **943**.
 **Please, enable popups for the wallet signing interactions!**
 
 To deploy the contract:
 
+(Check the DefaultNetwork value in the src/state/index.ts file)
+
 1. Home.tsx: 118 -> await ActivateContract(participants.Admin);
-2. state/index.ts: 21 -> appId: null as number | null,
-3. Relog
+2. state/index.ts: 21 -> appId: null as number | null
+3. Clear cookies, refresh and relog
 
 To attach to the contract:
 
 1. Home.tsx: 118 -> await ActivateContract(participants.Invoicer);
-2. state/index.ts: 48 -> appId: [appId] as number | null,
+2. state/index.ts: 48 -> appId: [appId] as number | null
+3. Clear cookies, refresh and relog
 
 ### Reach Helpers
 

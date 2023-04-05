@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { disconnect } from "src/reach";
+import { DefaultNetwork } from "src/state";
 import {
   CHAIN_NETWORK_KEY,
   clearLocalStorageExcept,
@@ -51,5 +52,7 @@ export const doSignOut = () => async (dispatch: AppDispatch) => {
   await disconnect();
   dispatch(signOut(Date.now()));
   dispatch(updateTheme(localStore.get(THEME_KEY) || THEME.LIGHT));
-  dispatch(updateChainNetwork(localStore.get(CHAIN_NETWORK_KEY) ?? false));
+  dispatch(
+    updateChainNetwork(localStore.get(CHAIN_NETWORK_KEY) ?? DefaultNetwork)
+  );
 };

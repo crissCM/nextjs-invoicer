@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { DefaultNetwork } from "src/state";
 import localStore from "store";
 import type { AppDispatch } from ".";
 import { ADDRESS_KEY, CHAIN_NETWORK_KEY, PROVIDER_KEY } from "../utils";
@@ -9,7 +10,7 @@ import { ADDRESS_KEY, CHAIN_NETWORK_KEY, PROVIDER_KEY } from "../utils";
 const slice = createSlice({
   name: "algorand",
   initialState: {
-    isMainNet: localStore.get(CHAIN_NETWORK_KEY) ?? false,
+    isMainNet: localStore.get(CHAIN_NETWORK_KEY) ?? DefaultNetwork,
     provider: localStore.get(PROVIDER_KEY) || "",
     address: localStore.get(ADDRESS_KEY) || "",
   },

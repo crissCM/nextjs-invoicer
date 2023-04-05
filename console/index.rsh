@@ -1,6 +1,6 @@
 "reach 0.1";
 
-const bytesLength = 951;
+const bytesLength = 943;
 
 const InvoiceStruct = Struct([["invoiceJson", Bytes(bytesLength)]]);
 

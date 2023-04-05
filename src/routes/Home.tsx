@@ -1,5 +1,5 @@
 import { getBlockchainNetwork, trimByteString } from "@jackcom/reachduck";
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Button, ButtonGroup, Container } from "react-bootstrap";
 import SettingsService from "src/services/settingsService";
 import { doSignOut } from "src/store/auth";
@@ -12,7 +12,7 @@ import InvoiceForm from "../components/Invoice/InvoiceForm";
 import MyInvoices from "../components/Invoice/MyInvoices/MyInvoices";
 import { useGlobalUser } from "../hooks/GlobalUser";
 import * as backend from "../reach/contracts/build/index.main";
-import store, { addNotification, Contracts } from "../state";
+import store, { Contracts, addNotification } from "../state";
 
 /** If an appId is given it will connect, deploy a new contract otherwise */
 const ActivateContract = async (
@@ -24,11 +24,15 @@ const ActivateContract = async (
   const globalState = store.getState();
   const { account, appId } = globalState;
   let ctc: any | null;
+  console.log("----- account:", account);
+  console.log("----- appId:", appId);
+  console.log("----- isMainNet:", isMainNet);
   if (appId) {
     ctc = account.contract(
       backend,
       isMainNet ? Contracts.MainNet : Contracts.TestNet
     );
+    console.log("----- ctc:", ctc);
   } else {
     ctc = account.contract(backend);
   }
@@ -52,6 +56,7 @@ const ActivateContract = async (
 
   try {
     store.loading(true);
+    console.log("----- participant:", participant);
     await Promise.all([
       ctc.p[participant]({
         ...CommonInteract(participant),
@@ -71,6 +76,7 @@ const ActivateContract = async (
         console.log("Error ActivateContract: ", e);
       }
     }
+    console.log("----- eee:", e);
     relogNeededSetter(true);
     return false;
   } finally {
@@ -83,10 +89,9 @@ const ActivateContract = async (
 const Home = () => {
   const dispatch = useAppDispatch();
   const { isMainNet } = useAppSelector((state) => state.algorand);
-  const { appId, account } = useGlobalUser();
+  const { account } = useGlobalUser();
   const [relogNeeded, setRelogNeeded] = useState(false);
   const [invoiceVisible, setInvoiceVisible] = useState(false);
-  const showDetails = useMemo(() => appId && account, [account, appId]);
 
   // Subscribe to global state, and unsubscribe on component unmount
   useEffect(() => {
@@ -118,10 +123,10 @@ const Home = () => {
       console.log("----- contract activation:", result);
     };
 
-    if (showDetails) {
+    if (account) {
       tryToActivateContract();
     }
-  }, [showDetails]);
+  }, [account]);
 
   /* async function setClickListenerToQrCloseButton() {
     setTimeout(() => {
@@ -148,7 +153,7 @@ const Home = () => {
             uploading invoice data to the Algorand network.
           </p>
         </div>
-        {showDetails && (
+        {account && (
           <div className="HomeContent">
             <FlexRow>
               <div
@@ -159,20 +164,21 @@ const Home = () => {
                 }}
                 className="mt-1 h1-invoicer">
                 <h1 className="h2 mb-1">Headline Invoice</h1>
-                {relogNeeded && (
-                  <Button
-                    className="mt-2"
-                    variant="warning"
-                    onClick={() => dispatch(doSignOut())}>
-                    Relog
-                  </Button>
-                )}
                 <ButtonGroup className="mt-3" aria-label="Basic example">
-                  <Button
-                    variant={invoiceVisible ? "warning" : "primary"}
-                    onClick={() => changeInvoiceVisibility(invoiceVisible)}>
-                    {invoiceVisible ? <b>Hide</b> : <b>Create new invoice</b>}
-                  </Button>
+                  {relogNeeded ? (
+                    <Button
+                      className="mr-2"
+                      variant="warning"
+                      onClick={() => dispatch(doSignOut())}>
+                      Relog
+                    </Button>
+                  ) : (
+                    <Button
+                      variant={invoiceVisible ? "warning" : "primary"}
+                      onClick={() => changeInvoiceVisibility(invoiceVisible)}>
+                      {invoiceVisible ? <b>Hide</b> : <b>Create new invoice</b>}
+                    </Button>
+                  )}
                   {invoiceVisible && (
                     <Button variant="danger" onClick={() => resetInvoice()}>
                       <b>Reset</b>

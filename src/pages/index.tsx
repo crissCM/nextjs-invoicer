@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Spinner } from "react-bootstrap";
 import ActiveNotifications from "../components/ActiveNotifications";
 import Home from "../routes/Home";
 import store from "../state";
@@ -30,16 +31,16 @@ function App() {
     <div>
       <ActiveNotifications />
       <section className="App">
-        {/* loading && (
-            <div className="FullScreenLoading">
-              <Spinner
-                className="loadingSpinner"
-                animation="border"
-                role="status">
-                <span className="visually-hidden">Loading...</span>
-              </Spinner>
-            </div>
-          ) */}
+        {loading && (
+          <div className="FullScreenLoading">
+            <Spinner
+              className="loadingSpinner"
+              animation="border"
+              role="status">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </div>
+        )}
         <Home />
       </section>
     </div>

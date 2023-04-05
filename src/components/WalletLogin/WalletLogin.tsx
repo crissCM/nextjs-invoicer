@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import { useGlobalUser } from "src/hooks/GlobalUser";
 import {
+  DefaultNetwork,
   addNotification,
-  Contracts,
   resetNotifications,
   updateAsError,
   updateNotification,
@@ -14,9 +14,9 @@ import { useAppDispatch, useAppSelector } from "src/store/hooks";
 import {
   ALGO_BALANCE_REFRESH_MS,
   BlockchainNetwork,
+  Providers,
   convertMicroToAlgo,
   copyTextToClipboard,
-  Providers,
 } from "src/utils";
 import useInterval from "src/utils/hooks/useInterval";
 import { connect, reconnect } from "../../reach";
@@ -49,11 +49,11 @@ function WalletLogin() {
     }
     setConnecting(true);
     try {
-      await connect(prov, appId === Contracts.MainNet);
+      await connect(prov, DefaultNetwork);
       const alertId = resetNotifications("⏳ Connecting ... ", true);
       const { addr = undefined } = checkSessionExists();
       if (addr) {
-        dispatch(doSignIn(appId === Contracts.MainNet, prov, addr));
+        dispatch(doSignIn(DefaultNetwork, prov, addr));
         updateNotification(alertId, "✅ Connected!");
       } else {
         console.log("----- session ERROR:", addr);
@@ -70,7 +70,7 @@ function WalletLogin() {
 
   const resumeSession = async () => {
     const alertId = resetNotifications("⏳ Reconnecting ... ");
-    await reconnect(Providers.PeraConnect, appId === Contracts.MainNet);
+    await reconnect(Providers.PeraConnect, DefaultNetwork);
     updateNotification(alertId, "✅ Connected!");
   };
 

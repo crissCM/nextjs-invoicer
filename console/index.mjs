@@ -28,9 +28,8 @@ const stdlib = loadStdlib(process.env);
   const isAdmin = () => user === "admin";
   const isInvoicer = () => user === "invoicer";
 
-  const startingBalance = stdlib.parseCurrency(80);
-
-  const [account] = await stdlib.newTestAccounts(1, startingBalance);
+  const startingBalance = stdlib.parseCurrency(100);
+  const account = await stdlib.newTestAccount(startingBalance);
 
   let ctc = null;
   if (isAdmin()) {

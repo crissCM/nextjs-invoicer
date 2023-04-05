@@ -6,9 +6,14 @@ import { NETWORKS } from "@jackcom/reachduck";
  */
 const MAX_BYTES_LENGTH = 943;
 
+/**
+ * If true then Algorand MaiNnet, if false then Algorand TestNet. Default is TestNet.
+ */
+export const DefaultNetwork = false;
+
 export const Contracts = {
   MainNet: null, // 730196316,
-  TestNet: 167038555,
+  TestNet: 175499236,
 };
 
 /**
