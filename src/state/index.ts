@@ -13,7 +13,7 @@ export const DefaultNetwork = false;
 
 export const Contracts = {
   MainNet: null, // 730196316,
-  TestNet: 175499236,
+  TestNet: 177420100,
 };
 
 /**
