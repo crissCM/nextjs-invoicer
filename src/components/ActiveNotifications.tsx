@@ -14,7 +14,7 @@ const NotificationGroup = styled(FlexColumn)`
   padding: 10px;
   position: fixed;
   width: 100%;
-  z-index: 9999;
+  z-index: 28974586;
 
   ${AutoDismissNotification} {
     border-radius: 10px;

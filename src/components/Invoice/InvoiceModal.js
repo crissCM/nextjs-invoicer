@@ -3,12 +3,22 @@ import Color from "color";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useEffect, useState } from "react";
-import { Button, Col, Form, Modal, Row, Table } from "react-bootstrap";
-import { Tooltip } from "react-tooltip";
+import {
+  Button,
+  CloseButton,
+  Col,
+  Form,
+  Modal,
+  Row,
+  Table,
+} from "react-bootstrap";
 import { BiCloudDownload, BiPaperPlane } from "react-icons/bi";
+import { Tooltip } from "react-tooltip";
+import { useAppSelector } from "src/store/hooks";
 import store, { addNotification } from "../../state";
 import {
   InvoiceStatuses,
+  THEME,
   convertAlgoToMicro,
   isInvoiceValid,
   sendTransaction,
@@ -28,10 +38,11 @@ const InvoiceModal = ({
 }) => {
   /**
    * Check wheather we want to pay an invoice or create one and publish to the chain.
-   * @returns true is we want to pay an invoice, false if we ewant to publish an invoice to the blockchain.
+   * @returns true is we want to pay an invoice, false if we want to publish an invoice to the blockchain.
    */
   const isPayMode = () => serialNumber !== null;
 
+  const { theme } = useAppSelector((state) => state.ui);
   const gState = store.getState();
   const { address, maxBytesLength, refreshInvoicesTable } = gState;
   const [invoiceNumber, setInvoiceNumber] = useState(serialNumber);
@@ -196,6 +207,12 @@ const InvoiceModal = ({
   return (
     <div>
       <Modal show={showModal} onHide={closeModal} size="lg" centered>
+        <CloseButton
+          className="TopRightCloseButton"
+          onClick={closeModal}
+          aria-label="Close"
+          variant={`${theme === THEME.DARK ? "white" : "black"}`}
+        />
         <div id="invoiceCapture">
           <div className="d-flex flex-row justify-content-between align-items-start bg-light w-100 p-4">
             <div className="w-100">
@@ -313,77 +330,79 @@ const InvoiceModal = ({
           <Row>
             {invStatus !== InvoiceStatuses.Paid && (
               <Col md={6}>
-                <Button
-                  variant="primary"
-                  className="d-block w-100"
-                  onClick={async () => {
-                    try {
-                      store.loading(true);
-                      const invoiceNumber = await GenerateAndSendInvoice(
-                        getInvoiceJson(
-                          isPayMode()
-                            ? InvoiceStatuses.Paid
-                            : InvoiceStatuses.Unpaid,
-                          info,
-                          currency,
-                          total,
-                          invoiceItems
-                        )
-                      );
-                      if (invoiceNumber) {
-                        setInvoiceNumber(invoiceNumber);
-                        setDownloadDisabled(false);
-                        if (isPayMode()) {
-                          setInvStatus(InvoiceStatuses.Paid);
-                          const message = "Invoice paid successfully!";
-                          addNotification(`✅ ${message}`);
-                          console.log(message);
-                        } else {
-                          const message =
-                            "Invoice data published successfully!";
-                          addNotification(`✅ ${message}`);
-                          console.log(message);
-                        }
-                        store.refreshInvoicesTable(!refreshInvoicesTable);
-                        setNote(
-                          isPayMode()
-                            ? `Invoice paid: #${invoiceNumber}`
-                            : `You got an invoice: #${invoiceNumber}`
+                {downloadDisabled && (
+                  <Button
+                    variant="primary"
+                    className="d-block w-100"
+                    onClick={async () => {
+                      try {
+                        store.loading(true);
+                        const invoiceNumber = await GenerateAndSendInvoice(
+                          getInvoiceJson(
+                            isPayMode()
+                              ? InvoiceStatuses.Paid
+                              : InvoiceStatuses.Unpaid,
+                            info,
+                            currency,
+                            total,
+                            invoiceItems
+                          )
                         );
+                        if (invoiceNumber) {
+                          setInvoiceNumber(invoiceNumber);
+                          setDownloadDisabled(false);
+                          if (isPayMode()) {
+                            setInvStatus(InvoiceStatuses.Paid);
+                            const message = "Invoice paid successfully!";
+                            addNotification(`✅ ${message}`);
+                            console.log(message);
+                          } else {
+                            const message =
+                              "Invoice data published successfully!";
+                            addNotification(`✅ ${message}`);
+                            console.log(message);
+                          }
+                          store.refreshInvoicesTable(!refreshInvoicesTable);
+                          setNote(
+                            isPayMode()
+                              ? `Invoice paid: #${invoiceNumber}`
+                              : `You got an invoice: #${invoiceNumber}`
+                          );
+                        }
+                      } catch (e) {
+                        console.log("Error Send Invoice Button: ", e);
+                        addNotification(`❌ ${e}`);
+                      } finally {
+                        store.loading(false);
                       }
-                    } catch (e) {
-                      console.log("Error Send Invoice Button: ", e);
-                      addNotification(`❌ ${e}`);
-                    } finally {
-                      store.loading(false);
-                    }
-                  }}>
-                  {isPayMode() ? (
-                    <CryptoIcon
-                      symbol="algo"
-                      color="black"
-                      iconOnly={true}
-                      size={18}
-                      classNameArg="me-2"
-                      styleArg={{
-                        marginBottom: "-3px",
-                      }}
-                    />
-                  ) : (
-                    <BiPaperPlane
-                      style={{
-                        width: "15px",
-                        height: "15px",
-                        marginTop: "-3px",
-                      }}
-                      className="me-2"
-                    />
-                  )}
-                  {`${isPayMode() ? "Pay" : "Send"} Invoice`}
-                </Button>
+                    }}>
+                    {isPayMode() ? (
+                      <CryptoIcon
+                        symbol="algo"
+                        color="black"
+                        iconOnly={true}
+                        size={18}
+                        classNameArg="me-2"
+                        styleArg={{
+                          marginBottom: "-3px",
+                        }}
+                      />
+                    ) : (
+                      <BiPaperPlane
+                        style={{
+                          width: "15px",
+                          height: "15px",
+                          marginTop: "-3px",
+                        }}
+                        className="me-2"
+                      />
+                    )}
+                    {`${isPayMode() ? "Pay" : "Send"} Invoice`}
+                  </Button>
+                )}
               </Col>
             )}
-            <Col md={6}>
+            <Col md={downloadDisabled ? 6 : 12}>
               <Button
                 variant="outline-primary"
                 className="d-block w-100 mt-3 mt-md-0"
