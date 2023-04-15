@@ -1,3 +1,4 @@
+import { useAlgoUsd } from "src/hooks/usePrice";
 import Header from "../Header";
 
 type LayoutProps = {
@@ -5,10 +6,11 @@ type LayoutProps = {
 };
 
 export default function Layout({ children }: LayoutProps) {
+  const algoPrice = useAlgoUsd();
   return (
     <>
-      <Header />
-      <main>{children}</main>
+      <Header algoPrice={algoPrice} />
+      {children}
     </>
   );
 }

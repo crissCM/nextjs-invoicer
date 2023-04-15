@@ -4,11 +4,16 @@ import Layout from "src/components/Layout/Layout";
 import "../../styles/App.scss";
 import store from "../store";
 
+import { Inter } from "next/font/google";
+
+// If loading a variable font, you don't need to specify the font weight
+const inter = Inter({ subsets: ["latin"] });
+
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
       <Layout>
-        <Component {...pageProps} />
+        <Component className={inter.className} {...pageProps} />
       </Layout>
     </Provider>
   );

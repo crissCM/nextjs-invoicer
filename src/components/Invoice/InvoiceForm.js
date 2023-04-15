@@ -225,19 +225,6 @@ const InvoiceForm = () => {
 
   const closeModal = (event) => setInvoiceModalOpen(false);
 
-  const formatInvoiceItemValues = () => {
-    return invoiceItems.map((item) => {
-      const newItem = {
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        price: parseFloat(item.price.toString().trim()),
-        quantity: item.quantity,
-      };
-      return newItem;
-    });
-  };
-
   const getInfo = () => {
     return {
       billFrom: billFrom.trim(),
@@ -273,7 +260,9 @@ const InvoiceForm = () => {
               <div className="d-flex flex-column">
                 <div className="d-flex flex-column">
                   <div className="text-start mb-2">
-                    <span className="fw-bold">Current&nbsp;Date:&nbsp;</span>
+                    <span className="fw-bold">
+                      Date&nbsp;of&nbsp;issue:&nbsp;
+                    </span>
                     <span className="current-date">
                       {currentDate.toLocaleDateString()}
                     </span>
@@ -462,7 +451,7 @@ const InvoiceForm = () => {
                 invoiceStatus={InvoiceStatuses.Unpaid}
                 serialNumber={null}
                 info={getInfo()}
-                invoiceItems={formatInvoiceItemValues()}
+                invoiceItems={invoiceItems}
                 currency={currency.trim()}
                 total={parseFloat(total.toString().trim())}
               />

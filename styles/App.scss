@@ -25,6 +25,18 @@ $rowTextWeight: 600;
   z-index: 28974586;
 }
 
+.AlgoPriceLabelDiv {
+  font-size: 12px;
+  margin-right: 10px;
+  color: var(--color-secondary);
+  .AlgoPricePre {
+    font-weight: 500;
+  }
+  .AlgoPriceValue {
+    font-weight: 800;
+  }
+}
+
 .App {
   padding: 0;
   text-align: center;
@@ -41,13 +53,6 @@ $rowTextWeight: 600;
     font-weight: 400;
     line-height: 26px;
     padding: 0 6px;
-  }
-  .HeaderContainer {
-    padding: 14px;
-    .AppLogo {
-      width: 75px;
-      height: 75px;
-    }
   }
   .ConnectOptionsDiv {
     margin-top: 10px;

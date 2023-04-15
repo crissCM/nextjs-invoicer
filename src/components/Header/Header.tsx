@@ -1,9 +1,14 @@
 import { Nav } from "react-bootstrap";
+import { AlgoUsd } from "src/hooks/usePrice";
 import { APP_NAME } from "src/utils";
 import DarkMode from "../DarkMode/DarkMode";
 import WalletLogin from "../WalletLogin";
 
-function Header() {
+export interface HeaderProps {
+  algoPrice: AlgoUsd[] | undefined;
+}
+
+function Header({ algoPrice }: HeaderProps) {
   return (
     <Nav className="navbar navbar-expand-lg" style={{ zIndex: 100 }}>
       <a className="algocloud-navbar-brand" href=".">
@@ -20,6 +25,12 @@ function Header() {
           alignItems: "center",
           justifyContent: "flex-end",
         }}>
+        <div className="AlgoPriceLabelDiv">
+          <span className="AlgoPricePre">ALGO Price:&nbsp;</span>
+          <span className="AlgoPriceValue">
+            {`$${algoPrice?.length === 1 ? algoPrice[0].price : ""}`}
+          </span>
+        </div>
         <span className="i18n-select">
           <WalletLogin />
         </span>

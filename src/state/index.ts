@@ -65,16 +65,16 @@ const initialState = {
    * 201 is subtracted to make it'll stay under the Reach contract byte limit. Because 1 character is not necessarily 1 byte.
    * Algorand UInt.max: 2^64-1 = 18446744000000000000 (20 characters)
    * Leading - trailing json characters: {"":{}} (7 characters)
-   * Status data: "s":, (5 characters)
+   * Status data, see 'InvoiceStatuses': "s":, (5 characters)
    * Dates JSON characters: "d":["",""], (12 characters)
    * Invoicer data: "f":["","","",""], (18 characters)
    * Recipient data: "t":["","","",""], (18 characters)
-   * Items data: "i":[{"":,"":"","":"","":,"":}], (32 characters)
+   * Items data: "i":[{"i":,"n":"","d":"","p":,"q":}], (37 characters)
    * Note: "n":"", (7 characters)
    * Price data: "p":["",] (9 characters)
    */
   maxJsonLength:
-    MAX_BYTES_LENGTH - 201 - 20 - 7 - 5 - 12 - 18 - 18 - 32 - 7 - 9,
+    MAX_BYTES_LENGTH - 201 - 20 - 7 - 5 - 12 - 18 - 18 - 37 - 7 - 9,
 
   /** Notifications */
   notifications: [] as Alert[],

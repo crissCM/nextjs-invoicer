@@ -94,6 +94,19 @@ const InvoiceModal = ({
     }
   };
 
+  const formatInvoiceItemValues = () => {
+    return invoiceItems.map((item) => {
+      const newItem = {
+        i: item.id,
+        n: item.name,
+        d: item.description,
+        p: parseFloat(item.price.toString().trim()),
+        q: item.quantity,
+      };
+      return newItem;
+    });
+  };
+
   const getInvoiceJson = (status, info, currency, total, invoiceItems) => {
     const jsonObj = {
       s: status,
@@ -110,7 +123,7 @@ const InvoiceModal = ({
         info.billToEmail,
         info.billToAlgoAddress,
       ],
-      i: invoiceItems,
+      i: formatInvoiceItemValues(),
       n: info.note,
       p: [currency, total],
     };
