@@ -7,13 +7,13 @@ import store from "../store";
 import { Inter } from "next/font/google";
 
 // If loading a variable font, you don't need to specify the font weight
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], fallback: ["sans-serif"] });
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
       <Layout>
-        <Component className={inter.className} {...pageProps} />
+        <Component {...pageProps} />
       </Layout>
     </Provider>
   );

@@ -15,11 +15,13 @@ import {
 import { BiCloudDownload, BiPaperPlane } from "react-icons/bi";
 import { Tooltip } from "react-tooltip";
 import { useAppSelector } from "src/store/hooks";
+import { Apis, fetchGraphQl } from "src/utils/requests";
 import store, { addNotification } from "../../state";
 import {
   InvoiceStatuses,
   THEME,
   convertAlgoToMicro,
+  encodeBase64FromBinary,
   isInvoiceValid,
   sendTransaction,
   truncString,
@@ -135,7 +137,10 @@ const InvoiceModal = ({
       const resultArr = await getFixedJson(invoiceJson);
       if (resultArr.length === 2) {
         const [invoiceNum, fixedJson] = resultArr;
-        const encodedJson = btoa(unescape(encodeURIComponent(fixedJson)));
+        const encodedJson = encodeBase64FromBinary(
+          decodeURIComponent(encodeURIComponent(fixedJson))
+        );
+        console.log("----- encodedJson:", encodedJson);
         if (isInvoiceValid(encodedJson)) {
           await callCreateInvoiceApi(encodedJson);
           return invoiceNum;
@@ -163,15 +168,25 @@ const InvoiceModal = ({
    */
   const getFixedJson = async (invoiceJson) => {
     const globalState = store.getState();
-    const { ctc } = globalState;
+    const { ctc, address } = globalState;
     let currentInvoiceNumber = serialNumber;
     if (!isPayMode()) {
       addNotification(
         `💡 Attempt to get the invoice serial number from the smart contract.`
       );
-      currentInvoiceNumber = await ctc.a.User.getInvoiceNumber();
-      currentInvoiceNumber = parseInt(currentInvoiceNumber._hex, 16);
-      // console.log("getInvoiceNumber API result: ", currentInvoiceNumber);
+      const invoiceNumberResp = await fetchGraphQl(Apis.GetInvoicesNumber, {
+        address: address.toLocaleLowerCase(),
+      });
+      if (invoiceNumberResp?.invoices) {
+        currentInvoiceNumber = invoiceNumberResp.invoices.totalCount + 1;
+        console.log("----- currentInvoiceNumber:", currentInvoiceNumber);
+      }
+      /*
+        // You can get the global invoice count from the contract with this API.
+        await ctc.a.User.getInvoiceNumber();
+        currentInvoiceNumber = parseInt(currentInvoiceNumber._hex, 16);
+        console.log("getInvoiceNumber API result: ", currentInvoiceNumber);
+      */
     }
     const fixedJson = '{"' + currentInvoiceNumber + '":' + invoiceJson + "}";
     // console.log("Invoice JSON to publish: ", fixedJson);

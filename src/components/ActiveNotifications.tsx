@@ -24,7 +24,7 @@ const NotificationGroup = styled(FlexColumn)`
 const ActiveNotifications = styled(() => {
   const { lastTenNotifications: msgs } = useGlobalNotifications();
   if (!msgs.length) return <></>;
-  const timeout = (m: Alert) => (m.error ? 30000 : 5000);
+  const timeout = (m: Alert) => (m.error ? 12000 : 3000);
 
   return (
     <NotificationGroup>

@@ -202,11 +202,13 @@ export const toBinary = (str: string) => {
   for (let i = 0; i < codeUnits.length; i += 1) {
     codeUnits[i] = str.charCodeAt(i);
   }
-  return btoa(String.fromCharCode(...new Uint8Array(codeUnits.buffer)));
+  return encodeBase64FromUtf8(
+    String.fromCharCode(...new Uint8Array(codeUnits.buffer))
+  );
 };
 
 export const fromBinary = (encoded: string) => {
-  const binary = atob(encoded);
+  const binary = decodeBase64ToBinary(encoded);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < bytes.length; i += 1) {
     bytes[i] = binary.charCodeAt(i);
@@ -279,3 +281,68 @@ export function clearLocalStorageExcept(keys: string[]) {
  * @returns true if it ends with .algo, false otherwise.
  */
 export const isNfd = (nfd: string) => nfd.trim().endsWith(NFD_DOMAIN);
+
+export const encodeBase64FromUtf8 = (data: any) =>
+  Buffer.from(data, "utf8").toString("base64");
+
+// Use this instead of 'btoa()'.
+export const encodeBase64FromBinary = (data: any) =>
+  Buffer.from(data, "binary").toString("base64");
+
+export const decodeBase64ToUtf8 = (data: any) =>
+  Buffer.from(data, "base64").toString("utf8");
+
+// Use this instead of 'atob()'.
+export const decodeBase64ToBinary = (data: any) =>
+  Buffer.from(data, "base64").toString("binary");
+
+/**
+ * Since the JS `escape()` is deprecated,
+ * in EcmaScript spec there is the algorithm:
+ *
+ * Call ToString(string).
+ * Compute the number of characters in Result(1).
+ * Let R be the empty string.
+ * Let k be 0.
+ * If k equals Result(2), return R.
+ * Get the character at position k within Result(1).
+ * If Result(6) is one of the 69 nonblank ASCII characters ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 @*_+-./, go to step 14.
+ * Compute the 16-bit unsigned integer that is the Unicode character encoding of Result(6).
+ * If Result(8), is less than 256, go to step 12.
+ * Let S be a string containing six characters “%uwxyz” where wxyz are four hexadecimal digits encoding the value of Result(8).
+ * Go to step 15.
+ * Let S be a string containing three characters “%xy” where xy are two hexadecimal digits encoding the value of Result(8).
+ * Go to step 15.
+ * Let S be a string containing the single character Result(6).
+ * Let R be a new string value computed by concatenating the previous value of R and S.
+ * Increase k by 1.
+ * Go to step 5.
+ * @param str String to escape.
+ */
+/* export function esEscape(str: string) {
+  const allowed =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@*_+-./,";
+  str = str.toString();
+  let len = str.length,
+    R = "",
+    k = 0,
+    S,
+    chr,
+    ord;
+  while (k < len) {
+    chr = str[k];
+    if (allowed.indexOf(chr) != -1) {
+      S = chr;
+    } else {
+      ord = str.charCodeAt(k);
+      if (ord < 256) {
+        S = "%" + ("00" + ord.toString(16)).toUpperCase().slice(-2);
+      } else {
+        S = "%u" + ("0000" + ord.toString(16)).toUpperCase().slice(-4);
+      }
+    }
+    R += S;
+    k++;
+  }
+  return R;
+} */
