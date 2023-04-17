@@ -71,10 +71,10 @@ const initialState = {
    * Recipient data: "t":["","","",""], (18 characters)
    * Items data: "i":[{"i":,"n":"","d":"","p":,"q":}], (37 characters)
    * Note: "n":"", (7 characters)
-   * Price data: "p":["",] (9 characters)
+   * Price data: "p": (4 characters)
    */
   maxJsonLength:
-    MAX_BYTES_LENGTH - 201 - 20 - 7 - 5 - 12 - 18 - 18 - 37 - 7 - 9,
+    MAX_BYTES_LENGTH - 201 - 20 - 7 - 5 - 12 - 18 - 18 - 37 - 7 - 4,
 
   /** Notifications */
   notifications: [] as Alert[],

@@ -127,7 +127,7 @@ const InvoiceModal = ({
       ],
       i: formatInvoiceItemValues(),
       n: info.note,
-      p: [currency, total],
+      p: total,
     };
     return JSON.stringify(jsonObj);
   };
