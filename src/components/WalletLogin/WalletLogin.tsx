@@ -2,7 +2,7 @@ import { checkSessionExists } from "@jackcom/reachduck";
 import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import { useGlobalUser } from "src/hooks/GlobalUser";
-import {
+import store, {
   DefaultNetwork,
   addNotification,
   resetNotifications,
@@ -23,7 +23,7 @@ import { connect, reconnect } from "../../reach";
 
 function WalletLogin() {
   const dispatch = useAppDispatch();
-  const { account, address, appId, error } = useGlobalUser();
+  const { account, address, provider, appId, error } = useGlobalUser();
   const { isMainNet } = useAppSelector((state) => state.algorand);
   const [algoBalance, setAlgoBalance] = useState<number>();
   const [connecting, setConnecting] = useState(false);
@@ -50,16 +50,9 @@ function WalletLogin() {
     setConnecting(true);
     try {
       await connect(prov, DefaultNetwork);
+      store.provider(prov);
       const alertId = resetNotifications("⏳ Connecting ... ", true);
-      const { addr = undefined } = checkSessionExists();
-      if (addr) {
-        dispatch(doSignIn(DefaultNetwork, prov, addr));
-        updateNotification(alertId, "✅ Connected!");
-      } else {
-        console.log("----- session ERROR:", addr);
-        const err = "❌ Session error";
-        updateAsError(null, err, { error: err });
-      }
+      updateNotification(alertId, "✅ Connected!");
     } catch (e: any) {
       console.log("----- connect ERROR:", e);
       const err = `❌ ${e}`;
@@ -98,6 +91,12 @@ function WalletLogin() {
       }
     }
   }, [address]);
+
+  useEffect(() => {
+    if (address && provider) {
+      dispatch(doSignIn(DefaultNetwork, provider, address));
+    }
+  }, [address, provider]);
 
   const switchWallet = async (event: any) => {
     connectTo(event.target.id);

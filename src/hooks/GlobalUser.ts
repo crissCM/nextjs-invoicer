@@ -8,6 +8,7 @@ const defKeys: GlobalStoreKey[] = [
   "assets",
   "loading",
   "error",
+  "provider",
 ];
 
 type HookState = Partial<GlobalStore>;

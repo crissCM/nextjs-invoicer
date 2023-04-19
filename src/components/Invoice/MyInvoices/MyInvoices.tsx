@@ -1,4 +1,4 @@
-import { trimByteString, truncateString } from "@jackcom/reachduck";
+import { truncateString } from "@jackcom/reachduck";
 import { useIndexerClient } from "@jackcom/reachduck/lib/networks/ALGO.shared";
 import { get } from "lodash";
 import { useEffect, useState } from "react";
@@ -14,17 +14,14 @@ import {
   Spinner,
   Table,
 } from "react-bootstrap";
-import { Tooltip } from "react-tooltip";
 import CsvDownloader from "react-csv-downloader";
 import { Datas } from "react-csv-downloader/dist/esm/lib/csv";
+import { Tooltip } from "react-tooltip";
+import { Apis, fetchGraphQl } from "src/utils/requests";
 import styled from "styled-components";
 import InvoiceModal from "../../../components/Invoice/InvoiceModal";
 import store, { addNotification } from "../../../state";
-import {
-  defaultArg,
-  InvoiceStatuses,
-  maxAlgorandArgumentLength,
-} from "../../../utils";
+import { InvoiceStatuses } from "../../../utils";
 import { FlexColumn } from "../../Common/Containers";
 
 const TableWrapper = styled.div`
@@ -390,198 +387,57 @@ const MyInvoices = () => {
     fromDate: string,
     toDate: string
   ) => {
-    const isHealthy = await new Promise(async (resolve, reject) => {
-      const healthStatus = await getHealth();
-      resolve(healthStatus);
-      abortController.signal.addEventListener("abort", () => reject());
-    });
+    const transactionsFetchSuccess = await new Promise(
+      async (resolve, reject) => {
+        try {
+          const myInvoicesResp = await fetchGraphQl(Apis.GetMyInvoices, {
+            address: address.toLocaleLowerCase(),
+            fromDate: fromDate,
+            toDate: toDate,
+          });
 
-    if (isHealthy) {
-      const transactionsFetchSuccess = await new Promise(
-        async (resolve, reject) => {
-          try {
-            const resp = await indexer
-              .searchForTransactions()
-              .applicationID(appId as number)
-              .beforeTime(`${toDate}T23:59:59.999Z`)
-              .afterTime(`${fromDate}T00:00:00.000Z`)
-              .do();
-            if (!get(resp, "transactions", false)) {
-              showApiErrorNotification(resp);
-              addNotification(`❌ Error during transactions query!`);
-            } else {
-              const transactions = resp.transactions;
-              if (transactions.length > 0) {
-                const invoicesMap = new Map<string, any[]>([
-                  [Object.keys(InvoiceStatuses)[0], []],
-                  [Object.keys(InvoiceStatuses)[1], []],
-                  [Object.keys(InvoiceStatuses)[2], []],
-                ]);
-                for (let i = 0; i < transactions.length; i += 1) {
-                  const t = transactions[i];
-                  if (
-                    get(t, "application-transaction.application-args", false) &&
-                    t["application-transaction"]["application-args"].length ===
-                      4 &&
-                    t["application-transaction"]["application-args"][3] !==
-                      defaultArg
-                  ) {
-                    const binary = atob(
-                      t["application-transaction"]["application-args"][3]
-                    );
-
-                    const trimmedBinary = trimByteString(binary);
-
-                    let originalJson = "";
-
-                    /* Paid invoice transaction app arguments have trash characters before the base64 json string.
-                 Currently I don't know a better solution to get rid of them. */
-                    for (let z = 0; z < trimmedBinary.length; z += 1) {
-                      try {
-                        originalJson = decodeURIComponent(
-                          escape(atob(trimmedBinary.substring(z)))
-                        );
-                        if (originalJson) {
-                          break;
-                        }
-                      } catch {
-                        // TODO find a better solution if possible
-                      }
-                    }
-
-                    if (binary.length === maxAlgorandArgumentLength) {
-                      if (originalJson) {
-                        try {
-                          const invoiceObj = JSON.parse(originalJson);
-                          if (invoiceObj) {
-                            const invoiceId = Object.keys(invoiceObj)[0];
-                            const toAlgoAddress =
-                              getInvoiceInfo(invoiceObj)?.billToAlgoAddress;
-
-                            if (toAlgoAddress && toAlgoAddress === address) {
-                              // Populate the map grouped by Paid, Unpaid, Canceled invoices
-                              for (
-                                let j = 0;
-                                j < Object.values(InvoiceStatuses).length;
-                                j += 1
-                              ) {
-                                // Populate the map grouped by invoice status.
-                                const statusVal =
-                                  Object.values(InvoiceStatuses)[j];
-                                if (invoiceObj[invoiceId].s === statusVal) {
-                                  invoicesMap
-                                    .get([...invoicesMap.keys()][statusVal])
-                                    ?.push(invoiceObj);
-                                }
-                              }
-                            }
-                          }
-                        } catch (e) {
-                          showParseErrorNotification(e);
-                          addNotification(
-                            `❌ Error during transactions query!`
-                          );
-                        }
-                      } else {
-                        addNotification(`❌ Error during transactions query!`);
-                      }
-                    }
-                  }
-                }
-                /**
-                 * Unpaid: Not in Paid or Canceled array.
-                 * Paid: Every Paid status invoice is paid.
-                 * Canceled: Not paid.
-                 */
-                const unpaidArray = invoicesMap.get(
-                  [...invoicesMap.keys()][unpaidIndex]
-                );
-                const paidArray = invoicesMap.get(
-                  [...invoicesMap.keys()][paidIndex]
-                );
-                const canceledArray = invoicesMap.get(
-                  [...invoicesMap.keys()][canceledIndex]
-                );
-
-                // Sort the invoicesMap grouped arrays in descending order by Invoice Id.
-                paidArray?.sort(
-                  (a, b) =>
-                    parseInt(Object.keys(b)[0], 10) -
-                    parseInt(Object.keys(a)[0], 10)
-                );
-                unpaidArray?.sort(
-                  (a, b) =>
-                    parseInt(Object.keys(b)[0], 10) -
-                    parseInt(Object.keys(a)[0], 10)
-                );
-                canceledArray?.sort(
-                  (a, b) =>
-                    parseInt(Object.keys(b)[0], 10) -
-                    parseInt(Object.keys(a)[0], 10)
-                );
-
-                const updatedInvoicesMap = new Map<string, any[]>([
-                  [Object.keys(InvoiceStatuses)[unpaidIndex], []],
-                  [Object.keys(InvoiceStatuses)[paidIndex], []],
-                  [Object.keys(InvoiceStatuses)[canceledIndex], []],
-                ]);
-                updatedInvoicesMap.set(
-                  [...invoicesMap.keys()][paidIndex],
-                  paidArray!
-                );
-
-                for (const entry of invoicesMap.entries()) {
-                  const [status, invoicesArray] = entry;
-                  if (status === Object.keys(InvoiceStatuses)[unpaidIndex]) {
-                    for (const k in invoicesArray) {
-                      if (k !== undefined) {
-                        const invoice = invoicesArray[k];
-                        if (
-                          !(
-                            isInvoicePaid(invoice, paidArray) ||
-                            isInvoiceCanceled(invoice, canceledArray)
-                          )
-                        ) {
-                          updatedInvoicesMap
-                            .get([...invoicesMap.keys()][unpaidIndex])
-                            ?.push(invoice);
-                        }
-                      }
-                    }
-                  } else if (
-                    status === Object.keys(InvoiceStatuses)[canceledIndex]
-                  ) {
-                    for (const k in invoicesArray) {
-                      if (k !== undefined) {
-                        const invoice = invoicesArray[k];
-                        if (invoice && !isInvoicePaid(invoice, paidArray)) {
-                          updatedInvoicesMap
-                            .get([...invoicesMap.keys()][canceledIndex])
-                            ?.push(invoice);
-                        }
-                      }
-                    }
-                  }
-                }
-                addNotification(
-                  `💡 Your invoices have been loaded successfully.`
-                );
-                setInvoices(updatedInvoicesMap);
-              } else {
-                showNoInvoicesNotification();
-              }
-            }
-            resolve(true);
-          } catch (e) {
-            console.log("Error during transactions query: ", e);
+          console.log("----- myInvoicesResp:", myInvoicesResp);
+          if (!myInvoicesResp?.invoices?.nodes) {
+            showApiErrorNotification(myInvoicesResp);
             addNotification(`❌ Error during transactions query!`);
-            resolve(false);
+          } else {
+            const myInvoices = myInvoicesResp.invoices.nodes;
+            if (myInvoices.length > 0) {
+              const invoicesMap = new Map<string, any[]>([
+                [Object.keys(InvoiceStatuses)[0], []],
+                [Object.keys(InvoiceStatuses)[1], []],
+                [Object.keys(InvoiceStatuses)[2], []],
+              ]);
+
+              for (const invoice of myInvoices) {
+                const invoicesArr = invoicesMap.get(
+                  Object.keys(InvoiceStatuses)[invoice.status]
+                );
+                if (invoicesArr) {
+                  invoicesArr.push(invoice);
+                }
+              }
+
+              console.log("----- invoicesMap:", invoicesMap);
+
+              addNotification(
+                `💡 Your invoices have been loaded successfully.`
+              );
+              setInvoices(invoicesMap);
+            } else {
+              showNoInvoicesNotification();
+            }
           }
-          abortController.signal.addEventListener("abort", () => reject());
+          resolve(true);
+        } catch (e) {
+          console.log("Error during transactions query: ", e);
+          addNotification(`❌ Error during transactions query!`);
+          resolve(false);
         }
-      );
-      console.log("----- transactionsFetchSuccess:", transactionsFetchSuccess);
-    }
+        abortController.signal.addEventListener("abort", () => reject());
+      }
+    );
+    console.log("----- transactionsFetchSuccess:", transactionsFetchSuccess);
   };
 
   const isInvoicePaid = (invoice: string, paidArray: any[] | undefined) => {

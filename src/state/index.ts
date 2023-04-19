@@ -29,6 +29,9 @@ const initialState = {
   /** Wallet address (for UI) */
   address: "",
 
+  /** Wallet provider */
+  provider: "",
+
   /** Smart contract ID. Make it null to deploy a new contract. Default is MainNet. */
   appId: Contracts.TestNet as number | null,
 
