@@ -1,5 +1,4 @@
 import { truncateString } from "@jackcom/reachduck";
-import { useIndexerClient } from "@jackcom/reachduck/lib/networks/ALGO.shared";
 import { get } from "lodash";
 import { useEffect, useState } from "react";
 import {
@@ -59,7 +58,6 @@ const MyInvoices = () => {
   const [exportLoading, setExportLoading] = useState(false);
   const [clickedInvoice, setClickedInvoice] = useState<any>();
   const [invoices, setInvoices] = useState<Map<string, any[]>>(defaultInvoices);
-  const indexer = useIndexerClient();
   const initialFromDate = getLastYearDate(new Date())
     .toISOString()
     .slice(0, 10);
@@ -82,21 +80,19 @@ const MyInvoices = () => {
   });
 
   useEffect(() => {
-    if (indexer) {
-      try {
-        store.loading(true);
-        if (appId) {
-          getApplicationTransactions(initialFromDate, initialToDate);
-        }
-      } catch (e) {
-        addNotification(`❌ ${e}`);
-        console.log("Error during application transactions query: ", e);
-      } finally {
-        store.loading(false);
+    try {
+      store.loading(true);
+      if (appId) {
+        getApplicationTransactions(initialFromDate, initialToDate);
       }
+    } catch (e) {
+      addNotification(`❌ ${e}`);
+      console.log("Error during application transactions query: ", e);
+    } finally {
+      store.loading(false);
     }
     return () => abortController.abort();
-  }, [indexer]);
+  }, []);
 
   const isEmptyInvoices = () => {
     const invArrs = [...invoices.values()];
@@ -126,16 +122,18 @@ const MyInvoices = () => {
                   const invoiceInfo = getInvoiceInfo(invoice);
                   const invoiceItems = getInvoiceItems(invoice);
                   const items: string[] = [];
-                  for (let i = 0; i < invoiceItems.length; i += 1) {
-                    const it = invoiceItems[i];
-                    items.push(
-                      `${it.name} -> ${it.description}: ${it.quantity}x${
-                        it.price
-                      }${getInvoiceCurrency(invoice)}`
-                    );
-                  }
-                  if (invoiceInfo && invoiceItems) {
-                    gridData.push(getCsvObject(invoice, invoiceInfo, items));
+                  if (invoiceItems?.length) {
+                    for (let i = 0; i < invoiceItems.length; i += 1) {
+                      const it = invoiceItems[i];
+                      items.push(
+                        `${it.name} -> ${it.description}: ${it.quantity}x${it.price}Ⱥ`
+                      );
+                    }
+                    if (invoiceInfo && invoiceItems) {
+                      gridData.push(getCsvObject(invoice, invoiceInfo, items));
+                    }
+                  } else {
+                    addNotification(`❌ Invoice doesn't have any items!`);
                   }
                 }
               }
@@ -160,8 +158,8 @@ const MyInvoices = () => {
       displayName: "Serial number",
     },
     {
-      id: "creationDate",
-      displayName: "Creation date",
+      id: "issueDate",
+      displayName: "Issue date",
     },
     {
       id: "dueDate",
@@ -220,7 +218,7 @@ const MyInvoices = () => {
   ): any => ({
     status: getInvoiceStatusLabel(invoice),
     sn: getInvoiceSerial(invoice),
-    creationDate: invoiceInfo.creationDate,
+    issueDate: invoiceInfo.issueDate,
     dueDate: invoiceInfo.dueDate,
     fromName: invoiceInfo.billFrom,
     fromAddress: invoiceInfo.billFromAddress,
@@ -231,7 +229,7 @@ const MyInvoices = () => {
     toEmail: invoiceInfo.billToEmail,
     toAlgoAddress: invoiceInfo.billToAlgoAddress,
     items: items.join(" | "),
-    price: `${getInvoiceCurrency(invoice)} ${getInvoiceAmount(invoice)}`,
+    price: `Ⱥ ${getInvoiceAmount(invoice)}`,
     note: invoiceInfo.note,
   });
 
@@ -253,76 +251,64 @@ const MyInvoices = () => {
     return "canceledSumHeader";
   };
 
+  const getInvoiceSerial = (invoiceObj: any) => {
+    if (invoiceObj?.invoiceNo) {
+      return invoiceObj.invoiceNo;
+    }
+    console.log("Cannot find invoice serial: ", invoiceObj);
+    return null;
+  };
+
   const getInvoicesByIndex = (index: number) => {
     const key = Object.keys(InvoiceStatuses)[index];
     return invoices.get(key);
   };
 
   const getInvoiceStatusLabel = (invoiceObj: any) => {
-    if (invoiceObj) {
-      const serial = getInvoiceSerial(invoiceObj);
-      if (serial !== undefined && serial !== null) {
-        return Object.keys(InvoiceStatuses)[
-          parseInt(invoiceObj[serial!].s, 10)
-        ];
-      }
+    if (invoiceObj?.status !== undefined) {
+      return Object.keys(InvoiceStatuses)[invoiceObj.status];
     }
     console.log("Cannot find invoice status: ", invoiceObj);
     return null;
   };
 
   const getInvoiceStatusIndex = (invoiceObj: any) => {
-    if (invoiceObj) {
-      const serial = getInvoiceSerial(invoiceObj);
-      if (serial !== undefined && serial !== null) {
-        return parseInt(invoiceObj[serial!].s, 10);
-      }
+    if (invoiceObj?.status !== undefined) {
+      return invoiceObj.status;
     }
     console.log("Cannot find invoice status index: ", invoiceObj);
     return null;
   };
 
-  const getInvoiceSerial = (invoiceObj: any) => {
-    if (invoiceObj) {
-      return Object.keys(invoiceObj)[0];
-    }
-    console.log("Cannot find invoice serial: ", invoiceObj);
-    return null;
-  };
-
   const getInvoiceInfo = (invoiceObj: any) => {
     if (invoiceObj) {
-      const serial = getInvoiceSerial(invoiceObj);
-      if (serial) {
-        const billFromArr = invoiceObj[serial].f;
-        const billToArr = invoiceObj[serial].t;
-        const datesArr = invoiceObj[serial].d;
-        const note = invoiceObj[serial].n;
-        if (
-          billFromArr &&
-          billToArr &&
-          datesArr &&
-          note !== undefined &&
-          billFromArr.length === 4 &&
-          billToArr.length === 4 &&
-          datesArr.length === 2
-        ) {
-          return {
-            billFrom: billFromArr[0].trim(),
-            billFromAddress: billFromArr[1].trim(),
-            billFromEmail: billFromArr[2].trim(),
-            billFromAlgoAddress: billFromArr[3].trim(),
-            billTo: billToArr[0].trim(),
-            billToAddress: billToArr[1].trim(),
-            billToEmail: billToArr[2].trim(),
-            billToAlgoAddress: billToArr[3].trim(),
-            creationDate: datesArr[0].trim(),
-            dueDate: datesArr[1].trim(),
-            note: note.trim(),
-          };
-        }
-        console.log("The invoice is malformed: ", invoiceObj);
+      const billFromObj = invoiceObj.fromData;
+      const billToObj = invoiceObj.toData;
+      const issueDate = invoiceObj.issueDate;
+      const dueDate = invoiceObj.dueDate;
+      const note = invoiceObj.note;
+      if (
+        billFromObj &&
+        billToObj &&
+        issueDate &&
+        dueDate &&
+        note !== undefined
+      ) {
+        return {
+          billFrom: billFromObj.name.trim(),
+          billFromAddress: billFromObj.billingAddress?.trim(),
+          billFromEmail: billFromObj.email?.trim(),
+          billFromAlgoAddress: billFromObj.algoAddressId.trim(),
+          billTo: billToObj.name.trim(),
+          billToAddress: billToObj.billingAddress?.trim(),
+          billToEmail: billToObj.email?.trim(),
+          billToAlgoAddress: billToObj.algoAddressId.trim(),
+          issueDate: issueDate.slice(0, 10),
+          dueDate: dueDate.slice(0, 10),
+          note: note.trim(),
+        };
       }
+      console.log("The invoice is malformed: ", invoiceObj);
     } else {
       console.log("This invoice is malformed: ", invoiceObj);
     }
@@ -330,57 +316,21 @@ const MyInvoices = () => {
   };
 
   const getInvoiceItems = (invoiceObj: any) => {
-    if (invoiceObj) {
-      const serial = getInvoiceSerial(invoiceObj);
-      if (serial && invoiceObj[serial].i) {
-        return invoiceObj[serial].i;
-      }
-      console.log("Cannot find invoice items: ", invoiceObj);
+    if (invoiceObj?.items?.nodes?.length) {
+      return invoiceObj.items.nodes;
     } else {
       console.log("Cannot find invoice items: ", invoiceObj);
-    }
-    return null;
-  };
-
-  const getInvoiceCurrency = (invoiceObj: any) => {
-    if (invoiceObj) {
-      const serial = getInvoiceSerial(invoiceObj);
-      if (serial && invoiceObj[serial].p && invoiceObj[serial].p.length === 2) {
-        return invoiceObj[serial].p[0];
-      }
-      console.log("Cannot find currency info: ", invoiceObj);
-    } else {
-      console.log("Cannot find currency info: ", invoiceObj);
     }
     return null;
   };
 
   const getInvoiceAmount = (invoiceObj: any) => {
-    if (invoiceObj) {
-      const serial = getInvoiceSerial(invoiceObj);
-      if (serial && invoiceObj[serial].p && invoiceObj[serial].p.length === 2) {
-        return invoiceObj[serial].p[1];
-      }
-      console.log("Cannot find amount info: ", invoiceObj);
+    if (invoiceObj?.priceData?.total !== undefined) {
+      return invoiceObj.priceData.total;
     } else {
       console.log("Cannot find amount info: ", invoiceObj);
     }
     return null;
-  };
-
-  const getHealth = async () => {
-    try {
-      const health = await indexer.makeHealthCheck().do();
-      if (get(health, "errors", false)) {
-        showApiErrorNotification(health);
-        return false;
-      }
-      return true;
-    } catch (e) {
-      addNotification(`❌ Error during indexer health check!`);
-      console.log("----- Healt check ERROR:", e);
-      return false;
-    }
   };
 
   const getApplicationTransactions = async (
@@ -498,7 +448,7 @@ const MyInvoices = () => {
 
   const showApiErrorNotification = (response: any) => {
     addNotification(
-      "❌ Indexer API service is unavailable at the moment! Please, try to change the indexer."
+      "❌ SubQuery service is unavailable at the moment! Please, try try again later."
     );
     if (get(response, "errors", false)) {
       console.log("errors: ", JSON.stringify(response.errors, null, 2));
@@ -573,7 +523,7 @@ const MyInvoices = () => {
                     </a>
                   </TableHeader>
                   <div className="table-responsive">
-                    <Table className="table-hover table table-striped mt-2">
+                    <Table className="invoicesTable table-hover table table-striped mt-2">
                       <thead className="thead-invoicer">
                         <tr>
                           <th>#</th>
@@ -613,9 +563,7 @@ const MyInvoices = () => {
                                       id={`billFromAlgoAddress-tooltip_${statusIndex}_${index}`}
                                     />
                                   </td>
-                                  <td>{`${getInvoiceCurrency(
-                                    invoice
-                                  )} ${getInvoiceAmount(invoice)}`}</td>
+                                  <td>{`Ⱥ ${getInvoiceAmount(invoice)}`}</td>
                                   <td>
                                     <Button
                                       variant="primary"
@@ -786,7 +734,7 @@ const MyInvoices = () => {
               serialNumber={getInvoiceSerial(clickedInvoice)}
               info={getInvoiceInfo(clickedInvoice)}
               invoiceItems={getInvoiceItems(clickedInvoice)}
-              currency={getInvoiceCurrency(clickedInvoice)}
+              currency={"Ⱥ"}
               total={getInvoiceAmount(clickedInvoice)}
             />
           )}

@@ -97,22 +97,25 @@ const InvoiceModal = ({
   };
 
   const formatInvoiceItemValues = () => {
-    return invoiceItems.map((item) => {
-      const newItem = {
-        i: item.id,
-        n: item.name,
-        d: item.description,
-        p: parseFloat(item.price.toString().trim()),
-        q: item.quantity,
-      };
-      return newItem;
-    });
+    if (invoiceItems?.length) {
+      return invoiceItems.map((item) => {
+        const newItem = {
+          i: item.id,
+          n: item.name,
+          d: item.description,
+          p: parseFloat(item.price.toString().trim()),
+          q: item.quantity,
+        };
+        return newItem;
+      });
+    }
+    return null;
   };
 
-  const getInvoiceJson = (status, info, currency, total, invoiceItems) => {
+  const getInvoiceJson = (status, info, total, invoiceItems) => {
     const jsonObj = {
       s: status,
-      d: [info.creationDate, info.dueDate],
+      d: [info.issueDate, info.dueDate],
       f: [
         info.billFrom,
         info.billFromAddress,
@@ -125,7 +128,7 @@ const InvoiceModal = ({
         info.billToEmail,
         info.billToAlgoAddress,
       ],
-      i: formatInvoiceItemValues(),
+      i: invoiceItems,
       n: info.note,
       p: total,
     };
@@ -168,7 +171,7 @@ const InvoiceModal = ({
    */
   const getFixedJson = async (invoiceJson) => {
     const globalState = store.getState();
-    const { ctc, address } = globalState;
+    const { address } = globalState;
     let currentInvoiceNumber = serialNumber;
     if (!isPayMode()) {
       addNotification(
@@ -306,27 +309,28 @@ const InvoiceModal = ({
                 </tr>
               </thead>
               <tbody>
-                {invoiceItems.map((item, i) => {
-                  return (
-                    <tr id={i} key={i}>
-                      <td style={{ width: "70px" }}>{item.quantity}</td>
-                      <td>
-                        {truncString(
-                          `${item.name}${
-                            !!item.description ? ` - ${item.description}` : ""
-                          }`,
-                          60
-                        )}
-                      </td>
-                      <td className="text-end" style={{ width: "100px" }}>
-                        {currency} {item.price}
-                      </td>
-                      <td className="text-end" style={{ width: "100px" }}>
-                        {currency} {item.price * item.quantity}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {invoiceItems?.length &&
+                  invoiceItems.map((item, i) => {
+                    return (
+                      <tr id={i} key={i}>
+                        <td style={{ width: "70px" }}>{item.quantity}</td>
+                        <td>
+                          {truncString(
+                            `${item.name}${
+                              !!item.description ? ` - ${item.description}` : ""
+                            }`,
+                            60
+                          )}
+                        </td>
+                        <td className="text-end" style={{ width: "100px" }}>
+                          {currency} {item.price}
+                        </td>
+                        <td className="text-end" style={{ width: "100px" }}>
+                          {currency} {item.price * item.quantity}
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </Table>
             <Table>
@@ -373,7 +377,7 @@ const InvoiceModal = ({
                             info,
                             currency,
                             total,
-                            invoiceItems
+                            formatInvoiceItemValues(invoiceItems)
                           )
                         );
                         if (invoiceNumber) {

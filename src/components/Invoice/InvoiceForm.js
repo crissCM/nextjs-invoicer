@@ -239,7 +239,7 @@ const InvoiceForm = () => {
       billToAlgoAddress: isNfd(billToAlgoAddress)
         ? nfdToAlgoAddress
         : billToAlgoAddress.trim(),
-      creationDate: currentDate.toISOString().slice(0, 10),
+      issueDate: currentDate.toISOString().slice(0, 10),
       dueDate: dueDate.trim(),
       note: note.trim(),
     };
