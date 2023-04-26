@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from "src/store/hooks";
 import { updateTheme } from "src/store/ui";
 import { THEME } from "src/utils";
 
-const DarkMode = () => {
+function DarkMode() {
   const dispatch = useAppDispatch();
   const { theme } = useAppSelector((state) => state.ui);
 
@@ -34,6 +34,6 @@ const DarkMode = () => {
       </label>
     </div>
   );
-};
+}
 
 export default DarkMode;

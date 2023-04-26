@@ -41,5 +41,5 @@ const bwImgContext = require.context(
 );
 function imgSrc(s: string, color?: boolean) {
   const path = `./${s.toLowerCase()}.svg`;
-  return (color ? imgContext(path) : bwImgContext(path)).default;
+  return (color ? imgContext(path) : bwImgContext(path)).default?.src;
 }

@@ -7,8 +7,8 @@ const CenteredWrapper = styled(FlexRow)`
     width: 100vw;
 `;
 
-const FullScreenLoader = () => (
-  <CenteredWrapper>Loading route ...</CenteredWrapper>
-);
+function FullScreenLoader() {
+  return <CenteredWrapper>Loading route ...</CenteredWrapper>;
+}
 
 export default FullScreenLoader;

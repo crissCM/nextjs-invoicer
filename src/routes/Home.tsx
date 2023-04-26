@@ -86,7 +86,7 @@ const ActivateContract = async (
   return true;
 };
 
-const Home = () => {
+function Home() {
   const dispatch = useAppDispatch();
   const { isMainNet } = useAppSelector((state) => state.algorand);
   const { account } = useGlobalUser();
@@ -143,62 +143,60 @@ const Home = () => {
   } */
 
   return (
-    <>
-      <FlexColumn className="Home" padded>
-        <div
-          className="alert alert-info border-2 d-flex align-items-center p-1"
-          role="alert">
-          <p className="madeByReachTxt mb-0 flex-1">
-            This Reach project was created by Headline Inc. and it supports
-            uploading invoice data to the Algorand network.
-          </p>
-        </div>
-        {account && (
-          <div className="HomeContent">
-            <FlexRow>
-              <div
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "space-between",
-                }}
-                className="mt-1 h1-invoicer">
-                <h1 className="h2 mb-1">Headline Invoice</h1>
-                <ButtonGroup className="mt-3" aria-label="Basic example">
-                  {relogNeeded ? (
-                    <Button
-                      className="mr-2"
-                      variant="warning"
-                      onClick={() => dispatch(doSignOut())}>
-                      Relog
-                    </Button>
-                  ) : (
-                    <Button
-                      variant={invoiceVisible ? "warning" : "primary"}
-                      onClick={() => changeInvoiceVisibility(invoiceVisible)}>
-                      {invoiceVisible ? <b>Hide</b> : <b>Create new invoice</b>}
-                    </Button>
-                  )}
-                  {invoiceVisible && (
-                    <Button variant="danger" onClick={() => resetInvoice()}>
-                      <b>Reset</b>
-                    </Button>
-                  )}
-                </ButtonGroup>
-              </div>
-            </FlexRow>
-            <div className="App d-flex flex-column align-items-center justify-content-center w-100">
-              <Container>{invoiceVisible && <InvoiceForm />}</Container>
+    <FlexColumn className="Home" padded>
+      <div
+        className="alert alert-info border-2 d-flex align-items-center p-1"
+        role="alert">
+        <p className="madeByReachTxt mb-0 flex-1">
+          This Reach project was created by Headline Inc. and it supports
+          uploading invoice data to the Algorand network.
+        </p>
+      </div>
+      {account && (
+        <div className="HomeContent">
+          <FlexRow>
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+              className="mt-1 h1-invoicer">
+              <h1 className="h2 mb-1">Headline Invoice</h1>
+              <ButtonGroup className="mt-3" aria-label="Basic example">
+                {relogNeeded ? (
+                  <Button
+                    className="mr-2"
+                    variant="warning"
+                    onClick={() => dispatch(doSignOut())}>
+                    Relog
+                  </Button>
+                ) : (
+                  <Button
+                    variant={invoiceVisible ? "warning" : "primary"}
+                    onClick={() => changeInvoiceVisibility(invoiceVisible)}>
+                    {invoiceVisible ? <b>Hide</b> : <b>Create new invoice</b>}
+                  </Button>
+                )}
+                {invoiceVisible && (
+                  <Button variant="danger" onClick={() => resetInvoice()}>
+                    <b>Reset</b>
+                  </Button>
+                )}
+              </ButtonGroup>
             </div>
-            <div className="mt-3">
-              <MyInvoices />
-            </div>
+          </FlexRow>
+          <div className="App d-flex flex-column align-items-center justify-content-center w-100">
+            <Container>{invoiceVisible && <InvoiceForm />}</Container>
           </div>
-        )}
-      </FlexColumn>
-    </>
+          <div className="mt-3">
+            <MyInvoices />
+          </div>
+        </div>
+      )}
+    </FlexColumn>
   );
-};
+}
 
 function changeInvoiceVisibility(invoiceVisible: boolean): void {
   store.invoiceVisible(!invoiceVisible);

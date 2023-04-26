@@ -52,7 +52,7 @@ type ModalProps = {
   onClose(): void;
 } & React.ComponentPropsWithRef<"div">;
 
-const Modal = (p: ModalProps) => {
+function Modal(p: ModalProps) {
   const { title, onClose, children } = p;
 
   return (
@@ -69,6 +69,6 @@ const Modal = (p: ModalProps) => {
       </ModalContents>
     </ModalContainer>
   );
-};
+}
 
 export default Modal;

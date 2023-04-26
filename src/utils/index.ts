@@ -122,9 +122,6 @@ export const getProvider = (type: boolean) =>
 
 /* ----- Functions ----- */
 
-export const delay = async (ms: number) =>
-  new Promise((res) => setTimeout(res, ms));
-
 /** App Migration helper: check if your app version has changed */
 export async function checkVersionChanged() {
   const currentVersion = APP_VERSION;

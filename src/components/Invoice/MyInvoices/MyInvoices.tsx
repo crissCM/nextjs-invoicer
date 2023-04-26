@@ -68,6 +68,8 @@ const MyInvoices = () => {
   const canceledIndex = Object.values(InvoiceStatuses)[2];
   const rowStyles = ["unpaidRow", "paidRow", "canceledRow"];
 
+  console.log("----- clickedInvoice:", clickedInvoice);
+
   useEffect(() => {
     const onRefreshTable = () =>
       refreshInvoicesTable(initialFromDate, initialToDate);
@@ -346,8 +348,6 @@ const MyInvoices = () => {
             fromDate: fromDate,
             toDate: toDate,
           });
-
-          console.log("----- myInvoicesResp:", myInvoicesResp);
           if (!myInvoicesResp?.invoices?.nodes) {
             showApiErrorNotification(myInvoicesResp);
             addNotification(`❌ Error during transactions query!`);
@@ -440,11 +440,6 @@ const MyInvoices = () => {
     } finally {
       store.loading(false);
     }
-  };
-
-  const showParseErrorNotification = (e: unknown) => {
-    console.log("json body parse error: ", e);
-    addNotification("❌ The response from the server is malformed!");
   };
 
   const showApiErrorNotification = (response: any) => {
@@ -718,7 +713,7 @@ const MyInvoices = () => {
 
           {clickedInvoice && (
             <InvoiceModal
-              showModal={clickedInvoice}
+              showModal={!!clickedInvoice}
               closeModal={closeModal}
               invoiceStatus={getInvoiceStatusIndex(clickedInvoice)}
               serialNumber={getInvoiceSerial(clickedInvoice)}

@@ -2,7 +2,7 @@ import { truncateString } from "@jackcom/reachduck";
 import Color from "color";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Button,
   CloseButton,
@@ -38,22 +38,26 @@ const InvoiceModal = ({
   currency,
   total,
 }) => {
+  const [invStatus, setInvStatus] = useState(invoiceStatus);
+
   /**
-   * Check wheather we want to pay an invoice or create one and publish to the chain.
+   * Check whether we want to pay an invoice or create one and publish to the chain.
    * @returns true is we want to pay an invoice, false if we want to publish an invoice to the blockchain.
    */
-  const isPayMode = () => serialNumber !== null;
+  const isPayMode = useMemo(
+    () => serialNumber !== null && invStatus !== InvoiceStatuses.Paid,
+    [serialNumber, invStatus]
+  );
 
   const { theme } = useAppSelector((state) => state.ui);
   const gState = store.getState();
   const { address, maxBytesLength, refreshInvoicesTable } = gState;
   const [invoiceNumber, setInvoiceNumber] = useState(serialNumber);
-  const [downloadDisabled, setDownloadDisabled] = useState(!isPayMode());
+  const [downloadDisabled, setDownloadDisabled] = useState(!isPayMode);
   const [
     notificatonTransactionDialogVisible,
     setNotificatonTransactionDialogVisible,
   ] = useState(false);
-  const [invStatus, setInvStatus] = useState(invoiceStatus);
   const [note, setNote] = useState("");
 
   useEffect(() => {
@@ -173,7 +177,7 @@ const InvoiceModal = ({
     const globalState = store.getState();
     const { address } = globalState;
     let currentInvoiceNumber = serialNumber;
-    if (!isPayMode()) {
+    if (!isPayMode) {
       addNotification(
         `💡 Attempt to get the invoice serial number from the smart contract.`
       );
@@ -217,7 +221,7 @@ const InvoiceModal = ({
     const globalState = store.getState();
     const { ctc } = globalState;
     let createInvoiceApiResult;
-    if (!isPayMode()) {
+    if (!isPayMode) {
       addNotification(`💡 Attempt to publish the invoice to the blockchain.`);
       createInvoiceApiResult = await ctc.a.User.createInvoice({
         invoiceJson: fixedJson,
@@ -259,7 +263,6 @@ const InvoiceModal = ({
             <div className="text-end ms-4">
               <h6 className="fw-bold mt-1 mb-2">Amount&nbsp;Due:</h6>
               <h5 className="fw-bold text-secondary">
-                {" "}
                 {currency} {total}
               </h5>
             </div>
@@ -362,86 +365,85 @@ const InvoiceModal = ({
           <Row>
             {invStatus !== InvoiceStatuses.Paid && (
               <Col md={6}>
-                {downloadDisabled && (
-                  <Button
-                    variant="primary"
-                    className="d-block w-100"
-                    onClick={async () => {
-                      try {
-                        store.loading(true);
-                        const invoiceNumber = await GenerateAndSendInvoice(
-                          getInvoiceJson(
-                            isPayMode()
-                              ? InvoiceStatuses.Paid
-                              : InvoiceStatuses.Unpaid,
-                            info,
-                            currency,
-                            total,
-                            formatInvoiceItemValues(invoiceItems)
-                          )
-                        );
-                        if (invoiceNumber) {
-                          setInvoiceNumber(invoiceNumber);
-                          setDownloadDisabled(false);
-                          if (isPayMode()) {
-                            setInvStatus(InvoiceStatuses.Paid);
-                            const message = "Invoice paid successfully!";
-                            addNotification(`✅ ${message}`);
-                            console.log(message);
-                          } else {
-                            const message =
-                              "Invoice data published successfully!";
-                            addNotification(`✅ ${message}`);
-                            console.log(message);
-                          }
-                          store.refreshInvoicesTable(!refreshInvoicesTable);
-                          setNote(
-                            isPayMode()
-                              ? `Invoice paid: #${invoiceNumber}`
-                              : `You got an invoice: #${invoiceNumber}`
-                          );
+                <Button
+                  variant="primary"
+                  className="d-flex align-items-center justify-content-center w-100"
+                  onClick={async () => {
+                    try {
+                      store.loading(true);
+                      const invoiceNumber = await GenerateAndSendInvoice(
+                        getInvoiceJson(
+                          isPayMode
+                            ? InvoiceStatuses.Paid
+                            : InvoiceStatuses.Unpaid,
+                          info,
+                          currency,
+                          total,
+                          formatInvoiceItemValues(invoiceItems)
+                        )
+                      );
+                      if (invoiceNumber) {
+                        setInvoiceNumber(invoiceNumber);
+                        setDownloadDisabled(false);
+                        if (isPayMode) {
+                          setInvStatus(InvoiceStatuses.Paid);
+                          const message = "Invoice paid successfully!";
+                          addNotification(`✅ ${message}`);
+                          console.log(message);
+                        } else {
+                          const message =
+                            "Invoice data published successfully!";
+                          addNotification(`✅ ${message}`);
+                          console.log(message);
                         }
-                      } catch (e) {
-                        console.log("Error Send Invoice Button: ", e);
-                        addNotification(`❌ ${e}`);
-                      } finally {
-                        store.loading(false);
+                        store.refreshInvoicesTable(!refreshInvoicesTable);
+                        setNote(
+                          isPayMode
+                            ? `Invoice paid: #${invoiceNumber}`
+                            : `You got an invoice: #${invoiceNumber}`
+                        );
                       }
-                    }}>
-                    {isPayMode() ? (
+                    } catch (e) {
+                      console.log("Error Send Invoice Button: ", e);
+                      addNotification(`❌ ${e}`);
+                    } finally {
+                      store.loading(false);
+                    }
+                  }}>
+                  {isPayMode ? (
+                    <>
                       <CryptoIcon
                         symbol="algo"
                         color="black"
                         iconOnly={true}
                         size={18}
                         classNameArg="me-2"
-                        styleArg={{
-                          marginBottom: "-3px",
-                        }}
                       />
-                    ) : (
+                      Pay Invoice
+                    </>
+                  ) : (
+                    <>
                       <BiPaperPlane
                         style={{
                           width: "15px",
                           height: "15px",
-                          marginTop: "-3px",
                         }}
                         className="me-2"
                       />
-                    )}
-                    {`${isPayMode() ? "Pay" : "Send"} Invoice`}
-                  </Button>
-                )}
+                      Send Invoice
+                    </>
+                  )}
+                </Button>
               </Col>
             )}
-            <Col md={downloadDisabled ? 6 : 12}>
+            <Col md={downloadDisabled || isPayMode ? 6 : 12}>
               <Button
                 variant="outline-primary"
-                className="d-block w-100 mt-3 mt-md-0"
+                className="d-flex align-items-center justify-content-center w-100 mt-3 mt-md-0"
                 onClick={() => DownloadCopy(invoiceNumber)}
                 disabled={downloadDisabled}>
                 <BiCloudDownload
-                  style={{ width: "16px", height: "16px", marginTop: "-3px" }}
+                  style={{ width: "16px", height: "16px" }}
                   className="me-2"
                 />
                 Download Copy

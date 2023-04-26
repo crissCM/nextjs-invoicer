@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 type FlexContainerProps = {
   inline?: boolean;
@@ -6,19 +6,17 @@ type FlexContainerProps = {
 };
 
 export const ExLink = styled.a.attrs({
-  target: '_blank',
-  rel: 'noopener noreferrer'
+  target: "_blank",
+  rel: "noopener noreferrer",
 })``;
 
 /** General-purpose default container */
 export const BaseContainer = styled.section``;
 
 /** Flex-container for displaying items in a row */
-export const FlexRow = styled(
-  BaseContainer,
-)<FlexContainerProps>`
+export const FlexRow = styled(BaseContainer)<FlexContainerProps>`
   align-items: center;
-  display: ${({ inline }) => (inline ? 'inline-' : '')}flex;
+  display: ${({ inline }) => (inline ? "inline-" : "")}flex;
   padding: ${({ padded }) => (padded ? 10 : 0)};
 `;
 
@@ -38,4 +36,6 @@ export const GridContainer = styled.div<{ columns?: string }>`
 `;
 
 const Icon = styled.span.attrs({ className: "material-icons" })``;
-export const MatIcon = ({ icon }: { icon: string }) => <Icon>{icon}</Icon>;
+export function MatIcon({ icon }: { icon: string }) {
+  return <Icon>{icon}</Icon>;
+}
