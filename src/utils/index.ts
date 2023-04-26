@@ -15,6 +15,8 @@ export const PROVIDER_KEY = "provider";
 export const ADDRESS_KEY = "address";
 export const THEME_KEY = "theme";
 
+export const COMING_SOON = "Coming soon!";
+
 export const ALGO_BALANCE_REFRESH_MS = 30000;
 export const NFD_DOMAIN = ".algo";
 

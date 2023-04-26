@@ -20,7 +20,7 @@ import { Apis, fetchGraphQl } from "src/utils/requests";
 import styled from "styled-components";
 import InvoiceModal from "../../../components/Invoice/InvoiceModal";
 import store, { addNotification } from "../../../state";
-import { InvoiceStatuses } from "../../../utils";
+import { COMING_SOON, InvoiceStatuses } from "../../../utils";
 import { FlexColumn } from "../../Common/Containers";
 
 const TableWrapper = styled.div`
@@ -55,6 +55,7 @@ const MyInvoices = () => {
   ]);
   const gState = store.getState();
   const { appId, address } = gState;
+  const [selectedTab, setSelectedTab] = useState(0);
   const [exportLoading, setExportLoading] = useState(false);
   const [clickedInvoice, setClickedInvoice] = useState<any>();
   const [invoices, setInvoices] = useState<Map<string, any[]>>(defaultInvoices);
@@ -461,6 +462,43 @@ const MyInvoices = () => {
     addNotification("💡 You don't have any invoices.");
   };
 
+  const DateRangeForm = (
+    <Form
+      onSubmit={(e: any) => {
+        e.preventDefault();
+        refreshInvoicesTable(e.target.fromDate.value, e.target.toDate.value);
+      }}>
+      <ButtonToolbar className="mb-3" aria-label="Toolbar with Button groups">
+        <InputGroup>
+          <InputGroup.Text id="btnGroupAddon" className="dateLabel">
+            From date
+          </InputGroup.Text>
+          <FormControl
+            type="date"
+            name="fromDate"
+            defaultValue={initialFromDate}
+            aria-label="From date"
+            aria-describedby="btnGroupAddon"
+          />
+        </InputGroup>
+        <InputGroup>
+          <InputGroup.Text id="btnGroupAddon2" className="dateLabel">
+            To date
+          </InputGroup.Text>
+          <FormControl
+            type="date"
+            name="toDate"
+            defaultValue={initialToDate}
+            aria-label="To date"
+            aria-describedby="btnGroupAddon2"
+          />
+        </InputGroup>
+        <Button variant="primary" type="submit">
+          Refresh
+        </Button>
+      </ButtonToolbar>
+    </Form>
+  );
   return appId ? (
     <FlexColumn className="commonParagraph myInvoicesParent" padded>
       {!isEmptyInvoices() ? (
@@ -469,8 +507,9 @@ const MyInvoices = () => {
             <ul className="nav nav-tabs" id="myTab" role="tablist">
               <li className="nav-item" role="presentation">
                 <button
-                  className="nav-link active"
+                  className={`nav-link${selectedTab === 0 ? " active" : ""}`}
                   id="pills-inbox-tab"
+                  onClick={() => setSelectedTab(0)}
                   data-toggle="pill"
                   data-target="#pills-inbox"
                   type="button"
@@ -482,247 +521,198 @@ const MyInvoices = () => {
               </li>
               <li className="nav-item" role="presentation">
                 <button
-                  className="nav-link"
+                  className={`nav-link${selectedTab === 1 ? " active" : ""}`}
                   id="pills-details-tab"
+                  onClick={() => setSelectedTab(1)}
                   data-toggle="pill"
                   data-target="#pills-details"
                   type="button"
                   role="tab"
                   aria-controls="pills-details"
                   aria-selected="false">
-                  Details
-                </button>
-              </li>
-              <li className="nav-item" role="presentation">
-                <button
-                  className="nav-link"
-                  id="pills-guide-tab"
-                  data-toggle="pill"
-                  data-target="#pills-guide"
-                  type="button"
-                  role="tab"
-                  aria-controls="pills-guide"
-                  aria-selected="false">
-                  Guide
+                  Sent
                 </button>
               </li>
             </ul>
             <div className="tab-content" id="pills-tabContent">
-              <div
-                className="tab-pane fade show active"
-                id="pills-inbox"
-                role="tabpanel"
-                aria-labelledby="pills-inbox-tab">
-                <TableWrapper>
-                  <TableHeader>
-                    <h5 className="sc-pFZIQ ePBsdD">Recent Invoices</h5>
-                    <a
-                      className="btn btn-link no-padding"
-                      href="/algorand/pools">
-                      See All
-                    </a>
-                  </TableHeader>
-                  <div className="table-responsive">
-                    <Table className="invoicesTable table-hover table table-striped mt-2">
-                      <thead className="thead-invoicer">
-                        <tr>
-                          <th>#</th>
-                          <th>Due date</th>
-                          <th>Address</th>
-                          <th>Amount</th>
-                          <th>Pay</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[unpaidIndex, paidIndex, canceledIndex].map(
-                          (statusIndex) =>
-                            getInvoicesByIndex(statusIndex)?.map(
-                              (invoice: any, index) => (
-                                <tr
-                                  className={rowStyles[statusIndex]}
-                                  key={`InvoiceRowKey_${statusIndex}_${index}`}>
-                                  <td>{getInvoiceSerial(invoice)}</td>
-                                  <td>{getInvoiceInfo(invoice)?.dueDate}</td>
-                                  <td>
-                                    <a
-                                      data-tooltip-id={`billFromAlgoAddress-tooltip_${statusIndex}_${index}`}
-                                      data-tooltip-content={
-                                        getInvoiceInfo(invoice)
-                                          ?.billFromAlgoAddress
-                                      }
-                                      data-tooltip-place="bottom"
-                                      data-tooltip-variant="info">
-                                      {getInvoiceInfo(invoice)
-                                        ? truncateString(
-                                            getInvoiceInfo(invoice)!
-                                              .billFromAlgoAddress
-                                          )
-                                        : ""}
-                                    </a>
-                                    <Tooltip
-                                      id={`billFromAlgoAddress-tooltip_${statusIndex}_${index}`}
-                                    />
-                                  </td>
-                                  <td>{`Ⱥ ${getInvoiceAmount(invoice)}`}</td>
-                                  <td>
-                                    <Button
-                                      variant="primary"
-                                      onClick={() =>
-                                        setClickedInvoice(invoice)
-                                      }>
-                                      Open
-                                    </Button>
-                                  </td>
-                                </tr>
+              {selectedTab === 0 && (
+                <div
+                  className="tab-pane fade show active"
+                  id="pills-inbox"
+                  role="tabpanel"
+                  aria-labelledby="pills-inbox-tab">
+                  <TableWrapper>
+                    <TableHeader>
+                      <h5 className="sc-pFZIQ ePBsdD">Recent Invoices</h5>
+                      {DateRangeForm}
+                      <a
+                        className="btn btn-link no-padding text-decoration-none"
+                        data-tooltip-id={"seeAll-tooltip"}
+                        data-tooltip-content={COMING_SOON}
+                        data-tooltip-place="top"
+                        data-tooltip-variant="info">
+                        See All
+                      </a>
+                      <Tooltip id={"seeAll-tooltip"} />
+                    </TableHeader>
+                    <div className="table-responsive">
+                      <Table className="invoicesTable table-hover table table-striped mt-2">
+                        <thead className="thead-invoicer">
+                          <tr>
+                            <th>#</th>
+                            <th>Due date</th>
+                            <th>Address</th>
+                            <th>Amount</th>
+                            <th>Pay</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[unpaidIndex, paidIndex, canceledIndex].map(
+                            (statusIndex) =>
+                              getInvoicesByIndex(statusIndex)?.map(
+                                (invoice: any, index) => (
+                                  <tr
+                                    className={rowStyles[statusIndex]}
+                                    key={`InvoiceRowKey_${statusIndex}_${index}`}>
+                                    <td>{getInvoiceSerial(invoice)}</td>
+                                    <td>{getInvoiceInfo(invoice)?.dueDate}</td>
+                                    <td>
+                                      <a
+                                        data-tooltip-id={`billFromAlgoAddress-tooltip_${statusIndex}_${index}`}
+                                        data-tooltip-content={
+                                          getInvoiceInfo(invoice)
+                                            ?.billFromAlgoAddress
+                                        }
+                                        data-tooltip-place="bottom"
+                                        data-tooltip-variant="info">
+                                        {getInvoiceInfo(invoice)
+                                          ? truncateString(
+                                              getInvoiceInfo(invoice)!
+                                                .billFromAlgoAddress
+                                            )
+                                          : ""}
+                                      </a>
+                                      <Tooltip
+                                        id={`billFromAlgoAddress-tooltip_${statusIndex}_${index}`}
+                                      />
+                                    </td>
+                                    <td>{`Ⱥ ${getInvoiceAmount(invoice)}`}</td>
+                                    <td>
+                                      <Button
+                                        variant="primary"
+                                        onClick={() =>
+                                          setClickedInvoice(invoice)
+                                        }>
+                                        Open
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                )
                               )
-                            )
-                        )}
-                      </tbody>
-                    </Table>
-                  </div>
-                </TableWrapper>
-              </div>
-              <div
-                className="tab-pane fade"
-                id="pills-details"
-                role="tabpanel"
-                aria-labelledby="pills-details-tab">
-                <TableWrapper>
-                  <TableHeader>
-                    <h5 className="sc-pFZIQ ePBsdD">Invoice Status</h5>
-                    <CsvDownloader
-                      filename={getFilename()}
-                      extension=".csv"
-                      separator=";"
-                      columns={getCsvColumns()}
-                      datas={async () => {
-                        const gridData: Datas =
-                          (await asyncExportCsv()) as Datas;
-                        setExportLoading(false);
-                        return gridData;
+                          )}
+                        </tbody>
+                      </Table>
+                    </div>
+                  </TableWrapper>
+                </div>
+              )}
+              {selectedTab === 1 && (
+                <div
+                  className="tab-pane fade show active"
+                  id="pills-details"
+                  role="tabpanel"
+                  aria-labelledby="pills-details-tab">
+                  <TableWrapper>
+                    <TableHeader>
+                      <h5 className="sc-pFZIQ ePBsdD">Invoice Status</h5>
+                      {DateRangeForm}
+                      <CsvDownloader
+                        filename={getFilename()}
+                        extension=".csv"
+                        separator=";"
+                        columns={getCsvColumns()}
+                        datas={async () => {
+                          const gridData: Datas =
+                            (await asyncExportCsv()) as Datas;
+                          setExportLoading(false);
+                          return gridData;
+                        }}>
+                        <Button
+                          className="btn export-btn text-decoration-none"
+                          disabled={!invoices}>
+                          {(exportLoading ?? false) && (
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              role="status"
+                              aria-hidden="true"
+                            />
+                          )}
+                          {`${exportLoading ?? false ? " " : ""}Export CSV`}
+                        </Button>
+                      </CsvDownloader>
+                    </TableHeader>
+
+                    <div className="table-responsive invoicer-table-responsive">
+                      <Table className="table-hover table table-striped mt-2">
+                        <thead>
+                          <tr>
+                            {Object.keys(InvoiceStatuses).map((key, index) => (
+                              <th
+                                className={getSumHeaderClass(index)}
+                                key={`InvoiceSumKey_${index}`}>
+                                {key}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            {[...invoices.values()].map(
+                              (invoiceArray, index) => (
+                                <td
+                                  key={`InvoiceSumValueKey_${index}`}
+                                  style={{
+                                    fontWeight: "bold",
+                                    borderStyle: "solid",
+                                    borderWidth: "thin",
+                                  }}>
+                                  {invoiceArray.length}
+                                </td>
+                              )
+                            )}
+                          </tr>
+                        </tbody>
+                      </Table>
+                    </div>
+                  </TableWrapper>
+                  <Row>
+                    <Form
+                      onSubmit={(e: any) => {
+                        e.preventDefault();
+                        refreshInvoicesTable(
+                          e.target.fromDate.value,
+                          e.target.toDate.value
+                        );
                       }}>
-                      <Button
-                        className="btn export-btn btn-link"
-                        disabled={!invoices}>
-                        {(exportLoading ?? false) && (
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                          />
-                        )}
-                        {`${exportLoading ?? false ? " " : ""}Export CSV`}
-                      </Button>
-                    </CsvDownloader>
-                  </TableHeader>
+                      <ButtonToolbar
+                        className="mb-3"
+                        aria-label="Toolbar with Button groups"></ButtonToolbar>
 
-                  <div className="table-responsive invoicer-table-responsive">
-                    <Table className="table-hover table table-striped mt-2">
-                      <thead>
-                        <tr>
-                          {Object.keys(InvoiceStatuses).map((key, index) => (
-                            <th
-                              className={getSumHeaderClass(index)}
-                              key={`InvoiceSumKey_${index}`}>
-                              {key}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          {[...invoices.values()].map((invoiceArray, index) => (
-                            <td
-                              key={`InvoiceSumValueKey_${index}`}
-                              style={{
-                                fontWeight: "bold",
-                                borderStyle: "solid",
-                                borderWidth: "thin",
-                              }}>
-                              {invoiceArray.length}
-                            </td>
-                          ))}
-                        </tr>
-                      </tbody>
-                    </Table>
-                  </div>
-                </TableWrapper>
-                <Form
-                  onSubmit={(e: any) => {
-                    e.preventDefault();
-                    refreshInvoicesTable(
-                      e.target.fromDate.value,
-                      e.target.toDate.value
-                    );
-                  }}>
-                  <ButtonToolbar
-                    className="mb-3"
-                    aria-label="Toolbar with Button groups">
-                    <InputGroup>
-                      <InputGroup.Text id="btnGroupAddon" className="dateLabel">
-                        From date
-                      </InputGroup.Text>
-                      <FormControl
-                        type="date"
-                        name="fromDate"
-                        defaultValue={initialFromDate}
-                        aria-label="From date"
-                        aria-describedby="btnGroupAddon"
-                      />
-                    </InputGroup>
-                    <InputGroup>
-                      <InputGroup.Text
-                        id="btnGroupAddon2"
-                        className="dateLabel">
-                        To date
-                      </InputGroup.Text>
-                      <FormControl
-                        type="date"
-                        name="toDate"
-                        defaultValue={initialToDate}
-                        aria-label="To date"
-                        aria-describedby="btnGroupAddon2"
-                      />
-                    </InputGroup>
-                    <Button variant="primary" type="submit">
-                      Refresh
-                    </Button>
-                  </ButtonToolbar>
-                </Form>
-                <Row>
-                  <Form
-                    onSubmit={(e: any) => {
-                      e.preventDefault();
-                      refreshInvoicesTable(
-                        e.target.fromDate.value,
-                        e.target.toDate.value
-                      );
-                    }}>
-                    <ButtonToolbar
-                      className="mb-3"
-                      aria-label="Toolbar with Button groups"></ButtonToolbar>
-
-                    <ButtonToolbar
-                      className="justify-content-between"
-                      aria-label="Toolbar with Button groups">
-                      <ButtonGroup aria-label="First group">
-                        <ButtonGroup
-                          className="ms-2"
-                          aria-label="First group"></ButtonGroup>
-                      </ButtonGroup>
-                    </ButtonToolbar>
-                  </Form>
-                </Row>
-              </div>
-              <div
-                className="tab-pane fade"
-                id="pills-guide"
-                role="tabpanel"
-                aria-labelledby="pills-guide-tab">
-                Coming Soon!
-              </div>
+                      <ButtonToolbar
+                        className="justify-content-between"
+                        aria-label="Toolbar with Button groups">
+                        <ButtonGroup aria-label="First group">
+                          <ButtonGroup
+                            className="ms-2"
+                            aria-label="First group"></ButtonGroup>
+                        </ButtonGroup>
+                      </ButtonToolbar>
+                    </Form>
+                  </Row>
+                </div>
+              )}
             </div>
           </>
 

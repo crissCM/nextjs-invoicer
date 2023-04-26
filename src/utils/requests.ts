@@ -92,6 +92,7 @@ export const Apis = {
       $statusArr: [Int!] = [0, 1, 2]
     ) {
       invoices(
+        orderBy: UPDATED_AT_DESC
         filter: {
           toAddressId: { equalTo: $address }
           issueDate: { greaterThanOrEqualTo: $fromDate, lessThanOrEqualTo: $toDate }
@@ -138,6 +139,7 @@ export const Apis = {
               price
             }
           }
+          updatedAt
         }
       }
     }  
