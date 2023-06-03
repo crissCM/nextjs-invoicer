@@ -363,7 +363,7 @@ const InvoiceModal = ({
         </div>
         <div className="pb-4 px-4">
           <Row>
-            {invStatus !== InvoiceStatuses.Paid && (
+            {downloadDisabled && invStatus !== InvoiceStatuses.Paid && (
               <Col md={6}>
                 <Button
                   variant="primary"
