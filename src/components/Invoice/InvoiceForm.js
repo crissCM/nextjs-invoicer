@@ -19,8 +19,8 @@ let nfdToAlgoAddress;
 
 const InvoiceForm = () => {
   const getInitialLengthCounter = () => {
-    // We subtract the initial state value lengths. (status, fromDate, toDate, currency, fromAlgoAddress, toAlgoAddress, total)
-    return maxJsonLength - 1 - 10 - 10 - 1 - 58 - 58 - 4;
+    // We subtract the initial state value lengths. (status, fromDate, toDate, fromAlgoAddress, toAlgoAddress, total)
+    return maxJsonLength - 1 - 10 - 10 - 58 - 58 - 4;
   };
 
   const gState = store.getState();
@@ -37,7 +37,6 @@ const InvoiceForm = () => {
   const now = new Date();
   const [invoiceItems, setInvoiceItems] = useState(defaultInvoiceItems);
   const [isInvoiceModalOpen, setInvoiceModalOpen] = useState(false);
-  const [currency, setCurrency] = useState("Ⱥ");
   const [currentDate, setCurrentDate] = useState(now);
   const [dueDate, setDueDate] = useState("");
   const [billFromAlgoAddress, setBillFromAlgoAddress] = useState(address);
@@ -59,7 +58,6 @@ const InvoiceForm = () => {
       setInvoiceItems(defaultInvoiceItems);
       const now = new Date();
       setInvoiceModalOpen(false);
-      setCurrency("Ⱥ");
       setCurrentDate(now);
       setDueDate("");
       setBillFromAlgoAddress(address);
@@ -399,7 +397,7 @@ const InvoiceForm = () => {
               onItemizedItemEdit={onItemizedItemEdit}
               onRowAdd={handleAddEvent}
               onRowDel={handleRowDel}
-              currency={currency}
+              currency={"Ⱥ"}
             />
             <Row className="mt-4 justify-content-end">
               <Col lg={6}>
@@ -411,7 +409,7 @@ const InvoiceForm = () => {
                   }}>
                   <span className="fw-bold">Total:</span>
                   <span className="fw-bold">
-                    {currency}
+                    {"Ⱥ"}
                     {total || 0}
                   </span>
                 </div>
@@ -452,7 +450,7 @@ const InvoiceForm = () => {
                 serialNumber={null}
                 info={getInfo()}
                 invoiceItems={invoiceItems}
-                currency={currency.trim()}
+                currency={"Ⱥ"}
                 total={parseFloat(total.toString().trim())}
               />
             )}

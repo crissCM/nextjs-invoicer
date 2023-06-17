@@ -377,7 +377,6 @@ const InvoiceModal = ({
                             ? InvoiceStatuses.Paid
                             : InvoiceStatuses.Unpaid,
                           info,
-                          currency,
                           total,
                           formatInvoiceItemValues(invoiceItems)
                         )
