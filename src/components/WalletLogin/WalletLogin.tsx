@@ -18,8 +18,8 @@ import {
   convertMicroToAlgo,
   copyTextToClipboard,
 } from "src/utils";
-import useInterval from "src/utils/hooks/useInterval";
 import { connect, reconnect } from "../../reach";
+import useInterval from "src/hooks/useInterval";
 
 function WalletLogin() {
   const dispatch = useAppDispatch();

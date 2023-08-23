@@ -68,8 +68,6 @@ const MyInvoices = () => {
   const canceledIndex = Object.values(InvoiceStatuses)[2];
   const rowStyles = ["unpaidRow", "paidRow", "canceledRow"];
 
-  console.log("----- clickedInvoice:", clickedInvoice);
-
   useEffect(() => {
     const onRefreshTable = () =>
       refreshInvoicesTable(initialFromDate, initialToDate);

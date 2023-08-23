@@ -28,9 +28,9 @@ const ActiveNotifications = styled(() => {
 
   return (
     <NotificationGroup>
-      {msgs.map((m) => (
+      {msgs.map((m, index) => (
         <AutoDismissNotification
-          key={m.time}
+          key={`${index} - ${m.time}`}
           notification={m}
           timeout={timeout(m)}
         />

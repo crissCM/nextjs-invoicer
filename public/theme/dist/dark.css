@@ -1,3 +1,7 @@
+input {
+    color-scheme: dark;
+}
+
 div#shield-verified-help-tooltip {
     margin-top: -10px;
 }
@@ -6,12 +10,11 @@ div#shield-verified-help-tooltip {
     box-shadow: 0 0 0 1px var(--card-border) !important;
 }
 
- button.c-link.c-link--icon-alone.c-link--block.m\:hidden.mobile-search {
-        font-size: 18px !important;
-        text-decoration: none !important;
-        margin-right: 0px;
-    }
-
+button.c-link.c-link--icon-alone.c-link--block.m\:hidden.mobile-search {
+    font-size: 18px !important;
+    text-decoration: none !important;
+    margin-right: 0px;
+}
 
 button#wallet-connect-2 {
     white-space: nowrap;

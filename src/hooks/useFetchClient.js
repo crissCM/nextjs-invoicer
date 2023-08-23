@@ -1,5 +1,6 @@
-import { useEffect, useRef, useMemo } from 'react';
-import getFetchClient from '../../utils/getFetchClient';
+import { useEffect, useMemo, useRef } from "react";
+
+import { getFetchClient } from "../utils/fetchClient/getFetchClient";
 
 const useFetchClient = () => {
   const controller = useRef(null);
@@ -23,4 +24,4 @@ const useFetchClient = () => {
   );
 };
 
-export default useFetchClient;
+export { useFetchClient };

@@ -1,10 +1,15 @@
-import axios from 'axios';
-import auth from '../auth';
+import axios from "axios";
+import qs from "qs";
+
+/**
+ * TODO: review this file, we export a lot
+ * of internals and it's not entirely clear why...
+ */
 
 export const reqInterceptor = async (config) => {
-  config.headers = {
+  /* config.headers = {
     Authorization: `Bearer ${auth.getToken()}`,
-  };
+  }; */
 
   return config;
 };
@@ -34,8 +39,11 @@ export const addInterceptors = (instance) => {
 export const fetchClient = () => {
   const instance = axios.create({
     headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    paramsSerializer: (params) => {
+      return qs.stringify(params, { encode: false });
     },
   });
   addInterceptors(instance);
@@ -43,4 +51,6 @@ export const fetchClient = () => {
   return instance;
 };
 
-export default fetchClient();
+const instance = fetchClient();
+
+export { instance };

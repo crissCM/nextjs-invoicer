@@ -1,3 +1,7 @@
+input {
+    color-scheme: light;
+}
+
 .dashboard-card {
     margin-top: 16px;
     background: var(--algocloud-card-bg-color);
