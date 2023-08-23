@@ -84,7 +84,7 @@ export const Apis = {
       }
     }
   `,
-  GetMyInvoices: `
+  GetReceivedInvoices: `
     query(
       $address: String!
       $fromDate: Datetime!
@@ -95,6 +95,66 @@ export const Apis = {
         orderBy: UPDATED_AT_DESC
         filter: {
           toAddressId: { equalTo: $address }
+          issueDate: { greaterThanOrEqualTo: $fromDate, lessThanOrEqualTo: $toDate }
+          status: { in: $statusArr }
+        }
+      ) {
+        nodes {
+          id
+          invoiceNo
+          creatorId
+          fromAddressId
+          toAddressId
+          invoiceTransactionId
+          status
+          issueDate
+          dueDate
+          fromData {
+            id
+            name
+            billingAddress
+            email
+            algoAddressId
+          }
+          toData {
+            id
+            name
+            billingAddress
+            email
+            algoAddressId
+          }
+          note
+          priceData {
+            id
+            total
+          }
+          items {
+            nodes {
+              id
+              itemId
+              invoiceId
+              name
+              description
+              quantity
+              price
+            }
+          }
+          updatedAt
+        }
+      }
+    }  
+  `,
+  GetSentInvoices: `
+    query(
+      $address: String!
+      $fromDate: Datetime!
+      $toDate: Datetime!
+      $statusArr: [Int!] = [0, 1, 2]
+    ) {
+      invoices(
+        orderBy: UPDATED_AT_DESC
+        filter: {
+          fromAddressId: { equalTo: $address }
           issueDate: { greaterThanOrEqualTo: $fromDate, lessThanOrEqualTo: $toDate }
           status: { in: $statusArr }
         }

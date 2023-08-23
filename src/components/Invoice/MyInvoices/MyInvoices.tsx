@@ -1,6 +1,6 @@
 import { truncateString } from "@jackcom/reachduck";
 import { get } from "lodash";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   Button,
   ButtonGroup,
@@ -58,7 +58,10 @@ const MyInvoices = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [exportLoading, setExportLoading] = useState(false);
   const [clickedInvoice, setClickedInvoice] = useState<any>();
-  const [invoices, setInvoices] = useState<Map<string, any[]>>(defaultInvoices);
+  const [receivedInvoices, setReceivedInvoices] =
+    useState<Map<string, any[]>>(defaultInvoices);
+  const [sentInvoices, setSentInvoices] =
+    useState<Map<string, any[]>>(defaultInvoices);
   const initialFromDate = getLastYearDate(new Date())
     .toISOString()
     .slice(0, 10);
@@ -95,7 +98,7 @@ const MyInvoices = () => {
     return () => abortController.abort();
   }, []);
 
-  const isEmptyInvoices = () => {
+  const isEmptyInvoices = (invoices: Map<string, any[]>) => {
     const invArrs = [...invoices.values()];
     for (let i = 0; i < invArrs.length; i += 1) {
       const arr = invArrs[i];
@@ -106,6 +109,35 @@ const MyInvoices = () => {
     return true;
   };
 
+  function filterInvoicesByStatus(
+    myInvoices: any,
+    setMyInvoices: Dispatch<SetStateAction<Map<string, any[]>>>,
+    successNotification: string,
+    errorNotification: string
+  ) {
+    if (myInvoices.length > 0) {
+      const invoicesMap = new Map<string, any[]>([
+        [Object.keys(InvoiceStatuses)[0], []],
+        [Object.keys(InvoiceStatuses)[1], []],
+        [Object.keys(InvoiceStatuses)[2], []],
+      ]);
+
+      for (const invoice of myInvoices) {
+        const invoicesArr = invoicesMap.get(
+          Object.keys(InvoiceStatuses)[invoice.status]
+        );
+        if (invoicesArr) {
+          invoicesArr.push(invoice);
+        }
+      }
+
+      addNotification(successNotification);
+      setMyInvoices(invoicesMap);
+    } else {
+      showNoInvoicesNotification(errorNotification);
+    }
+  }
+
   const getFilename = () => `${initialFromDate}_${initialToDate}`;
 
   const asyncExportCsv = async () => {
@@ -113,7 +145,7 @@ const MyInvoices = () => {
     return new Promise((resolve) => {
       const gridData: Datas = [];
       try {
-        for (const entry of invoices.entries()) {
+        for (const entry of sentInvoices.entries()) {
           const [status, invoicesArray] = entry;
           [unpaidIndex, paidIndex, canceledIndex].forEach((s) => {
             if (status === Object.keys(InvoiceStatuses)[s]) {
@@ -260,7 +292,7 @@ const MyInvoices = () => {
     return null;
   };
 
-  const getInvoicesByIndex = (index: number) => {
+  const getInvoicesByIndex = (index: number, invoices: Map<string, any[]>) => {
     const key = Object.keys(InvoiceStatuses)[index];
     return invoices.get(key);
   };
@@ -341,41 +373,38 @@ const MyInvoices = () => {
     const transactionsFetchSuccess = await new Promise(
       async (resolve, reject) => {
         try {
-          const myInvoicesResp = await fetchGraphQl(Apis.GetMyInvoices, {
+          const receivedInvoicesResp = await fetchGraphQl(
+            Apis.GetReceivedInvoices,
+            {
+              address: address.toLocaleLowerCase(),
+              fromDate: fromDate,
+              toDate: toDate,
+            }
+          );
+          const sentInvoicesResp = await fetchGraphQl(Apis.GetSentInvoices, {
             address: address.toLocaleLowerCase(),
             fromDate: fromDate,
             toDate: toDate,
           });
-          if (!myInvoicesResp?.invoices?.nodes) {
-            showApiErrorNotification(myInvoicesResp);
+          if (
+            !receivedInvoicesResp?.invoices?.nodes ||
+            !sentInvoicesResp?.invoices?.nodes
+          ) {
+            showApiErrorNotification(receivedInvoicesResp);
             addNotification(`❌ Error during transactions query!`);
           } else {
-            const myInvoices = myInvoicesResp.invoices.nodes;
-            if (myInvoices.length > 0) {
-              const invoicesMap = new Map<string, any[]>([
-                [Object.keys(InvoiceStatuses)[0], []],
-                [Object.keys(InvoiceStatuses)[1], []],
-                [Object.keys(InvoiceStatuses)[2], []],
-              ]);
-
-              for (const invoice of myInvoices) {
-                const invoicesArr = invoicesMap.get(
-                  Object.keys(InvoiceStatuses)[invoice.status]
-                );
-                if (invoicesArr) {
-                  invoicesArr.push(invoice);
-                }
-              }
-
-              console.log("----- invoicesMap:", invoicesMap);
-
-              addNotification(
-                `💡 Your invoices have been loaded successfully.`
-              );
-              setInvoices(invoicesMap);
-            } else {
-              showNoInvoicesNotification();
-            }
+            filterInvoicesByStatus(
+              receivedInvoicesResp.invoices.nodes,
+              setReceivedInvoices,
+              "`💡 Received invoices loaded successfully.`",
+              "💡 No new received invoices."
+            );
+            filterInvoicesByStatus(
+              sentInvoicesResp.invoices.nodes,
+              setSentInvoices,
+              "`💡 Sent invoices loaded successfully.`",
+              "💡 No new sent invoices."
+            );
           }
           resolve(true);
         } catch (e) {
@@ -388,6 +417,8 @@ const MyInvoices = () => {
     );
     console.log("----- transactionsFetchSuccess:", transactionsFetchSuccess);
   };
+
+  console.log("sent invs:", sentInvoices);
 
   const isInvoicePaid = (invoice: string, paidArray: any[] | undefined) => {
     if (invoice && paidArray) {
@@ -451,8 +482,8 @@ const MyInvoices = () => {
     }
   };
 
-  const showNoInvoicesNotification = () => {
-    addNotification("💡 You don't have any invoices.");
+  const showNoInvoicesNotification = (message: string) => {
+    addNotification(message);
   };
 
   const DateRangeForm = (
@@ -494,239 +525,234 @@ const MyInvoices = () => {
   );
   return appId ? (
     <FlexColumn className="commonParagraph myInvoicesParent" padded>
-      {!isEmptyInvoices() ? (
-        <Container>
-          <>
-            <ul className="nav nav-tabs" id="myTab" role="tablist">
-              <li className="nav-item" role="presentation">
-                <button
-                  className={`nav-link${selectedTab === 0 ? " active" : ""}`}
-                  id="pills-inbox-tab"
-                  onClick={() => setSelectedTab(0)}
-                  data-toggle="pill"
-                  data-target="#pills-inbox"
-                  type="button"
-                  role="tab"
-                  aria-controls="pills-inbox"
-                  aria-selected="true">
-                  Inbox
-                </button>
-              </li>
-              <li className="nav-item" role="presentation">
-                <button
-                  className={`nav-link${selectedTab === 1 ? " active" : ""}`}
-                  id="pills-details-tab"
-                  onClick={() => setSelectedTab(1)}
-                  data-toggle="pill"
-                  data-target="#pills-details"
-                  type="button"
-                  role="tab"
-                  aria-controls="pills-details"
-                  aria-selected="false">
-                  Sent
-                </button>
-              </li>
-            </ul>
-            <div className="tab-content" id="pills-tabContent">
-              {selectedTab === 0 && (
-                <div
-                  className="tab-pane fade show active"
-                  id="pills-inbox"
-                  role="tabpanel"
-                  aria-labelledby="pills-inbox-tab">
-                  <TableWrapper>
-                    <TableHeader>
-                      <h5 className="sc-pFZIQ ePBsdD">Recent Invoices</h5>
-                      {DateRangeForm}
-                      <a
-                        className="btn btn-link no-padding text-decoration-none"
-                        data-tooltip-id={"seeAll-tooltip"}
-                        data-tooltip-content={COMING_SOON}
-                        data-tooltip-place="top"
-                        data-tooltip-variant="info">
-                        See All
-                      </a>
-                      <Tooltip id={"seeAll-tooltip"} />
-                    </TableHeader>
-                    <div className="table-responsive">
-                      <Table className="invoicesTable table-hover table table-striped mt-2">
-                        <thead className="thead-invoicer">
-                          <tr>
-                            <th>#</th>
-                            <th>Due date</th>
-                            <th>Address</th>
-                            <th>Amount</th>
-                            <th>Pay</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {[unpaidIndex, paidIndex, canceledIndex].map(
-                            (statusIndex) =>
-                              getInvoicesByIndex(statusIndex)?.map(
-                                (invoice: any, index) => (
-                                  <tr
-                                    className={rowStyles[statusIndex]}
-                                    key={`InvoiceRowKey_${statusIndex}_${index}`}>
-                                    <td>{getInvoiceSerial(invoice)}</td>
-                                    <td>{getInvoiceInfo(invoice)?.dueDate}</td>
-                                    <td>
-                                      <a
-                                        data-tooltip-id={`billFromAlgoAddress-tooltip_${statusIndex}_${index}`}
-                                        data-tooltip-content={
-                                          getInvoiceInfo(invoice)
-                                            ?.billFromAlgoAddress
-                                        }
-                                        data-tooltip-place="bottom"
-                                        data-tooltip-variant="info">
-                                        {getInvoiceInfo(invoice)
-                                          ? truncateString(
-                                              getInvoiceInfo(invoice)!
-                                                .billFromAlgoAddress
-                                            )
-                                          : ""}
-                                      </a>
-                                      <Tooltip
-                                        id={`billFromAlgoAddress-tooltip_${statusIndex}_${index}`}
-                                      />
-                                    </td>
-                                    <td>{`Ⱥ ${getInvoiceAmount(invoice)}`}</td>
-                                    <td>
-                                      <Button
-                                        variant="primary"
-                                        onClick={() =>
-                                          setClickedInvoice(invoice)
-                                        }>
-                                        Open
-                                      </Button>
-                                    </td>
-                                  </tr>
-                                )
-                              )
-                          )}
-                        </tbody>
-                      </Table>
-                    </div>
-                  </TableWrapper>
-                </div>
-              )}
-              {selectedTab === 1 && (
-                <div
-                  className="tab-pane fade show active"
-                  id="pills-details"
-                  role="tabpanel"
-                  aria-labelledby="pills-details-tab">
-                  <TableWrapper>
-                    <TableHeader>
-                      <h5 className="sc-pFZIQ ePBsdD">Invoice Status</h5>
-                      {DateRangeForm}
-                      <CsvDownloader
-                        filename={getFilename()}
-                        extension=".csv"
-                        separator=";"
-                        columns={getCsvColumns()}
-                        datas={async () => {
-                          const gridData: Datas =
-                            (await asyncExportCsv()) as Datas;
-                          setExportLoading(false);
-                          return gridData;
-                        }}>
-                        <Button
-                          className="btn export-btn text-decoration-none"
-                          disabled={!invoices}>
-                          {(exportLoading ?? false) && (
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              role="status"
-                              aria-hidden="true"
-                            />
-                          )}
-                          {`${exportLoading ?? false ? " " : ""}Export CSV`}
-                        </Button>
-                      </CsvDownloader>
-                    </TableHeader>
-
-                    <div className="table-responsive invoicer-table-responsive">
-                      <Table className="table-hover table table-striped mt-2">
-                        <thead>
-                          <tr>
-                            {Object.keys(InvoiceStatuses).map((key, index) => (
-                              <th
-                                className={getSumHeaderClass(index)}
-                                key={`InvoiceSumKey_${index}`}>
-                                {key}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            {[...invoices.values()].map(
-                              (invoiceArray, index) => (
-                                <td
-                                  key={`InvoiceSumValueKey_${index}`}
-                                  style={{
-                                    fontWeight: "bold",
-                                    borderStyle: "solid",
-                                    borderWidth: "thin",
-                                  }}>
-                                  {invoiceArray.length}
+      <Container>
+        <>
+          <ul className="nav nav-tabs" id="myTab" role="tablist">
+            <li className="nav-item" role="presentation">
+              <button
+                className={`nav-link${selectedTab === 0 ? " active" : ""}`}
+                id="pills-inbox-tab"
+                onClick={() => setSelectedTab(0)}
+                data-toggle="pill"
+                data-target="#pills-inbox"
+                type="button"
+                role="tab"
+                aria-controls="pills-inbox"
+                aria-selected="true">
+                Inbox
+              </button>
+            </li>
+            <li className="nav-item" role="presentation">
+              <button
+                className={`nav-link${selectedTab === 1 ? " active" : ""}`}
+                id="pills-details-tab"
+                onClick={() => setSelectedTab(1)}
+                data-toggle="pill"
+                data-target="#pills-details"
+                type="button"
+                role="tab"
+                aria-controls="pills-details"
+                aria-selected="false">
+                Sent
+              </button>
+            </li>
+          </ul>
+          <div className="tab-content" id="pills-tabContent">
+            {selectedTab === 0 && (
+              <div
+                className="tab-pane fade show active"
+                id="pills-inbox"
+                role="tabpanel"
+                aria-labelledby="pills-inbox-tab">
+                <TableWrapper>
+                  <TableHeader>
+                    <h5 className="sc-pFZIQ ePBsdD">Recent Invoices</h5>
+                    {DateRangeForm}
+                    <a
+                      className="btn btn-link no-padding text-decoration-none"
+                      data-tooltip-id={"seeAll-tooltip"}
+                      data-tooltip-content={COMING_SOON}
+                      data-tooltip-place="top"
+                      data-tooltip-variant="info">
+                      See All
+                    </a>
+                    <Tooltip id={"seeAll-tooltip"} />
+                  </TableHeader>
+                  <div className="table-responsive">
+                    <Table className="invoicesTable table-hover table table-striped mt-2">
+                      <thead className="thead-invoicer">
+                        <tr>
+                          <th>#</th>
+                          <th>Due date</th>
+                          <th>Address</th>
+                          <th>Amount</th>
+                          <th>Pay</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[unpaidIndex, paidIndex, canceledIndex].map(
+                          (statusIndex) =>
+                            getInvoicesByIndex(
+                              statusIndex,
+                              receivedInvoices
+                            )?.map((invoice: any, index) => (
+                              <tr
+                                className={rowStyles[statusIndex]}
+                                key={`InvoiceRowKey_${statusIndex}_${index}`}>
+                                <td>{getInvoiceSerial(invoice)}</td>
+                                <td>{getInvoiceInfo(invoice)?.dueDate}</td>
+                                <td>
+                                  <a
+                                    data-tooltip-id={`billFromAlgoAddress-tooltip_${statusIndex}_${index}`}
+                                    data-tooltip-content={
+                                      getInvoiceInfo(invoice)
+                                        ?.billFromAlgoAddress
+                                    }
+                                    data-tooltip-place="bottom"
+                                    data-tooltip-variant="info">
+                                    {getInvoiceInfo(invoice)
+                                      ? truncateString(
+                                          getInvoiceInfo(invoice)!
+                                            .billFromAlgoAddress
+                                        )
+                                      : ""}
+                                  </a>
+                                  <Tooltip
+                                    id={`billFromAlgoAddress-tooltip_${statusIndex}_${index}`}
+                                  />
                                 </td>
-                              )
-                            )}
-                          </tr>
-                        </tbody>
-                      </Table>
-                    </div>
-                  </TableWrapper>
-                  <Row>
-                    <Form
-                      onSubmit={(e: any) => {
-                        e.preventDefault();
-                        refreshInvoicesTable(
-                          e.target.fromDate.value,
-                          e.target.toDate.value
-                        );
+                                <td>{`Ⱥ ${getInvoiceAmount(invoice)}`}</td>
+                                <td>
+                                  <Button
+                                    variant="primary"
+                                    onClick={() => setClickedInvoice(invoice)}>
+                                    Open
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+                </TableWrapper>
+              </div>
+            )}
+            {selectedTab === 1 && (
+              <div
+                className="tab-pane fade show active"
+                id="pills-details"
+                role="tabpanel"
+                aria-labelledby="pills-details-tab">
+                <TableWrapper>
+                  <TableHeader>
+                    <h5 className="sc-pFZIQ ePBsdD">Invoice Status</h5>
+                    {DateRangeForm}
+                    <CsvDownloader
+                      filename={getFilename()}
+                      extension=".csv"
+                      separator=";"
+                      columns={getCsvColumns()}
+                      datas={async () => {
+                        const gridData: Datas =
+                          (await asyncExportCsv()) as Datas;
+                        setExportLoading(false);
+                        return gridData;
                       }}>
-                      <ButtonToolbar
-                        className="mb-3"
-                        aria-label="Toolbar with Button groups"></ButtonToolbar>
+                      <Button
+                        className="btn export-btn text-decoration-none"
+                        disabled={!sentInvoices}>
+                        {(exportLoading ?? false) && (
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                          />
+                        )}
+                        {`${exportLoading ?? false ? " " : ""}Export CSV`}
+                      </Button>
+                    </CsvDownloader>
+                  </TableHeader>
 
-                      <ButtonToolbar
-                        className="justify-content-between"
-                        aria-label="Toolbar with Button groups">
-                        <ButtonGroup aria-label="First group">
-                          <ButtonGroup
-                            className="ms-2"
-                            aria-label="First group"></ButtonGroup>
-                        </ButtonGroup>
-                      </ButtonToolbar>
-                    </Form>
-                  </Row>
-                </div>
-              )}
-            </div>
-          </>
+                  <div className="table-responsive invoicer-table-responsive">
+                    <Table className="table-hover table mt-2">
+                      <thead>
+                        <tr>
+                          {Object.keys(InvoiceStatuses).map((key, index) => (
+                            <th
+                              className={getSumHeaderClass(index)}
+                              key={`InvoiceSumKey_${index}`}>
+                              {key}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          {[...sentInvoices.values()].map(
+                            (invoiceArray, index) => (
+                              <td
+                                key={`InvoiceSumValueKey_${index}`}
+                                style={{
+                                  fontWeight: "bold",
+                                  borderStyle: "solid",
+                                  borderWidth: "thin",
+                                }}>
+                                {invoiceArray.length}
+                              </td>
+                            )
+                          )}
+                        </tr>
+                      </tbody>
+                    </Table>
+                  </div>
+                </TableWrapper>
+                <Row>
+                  <Form
+                    onSubmit={(e: any) => {
+                      e.preventDefault();
+                      refreshInvoicesTable(
+                        e.target.fromDate.value,
+                        e.target.toDate.value
+                      );
+                    }}>
+                    <ButtonToolbar
+                      className="mb-3"
+                      aria-label="Toolbar with Button groups"
+                    />
 
-          {clickedInvoice && (
-            <InvoiceModal
-              showModal={!!clickedInvoice}
-              closeModal={closeModal}
-              invoiceStatus={getInvoiceStatusIndex(clickedInvoice)}
-              serialNumber={getInvoiceSerial(clickedInvoice)}
-              info={getInvoiceInfo(clickedInvoice)}
-              invoiceItems={getInvoiceItems(clickedInvoice)}
-              currency={"Ⱥ"}
-              total={getInvoiceAmount(clickedInvoice)}
-            />
-          )}
-        </Container>
-      ) : (
-        <h1 className="h3 commonHeader">{`
-        You don't have any invoices.
-        `}</h1>
-      )}
+                    <ButtonToolbar
+                      className="justify-content-between"
+                      aria-label="Toolbar with Button groups">
+                      <ButtonGroup aria-label="First group">
+                        <ButtonGroup
+                          className="ms-2"
+                          aria-label="First group"
+                        />
+                      </ButtonGroup>
+                    </ButtonToolbar>
+                  </Form>
+                </Row>
+              </div>
+            )}
+          </div>
+        </>
+
+        {clickedInvoice && (
+          <InvoiceModal
+            showModal={!!clickedInvoice}
+            closeModal={closeModal}
+            invoiceStatus={getInvoiceStatusIndex(clickedInvoice)}
+            serialNumber={getInvoiceSerial(clickedInvoice)}
+            info={getInvoiceInfo(clickedInvoice)}
+            invoiceItems={getInvoiceItems(clickedInvoice)}
+            currency={"Ⱥ"}
+            total={getInvoiceAmount(clickedInvoice)}
+          />
+        )}
+      </Container>
     </FlexColumn>
   ) : (
     <h1 className="h2 commonHeader">No connected contract!</h1>
